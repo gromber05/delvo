@@ -1,1 +1,55 @@
+# =========================
+# 📁 GENERALES
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.old
+*.orig
+
+# Compilados / binarios
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.apk
+*.ap_ 
+*.dex
+*.so
+*.o
+*.a
+*.out
+
+# Entornos virtuales
 .env
+.env.local
+.env.*.local
+venv/
+.venv/
+
+# IDE / configuración local
+.idea/
+.vscode/
+*.code-workspace
+.gradle/
+local.properties
+.gradle/
+build/
+out/
+captures/
+caches/
+logs/
+
+# =========================
+# 📦 DEPLOY / CI/CD
+# =========================
+/.deploy/
+.deploy_cache/
+*.zip
+*.tar
+*.gz
