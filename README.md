@@ -9,7 +9,7 @@
 ```
 /
 ├── backend/         # REST + WebSocket + AI translation orchestration
-├── app-android/     # Native Android app (Kotlin + Jetpack Compose)
+├── mobile/     # Native Android app (Kotlin + Jetpack Compose)
 └── web/             # Web client (Angular/React/Vue — TBD)
 ```
 
