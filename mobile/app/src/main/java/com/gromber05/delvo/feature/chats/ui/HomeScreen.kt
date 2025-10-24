@@ -4,12 +4,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.gromber05.delvo.core.model.chat.Chat
 import com.gromber05.delvo.preview.sampleChats
 
@@ -31,7 +30,7 @@ fun HomeScreen(onOpenChat: (Chat) -> Unit) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {}) {
-                Icon(Icons.Default.Add, contentDescription = "Nuevo chat")
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Nuevo chat")
             }
         }
     ) { padding ->

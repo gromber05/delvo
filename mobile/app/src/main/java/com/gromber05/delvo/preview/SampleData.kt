@@ -5,7 +5,7 @@ import com.gromber05.delvo.core.model.chat.Message
 
 val sampleChats = listOf(
     Chat("1","María López","¿Mañana a las 10 te viene bien?","19:40", unread = 2),
-    Chat("2","Carlos Ruiz","Genial, nos vemos allí","18:12"),
+    Chat("2","Carlos Ruiz","Genial, nos vemos allí","18:12", image = "https://www.banderasvdk.com/blog/wp-content/uploads/Bandera-Suiza.jpg"),
     Chat("3","Equipo Android","Subí el PR a develop","Ayer", unread = 5),
     Chat("4","Mamá","Ok 👍","Lun"),
 )

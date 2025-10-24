@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,15 +21,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gromber05.delvo.core.model.chat.Message
+import com.gromber05.delvo.preview.PreviewDelvo
+import com.gromber05.delvo.preview.sampleMessages
 
 @SuppressLint("Range")
 @Composable
 fun MessageBubble(message: Message) {
     val bubbleColor =
-        if (message.mine) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+        if (message.mine) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surfaceVariant
     val alignment = if (message.mine) Alignment.End else Alignment.Start
     val shape = if (message.mine)
@@ -70,4 +72,10 @@ fun MessageBubble(message: Message) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageBubble() {
+    PreviewDelvo { MessageBubble(message = sampleMessages.first()) }
 }

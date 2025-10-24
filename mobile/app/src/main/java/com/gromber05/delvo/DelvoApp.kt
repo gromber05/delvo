@@ -7,8 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.gromber05.delvo.core.desingsystem.DelvoTheme
-import com.gromber05.delvo.core.model.chat.Chat
-import com.gromber05.delvo.core.model.chat.Message
 import com.gromber05.delvo.core.navigation.Screen
 import com.gromber05.delvo.feature.chat.ui.ChatScreen
 import com.gromber05.delvo.feature.chats.ui.HomeScreen
@@ -20,7 +18,7 @@ fun DelvoApp() {
         var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
         var openedChat by remember { mutableStateOf(sampleChats.first()) }
 
-        when (val s = currentScreen) {
+        when (currentScreen) {
             is Screen.Home -> HomeScreen(
                 onOpenChat = { chat ->
                     openedChat = chat
@@ -35,7 +33,6 @@ fun DelvoApp() {
     }
 }
 
-// ---------- PREVIEWS ----------
 @Preview(showBackground = true)
 @Composable
 fun PreviewHome() {

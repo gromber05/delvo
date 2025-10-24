@@ -67,7 +67,7 @@ private val DelvoDarkScheme: ColorScheme = darkColorScheme(
 @Composable
 fun DelvoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

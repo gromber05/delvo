@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.gromber05.delvo"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -65,6 +65,11 @@ dependencies {
 
     // --- Activity Compose integration ---
     implementation("androidx.activity:activity-compose:1.9.3")
+
+    //Coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
