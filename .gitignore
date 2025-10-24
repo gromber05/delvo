@@ -1,55 +1,131 @@
 # =========================
-# 📁 GENERALES
+# 🌍 ARCHIVOS GENERALES
 # =========================
 .DS_Store
 Thumbs.db
 *.log
 *.tmp
-*.swp
-*.swo
 *.bak
 *.old
+*.swp
+*.swo
 *.orig
 
-# Compilados / binarios
-*.class
-*.jar
-*.war
-*.ear
-*.iml
-*.apk
-*.ap_ 
-*.dex
-*.so
-*.o
-*.a
-*.out
+# Archivos del sistema
+ehthumbs.db
+Desktop.ini
+*~
 
-# Entornos virtuales
-.env
-.env.local
-.env.*.local
-venv/
-.venv/
+# Archivos comprimidos o exportados
+*.zip
+*.tar
+*.gz
+*.7z
 
-# IDE / configuración local
+# =========================
+# 🧠 IDEs Y CONFIGURACIÓN LOCAL
+# =========================
 .idea/
 .vscode/
 *.code-workspace
+*.iml
+*.ipr
+*.iws
+
+# Gradle
 .gradle/
-local.properties
-.gradle/
+.gradle-cache/
 build/
 out/
-captures/
-caches/
-logs/
+local.properties
 
 # =========================
-# 📦 DEPLOY / CI/CD
+# 📱 MOBILE (Jetpack Compose / Android)
+# =========================
+/mobile/.gradle/
+/mobile/build/
+/mobile/captures/
+/mobile/intermediates/
+/mobile/local.properties
+/mobile/.idea/
+/mobile/**/*.iml
+
+# Firmas y keystores
+*.jks
+*.keystore
+*.pem
+*.key
+
+# Archivos generados por Android Studio
+/mobile/app/build/
+/mobile/.cxx/
+*.apk
+*.ap_
+*.dex
+*.so
+*.a
+*.o
+
+# =========================
+# 🌐 WEB (Angular / Ionic / Electron)
+# =========================
+/web/node_modules/
+/web/dist/
+/web/www/
+/web/build/
+/web/.angular/
+/web/.angular/cache/
+/web/.tmp/
+/web/.sass-cache/
+/web/.cache/
+/web/coverage/
+/web/.vscode/
+
+# Logs
+/web/npm-debug.log*
+/web/yarn-debug.log*
+/web/yarn-error.log*
+/web/pnpm-debug.log*
+
+# Bloqueos (opcional: comenta si los quieres versionar)
+# /web/package-lock.json
+# /web/yarn.lock
+# /web/pnpm-lock.yaml
+
+# Electron
+/web/release/
+*.asar
+
+# =========================
+# ⚙️ BACKEND (opcional)
+# =========================
+/backend/node_modules/
+/backend/dist/
+/backend/logs/
+/backend/tmp/
+/backend/coverage/
+/backend/.env
+
+# =========================
+# 🧪 TESTS Y REPORTES
+# =========================
+coverage/
+test-output/
+reports/
+junit/
+
+# =========================
+# 📦 DEPLOY / CI-CD
 # =========================
 /.deploy/
 .deploy_cache/
 *.zip
 *.tar
 *.gz
+
+# =========================
+# 📁 ENTORNOS
+# =========================
+.env
+.env.local
+.env.*.local
