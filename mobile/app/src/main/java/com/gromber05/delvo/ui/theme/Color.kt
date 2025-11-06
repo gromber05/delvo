@@ -1,4 +1,4 @@
-package com.gromber05.delvo.core.desingsystem.theme
+package com.gromber05.delvo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

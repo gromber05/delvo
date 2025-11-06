@@ -55,6 +55,8 @@ dependencies {
     // --- UI + Tooling + Preview ---
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.runtime.livedata)
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     // --- Icons (Filled) ---

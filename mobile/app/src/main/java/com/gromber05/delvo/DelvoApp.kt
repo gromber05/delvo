@@ -1,46 +1,61 @@
 package com.gromber05.delvo
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel // Para obtener el ViewModel
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
-import com.gromber05.delvo.core.desingsystem.DelvoTheme
-import com.gromber05.delvo.core.navigation.Screen
-import com.gromber05.delvo.feature.chat.ui.ChatScreen
-import com.gromber05.delvo.feature.chats.ui.HomeScreen
-import com.gromber05.delvo.preview.sampleChats
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.gromber05.delvo.ui.navigation.AppScreens
+import com.gromber05.delvo.ui.screens.HomeScreen
+import com.gromber05.delvo.ui.screens.LoginScreen
+import com.gromber05.delvo.ui.theme.DelvoTheme
+import com.gromber05.delvo.viewmodel.MainViewModel
+
 
 @Composable
-fun DelvoApp() {
+fun DelvoApp(
+    viewModel: MainViewModel = viewModel()
+) {
     DelvoTheme {
-        var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
-        var openedChat by remember { mutableStateOf(sampleChats.first()) }
+        val isLoggedIn by viewModel.isUserLoggedIn.observeAsState(initial = false)
+        val navController = rememberNavController()
 
-        when (currentScreen) {
-            is Screen.Home -> HomeScreen(
-                onOpenChat = { chat ->
-                    openedChat = chat
-                    currentScreen = Screen.ChatDetail(chat)
-                }
-            )
-            is Screen.ChatDetail -> ChatScreen(
-                chat = openedChat,
-                onBack = { currentScreen = Screen.Home }
-            )
+        val startDestination = if (isLoggedIn == true) {
+            AppScreens.HomeScreen
+        } else {
+            AppScreens.LoginScreen
+        }
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination
+        ) {
+            composable(AppScreens.LoginScreen.route) {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate(AppScreens.HomeScreen) {
+                            popUpTo(AppScreens.LoginScreen) { inclusive = true }
+                        }
+                        viewModel.handleSuccessfulLogin()
+                    },
+                    onLoginError = {
+
+                    }
+                )
+            }
+
+            composable(AppScreens.HomeScreen.route) {
+                HomeScreen(
+                    onLogout = {
+                        navController.navigate(AppScreens.LoginScreen) {
+                            popUpTo(AppScreens.HomeScreen) { inclusive = true }
+                        }
+                        viewModel.logout()
+                    }
+                )
+            }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewHome() {
-    DelvoTheme { HomeScreen(onOpenChat = {}) }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewChat() {
-    DelvoTheme { ChatScreen(sampleChats.first(), onBack = {}) }
 }
