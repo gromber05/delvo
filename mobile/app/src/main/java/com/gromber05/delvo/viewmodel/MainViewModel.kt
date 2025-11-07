@@ -23,4 +23,8 @@ class MainViewModel(private val settingsManager: SettingsManager) : ViewModel() 
         settingsManager.setLoggedIn(false)
         _isUserLoggedIn.value = false
     }
+
+    fun authenticate(username: String, password: String): Boolean {
+        return true
+    }
 }

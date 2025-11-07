@@ -40,38 +40,20 @@ android {
 }
 
 dependencies {
-    // --- BOM (usa la misma versión para todo Compose) ---
-    implementation(platform("androidx.compose:compose-bom:2024.10.01"))
-
-    // --- Material 3 ---
+    implementation(platform("androidx.compose:compose-bom:2025.11.00"))
     implementation("androidx.compose.material3:material3")
-
-    // --- Foundation / Layout / LazyList / ExperimentalFoundationApi ---
     implementation("androidx.compose.foundation:foundation")
-
-    // --- Runtime + State + LiveData/Flow adapters (opcional) ---
     implementation("androidx.compose.runtime:runtime")
-
-    // --- UI + Tooling + Preview ---
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.compose.foundation)
     debugImplementation("androidx.compose.ui:ui-tooling")
-
-    // --- Icons (Filled) ---
     implementation("androidx.compose.material:material-icons-extended")
-
-    // --- Animations (AnimatedContent) ---
     implementation("androidx.compose.animation:animation")
-
-    // --- Activity Compose integration ---
-    implementation("androidx.activity:activity-compose:1.9.3")
-
-    //Coil
-    implementation("io.coil-kt:coil-compose:2.2.2")
-
-
+    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
