@@ -124,15 +124,3 @@ fun ForgotPasswordScreen(
         }
     }
 }
-
-// --- Preview ---
-@Preview(showBackground = true)
-@Composable
-fun ForgotPasswordScreenPreview() {
-    DelvoTheme {
-        ForgotPasswordScreen(
-            onNavigateToLogin = {},
-            onSubmitResetRequest = {}
-        )
-    }
-}

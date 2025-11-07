@@ -48,12 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.gromber05.delvo.viewmodel.MainViewModel
 
 @Composable
 fun LoginScreen(
@@ -62,10 +59,9 @@ fun LoginScreen(
     onLoginError: () -> Unit,
     toRegister: () -> Unit,
     toForgotPassword: () -> Unit,
-    viewModel: MainViewModel = hiltViewModel(),
 ) {
-    var username by remember { mutableStateOf("usuario") }
-    var password by remember { mutableStateOf("••••••••") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -116,7 +112,7 @@ fun LoginScreen(
                 value = username,
                 onValueChange = { username = it },
                 label = null,
-                placeholder = { Text("usuario") },
+                placeholder = { Text("Usuario") },
                 leadingIcon = {
                     Icon(Icons.Default.Person, contentDescription = "User Icon")
                 },
@@ -202,16 +198,18 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedButton(
-                    onClick = { Toast.makeText(context, "Próximamente...", Toast.LENGTH_SHORT).show() },
-                    modifier = Modifier.weight(1f).height(56.dp).padding(end = 8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "A", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
                 ) {
                     Icon(Icons.Default.Person, contentDescription = "Google Icon", modifier = Modifier.size(20.dp), tint = Color.Unspecified)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Google", color = Color.Black)
+                    Text("Google")
                 }
-
             }
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -219,13 +217,24 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "¿No tienes una cuenta? ", color = Color.Black)
+                Text(text = "¿No tienes una cuenta? ", color = MaterialTheme.colorScheme.inversePrimary)
                 TextButton(onClick = { toRegister() }, contentPadding = PaddingValues(0.dp)) {
                     Text("Regístrate", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp)) // Espacio al final
+            Spacer(modifier = Modifier.height(4.dp))
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewLoginScreen() {
+    LoginScreen(
+        onLoginSuccess = {},
+        onLoginError = {},
+        toRegister = {},
+        toForgotPassword = {},
+    )
 }
