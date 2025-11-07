@@ -3,28 +3,40 @@ package com.gromber05.delvo.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gromber05.delvo.utils.SettingsManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(private val settingsManager: SettingsManager) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val settingsManager: SettingsManager) : ViewModel() {
 
     private val _isUserLoggedIn = MutableLiveData<Boolean>()
     val isUserLoggedIn: LiveData<Boolean> = _isUserLoggedIn
 
     init {
-        _isUserLoggedIn.value = settingsManager.isLoggedIn()
+        checkUserLoginStatus()
+    }
+
+    private fun checkUserLoginStatus() {
+        viewModelScope.launch {
+            val isLoggedIn = settingsManager.isLoggedIn()
+            _isUserLoggedIn.postValue(isLoggedIn)
+        }
     }
 
     fun handleSuccessfulLogin() {
-        settingsManager.setLoggedIn(true)
-        _isUserLoggedIn.value = true
+        viewModelScope.launch {
+            settingsManager.setLoggedIn(true)
+            _isUserLoggedIn.postValue(true)
+        }
     }
 
     fun logout() {
-        settingsManager.setLoggedIn(false)
-        _isUserLoggedIn.value = false
-    }
-
-    fun authenticate(username: String, password: String): Boolean {
-        return true
+        viewModelScope.launch {
+            settingsManager.setLoggedIn(false)
+            _isUserLoggedIn.postValue(false)
+        }
     }
 }
