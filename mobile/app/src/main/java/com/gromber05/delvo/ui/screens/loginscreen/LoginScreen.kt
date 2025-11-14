@@ -1,4 +1,4 @@
-package com.gromber05.delvo.ui.screens
+package com.gromber05.delvo.ui.screens.loginscreen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -25,7 +25,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -155,8 +153,7 @@ fun LoginScreen(
             UiComponents.TextDivider("O continúa con")
 
             Row(
-                modifier = Modifier.padding(4.dp)
-                    .weight(1f),
+                modifier = Modifier.padding(4.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -165,17 +162,20 @@ fun LoginScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Icon(
                             painter = painterResource(R.drawable.google_logo),
                             contentDescription = "Google",
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Enviar Mensaje")
+                        Text("Google")
                     }
                 }
             }
+
+            Box(
+                Modifier.weight(1f)
+            )
 
             Text(
                 text = "Al iniciar sesión, aceptas todos nuestro términos y condiciones de uso.",

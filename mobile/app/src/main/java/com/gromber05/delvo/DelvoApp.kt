@@ -1,6 +1,5 @@
 package com.gromber05.delvo
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -8,8 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gromber05.delvo.ui.navigation.AppScreens
-import com.gromber05.delvo.ui.screens.HomeScreen
-import com.gromber05.delvo.ui.screens.LoginScreen
+import com.gromber05.delvo.ui.screens.homescreen.HomeScreen
+import com.gromber05.delvo.ui.screens.loginscreen.LoginScreen
 import com.gromber05.delvo.ui.theme.DelvoTheme
 
 @Composable

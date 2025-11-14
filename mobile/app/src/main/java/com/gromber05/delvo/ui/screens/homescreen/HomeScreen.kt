@@ -1,4 +1,4 @@
-package com.gromber05.delvo.ui.screens
+package com.gromber05.delvo.ui.screens.homescreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

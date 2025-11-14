@@ -1,11 +1,12 @@
 package com.gromber05.delvo.core.model
 
-import java.util.UUID
-
 data class User(
-    val id: UUID,
+    val id: Int,
     val username: String,
+    val passwd: String,
     val email: String,
-    val password: String,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val avatarUrl: String?,
+    val chatList: List<User>,
+    val role: Roles =  Roles.USER,
 )
