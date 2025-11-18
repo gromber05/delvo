@@ -1,0 +1,187 @@
+<div class="app" [class.dark]="isDarkMode">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚙️</div>
+      <div>
+        <h1>Delvo</h1>
+        <span>Tu día organizado</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active">🏠 Inicio</button>
+      <button class="nav-item">📅 Hoy</button>
+      <button class="nav-item">✅ Tareas</button>
+      <button class="nav-item">🗓 Calendario</button>
+      <button class="nav-item">📝 Notas</button>
+      <button class="nav-item">📊 Estadísticas</button>
+      <button class="nav-item">⚙️ Ajustes</button>
+    </nav>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="search">
+        <span>🔍</span>
+        <input
+          type="text"
+          placeholder="Buscar tareas, eventos, notas..."
+        />
+      </div>
+      <div class="topbar-actions">
+        <button
+          (click)="toggleDarkMode()"
+          [attr.aria-pressed]="isDarkMode"
+          class="icon-btn"
+        >
+          {{ isDarkMode ? '☀️' : '🌙' }}
+        </button>
+        <button class="icon-btn">🔔</button>
+        <button class="avatar">G</button>
+      </div>
+    </header>
+
+    <!-- Tarjetas resumen -->
+    <section class="summary-cards">
+      <div class="card">
+        <div class="card-header">
+          <span>Tareas Pendientes</span>
+          <button class="card-icon">⭕</button>
+        </div>
+        <p class="card-number">8</p>
+        <p class="card-sub">Para hoy</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>Tareas Completadas</span>
+          <button class="card-icon">✅</button>
+        </div>
+        <p class="card-number">12</p>
+        <p class="card-sub">Esta semana</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>Próximo Evento</span>
+          <button class="card-icon">📅</button>
+        </div>
+        <p class="card-number">En 2h</p>
+        <p class="card-sub">Reunión de equipo</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>Sugerencias IA</span>
+          <button class="card-icon">🤖</button>
+        </div>
+        <p class="card-number">3</p>
+        <p class="card-sub">Tareas prioritarias</p>
+      </div>
+    </section>
+
+    <!-- Zona inferior: calendario + tareas -->
+    <section class="bottom-grid">
+      <!-- Calendario semanal -->
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <h2>Calendario Semanal</h2>
+          <div class="calendar-nav">
+            <button>◀</button>
+            <button>▶</button>
+          </div>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mié</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span>Sáb</span>
+          <span>Dom</span>
+        </div>
+
+        <div class="calendar-days">
+          <button class="day">17</button>
+          <button class="day">18</button>
+          <button class="day active">19</button>
+          <button class="day">20</button>
+          <button class="day">21</button>
+          <button class="day">22</button>
+          <button class="day">23</button>
+        </div>
+
+        <div class="calendar-events">
+          <p class="section-title">Próximos eventos</p>
+
+          <div class="event">
+            <p class="event-title">Reunión de equipo</p>
+            <span class="event-time">10:00</span>
+          </div>
+
+          <div class="event">
+            <p class="event-title">Llamada con cliente</p>
+            <span class="event-time">15:30</span>
+          </div>
+
+          <div class="event">
+            <p class="event-title">Presentación proyecto</p>
+            <span class="event-time">18:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tareas de hoy -->
+      <div class="tasks-card">
+        <h2>Tareas de Hoy</h2>
+
+        <div class="task task-important">
+          <div class="task-main">
+            <input type="checkbox" />
+            <div>
+              <p class="task-title">Revisar propuesta de proyecto</p>
+              <div class="task-tags">
+                <span class="badge badge-blue">Trabajo</span>
+                <span class="badge badge-red">Urgente</span>
+                <span class="badge badge-gray">Cliente</span>
+              </div>
+              <span class="task-time">🕒 10:00 - 11:30</span>
+            </div>
+          </div>
+          <button class="ai-tag">⚡ Sugerido IA</button>
+        </div>
+
+        <div class="task task-important">
+          <div class="task-main">
+            <input type="checkbox" />
+            <div>
+              <p class="task-title">
+                Llamada con el equipo de diseño
+              </p>
+              <div class="task-tags">
+                <span class="badge badge-blue">Trabajo</span>
+                <span class="badge badge-gray">Reunión</span>
+              </div>
+              <span class="task-time">🕒 14:00 - 15:00</span>
+            </div>
+          </div>
+          <button class="ai-tag">⚡ Sugerido IA</button>
+        </div>
+
+        <div class="task">
+          <div class="task-main">
+            <input type="checkbox" checked />
+            <div>
+              <p class="task-title done">Hacer ejercicio</p>
+              <span class="task-time">🕒 19:00 - 19:30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
