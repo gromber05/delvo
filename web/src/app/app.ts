@@ -6,7 +6,6 @@ import { Homepage } from './components/homepage/homepage';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
     Homepage
   ],
   templateUrl: './app.html',

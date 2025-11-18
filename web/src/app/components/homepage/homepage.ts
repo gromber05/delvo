@@ -13,3 +13,7 @@ export class Homepage {
     this.isDarkMode = !this.isDarkMode;
   }
 }
+
+function onChecked() {
+  
+}
