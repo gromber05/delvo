@@ -93,7 +93,7 @@ delvo/
 - Navigation Compose  
 
 ### 🌐 Web
-- Angular o React (a elección)  
+- Angular
 - Material UI / TailwindCSS  
 - Chart.js / Recharts para gráficas  
 - JWT Auth  
@@ -151,19 +151,19 @@ La carpeta `docs/` contiene:
 ```bash
 cd backend
 ./gradlew bootRun
-````
+```
 
-### 2. Web App
+### 2. Aplicación Web
 
 ```bash
-cd web-app
+cd web
 npm install
 npm start
 ```
 
-### 3. Mobile App
+### 3. Aplicación Móvil
 
-Abrir `mobile-app/` en Android Studio y ejecutar.
+Abrir `mobile/` en Android Studio y ejecutar.
 
 ---
 
