@@ -9,7 +9,7 @@ Este sistema pretende combinar productividad, simplicidad y automatización de r
 
 ## 🚀 Características principales
 
-### 🔹 Aplicación Móvil (Android – Jetpack Compose)
+### 🔹 Aplicación Móvil
 - Vista *“Hoy”* con recomendaciones generadas por IA  
 - Lista de tareas con prioridades y categorías  
 - Creación rápida de tareas por texto  
@@ -20,7 +20,7 @@ Este sistema pretende combinar productividad, simplicidad y automatización de r
 
 ---
 
-### 🔹 Aplicación Web (Angular/React)
+### 🔹 Aplicación Web
 - Dashboard principal de productividad  
 - Estadísticas y gráficas: tareas completadas, hábitos, rachas  
 - Calendario semanal/mensual  
@@ -31,7 +31,7 @@ Este sistema pretende combinar productividad, simplicidad y automatización de r
 
 ---
 
-### 🔹 Backend (Spring Boot + Kotlin)
+### 🔹 Backend
 - API REST para móvil y web  
 - Seguridad con JWT  
 - Gestión de usuarios, tareas, notas, recordatorios y rutinas  
@@ -84,33 +84,14 @@ delvo/
 
 ## 🛠️ Tecnologías utilizadas
 
-### 📱 Mobile
-- Kotlin  
-- Jetpack Compose  
-- Hilt  
-- ViewModel + Flow  
-- Retrofit  
-- Navigation Compose  
+![Kotlin](https://img.shields.io/badge/Kotlin-764ABC?style=for-the-badge&logo=kotlin&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6db33f?style=for-the-badge&logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
-### 🌐 Web
-- Angular
-- Material UI / TailwindCSS  
-- Chart.js / Recharts para gráficas  
-- JWT Auth  
-
-### ⚙️ Backend
-- Spring Boot (Kotlin)  
-- PostgreSQL  
-- JPA / Hibernate  
-- Spring Security + JWT  
-- OpenAPI/Swagger  
-- Servicio interno de IA  
-
-### 🤖 Inteligencia Artificial
-- NLP ligero para clasificación  
-- Reglas + heurísticas  
-- Algoritmos de análisis de hábitos  
-- Microservicio opcional externo
 
 ---
 
@@ -176,6 +157,5 @@ Estudiante de 2º DAM — IES Rafael Alberti
 
 ## ⭐ Agradecimientos
 
-* OpenAI / bibliotecas usadas
-* Frameworks y herramientas que han hecho posible el proyecto
+*
 
