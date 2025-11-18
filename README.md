@@ -124,11 +124,6 @@ delvo/
 
 ---
 
-## 🎨 Capturas de pantalla (opcional)
-> *(Aquí puedes añadir imágenes una vez que vayas avanzando)*
-
----
-
 ## 📄 Documentación
 
 La carpeta `docs/` contiene:
