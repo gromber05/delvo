@@ -18,16 +18,19 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,21 +46,62 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gromber05.delvo.ui.components.UiComponents
 import com.gromber05.delvo.R
 import com.gromber05.delvo.core.ui.DelvoTheme
 
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     modifier: Modifier = Modifier,
     onLogin: () -> Unit,
     toRegister: () -> Unit,
     toForgotPassword: () -> Unit,
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val errorMessage by viewModel.error.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            onLogin()
+        }
+    }
+
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearError() },
+            confirmButton = {
+                Button(onClick = { viewModel.clearError() }) {
+                    Text("Aceptar")
+                }
+            },
+            title = { Text("Error al iniciar sesión") },
+            text = { Text(errorMessage ?: "Ha ocurrido un error desconocido") }
+        )
+    }
+
+    if (loading) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {},
+            title = { Text("Iniciando sesión…") },
+            text = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        )
+    }
+
 
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(
@@ -68,6 +111,7 @@ fun LoginScreen(
                 .padding(top = 48.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.padding(10.dp))
             Image(
                 painter = painterResource(R.drawable.delvo_logo),
                 contentDescription = "Logo de Delvo",
@@ -92,15 +136,15 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Text("Nombre de usuario", modifier = Modifier.align(Alignment.Start).padding(top = 8.dp))
+                    Text("Correo electrónico", modifier = Modifier.align(Alignment.Start).padding(top = 8.dp))
                     TextField(
-                        value = username,
-                        onValueChange = { username = it },
+                        value = email,
+                        onValueChange = { email = it },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         leadingIcon = { Icon(Icons.Filled.Person, "Icono de persona") },
                         placeholder = {
-                            Text("Usuario")
+                            Text("Introduce aquí tú correo...")
                         },
                     )
 
@@ -119,13 +163,13 @@ fun LoginScreen(
                             }
                         },
                         placeholder = {
-                            Text("Contraseña")
+                            Text("Introduce aquí tu contraseña...")
                         },
                     )
 
                     Button(
                         onClick = {
-                            toRegister()
+                            viewModel.login(email, password)
                         },
                         modifier = Modifier
                             .fillMaxWidth(0.8f),
@@ -133,8 +177,6 @@ fun LoginScreen(
                     ) {
                         Text("Iniciar sesión")
                     }
-
-
                 }
             }
 
@@ -175,6 +217,7 @@ fun LoginScreen(
 fun Preview_LoginScreen() {
     DelvoTheme {
         LoginScreen(
+            viewModel = viewModel(),
             onLogin = {},
             toRegister = {},
             toForgotPassword = {}
@@ -190,6 +233,7 @@ fun Preview_LoginScreen() {
 fun PreviewDarkMode_LoginScreen() {
     DelvoTheme {
         LoginScreen(
+            viewModel = viewModel(),
             onLogin = {},
             toRegister = {},
             toForgotPassword = {},
