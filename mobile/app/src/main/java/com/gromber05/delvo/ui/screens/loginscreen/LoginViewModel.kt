@@ -23,6 +23,9 @@ class LoginViewModel @Inject constructor(
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
+    private val _isRegistered = MutableStateFlow(false)
+    val registered: StateFlow<Boolean> = _isRegistered
+
     fun login(email: String, password: String) {
         _loading.value = true
         auth.signInWithEmailAndPassword(email.trim(), password)
@@ -50,9 +53,8 @@ class LoginViewModel @Inject constructor(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 _isLoggedIn.value = true
+                _isRegistered.value = true
                 _loading.value = false
-                // loadCategorias()
-                // loadProductos()
             }
             .addOnFailureListener {
                 _error.value = it.message
@@ -63,12 +65,18 @@ class LoginViewModel @Inject constructor(
     fun logout() {
         auth.signOut()
         _isLoggedIn.value = false
-        // _categorias.value = emptyList()
-        // _productos.value = emptyList()
     }
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun isAdmin() {
+        auth.currentUser?.getIdToken(true)
+            ?.addOnSuccessListener { result ->
+                val idToken = result.token
+               TODO()
+            }
     }
 
 }
