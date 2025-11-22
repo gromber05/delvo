@@ -91,6 +91,4 @@ class AuthViewModel @Inject constructor(
             Log.d("FIREBASE_TOKEN", token)
         }
     }
-
-
 }

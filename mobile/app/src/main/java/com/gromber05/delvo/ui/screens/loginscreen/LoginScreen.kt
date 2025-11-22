@@ -75,12 +75,11 @@ fun LoginScreen(
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
             val token = loginViewModel.getIdToken()
-            val me = RetrofitClient.api.getMyInfo("Bearer $token")
-            sessionViewModel.updateSession(me.uid, me.isAdmin)
+           // val me = RetrofitClient.api.getMyInfo("Bearer $token")
+           // sessionViewModel.updateSession(me.uid, me.isAdmin)
             onLogin()
         }
     }
-
 
     if (errorMessage != null) {
         AlertDialog(
@@ -206,9 +205,7 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(
-                    onClick = {
-
-                },
+                    onClick = toForgotPassword,
                     modifier = Modifier.fillMaxWidth(0.9f),
                     shape = RoundedCornerShape(8.dp)
                 ) {

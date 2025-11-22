@@ -1,6 +1,8 @@
 package com.gromber05.delvo
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -23,9 +25,11 @@ fun DelvoApp() {
         val loginViewModel: AuthViewModel = hiltViewModel()
         val sessionViewModel: SessionViewModel = hiltViewModel()
 
+        val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
+
         NavHost(
             navController = navController,
-            startDestination = startDestination
+            startDestination = if (isLoggedIn) AppScreens.HomeScreen.route else AppScreens.LoginScreen.route
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
@@ -37,7 +41,9 @@ fun DelvoApp() {
                         }
                     },
                     toRegister = {
-
+                        navController.navigate(AppScreens.HomeScreen.route) {
+                            popUpTo(AppScreens.RegisterScreen.route) { inclusive = true }
+                        }
                     },
                     toForgotPassword = {
 

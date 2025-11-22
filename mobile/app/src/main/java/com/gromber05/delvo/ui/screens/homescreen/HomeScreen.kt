@@ -59,12 +59,6 @@
                         text = "Eres administrador"
                     )
                 }
-                Button(onClick = {
-                    loginViewModel.getUserToken()
-                }) {
-                    Text(text = "Obtener token")
-                }
-
             }
         }
     }
