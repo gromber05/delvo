@@ -129,4 +129,6 @@ junit/
 .env
 .env.local
 .env.*.local
+
 google-services.json
+serviceAccountKey.json

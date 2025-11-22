@@ -12,16 +12,24 @@ import java.io.FileInputStream
 class FirebaseConfig {
 
     @Bean
-    fun firebaseAuth(): FirebaseAuth {
-        if (FirebaseApp.getApps().isEmpty()) {
-            val serviceAccount = FileInputStream("serviceAccountKey.json")
-
-            val options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build()
-
-            FirebaseApp.initializeApp(options)
+    fun firebaseApp(): FirebaseApp {
+        if (FirebaseApp.getApps().isNotEmpty()) {
+            return FirebaseApp.getInstance()
         }
-        return FirebaseAuth.getInstance()
+
+        val serviceAccount = this::class.java.classLoader
+            .getResourceAsStream("serviceAccountKey.json")
+            ?: throw IllegalStateException("No se encontró serviceAccountKey.json en resources")
+
+        val options = FirebaseOptions.builder()
+            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .build()
+
+        return FirebaseApp.initializeApp(options)
+    }
+
+    @Bean
+    fun firebaseAuth(firebaseApp: FirebaseApp): FirebaseAuth {
+        return FirebaseAuth.getInstance(firebaseApp)
     }
 }

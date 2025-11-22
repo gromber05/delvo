@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,10 +51,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gromber05.delvo.ui.components.UiComponents
 import com.gromber05.delvo.R
 import com.gromber05.delvo.core.ui.DelvoTheme
+import com.gromber05.delvo.data.remote.RetrofitClient
+import com.gromber05.delvo.ui.viewmodel.AuthViewModel
+import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
+    sessionViewModel: SessionViewModel,
+    loginViewModel: AuthViewModel,
     modifier: Modifier = Modifier,
     onLogin: () -> Unit,
     toRegister: () -> Unit,
@@ -63,21 +68,25 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
-    val errorMessage by viewModel.error.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
+    val errorMessage by loginViewModel.error.collectAsState()
+    val loading by loginViewModel.loading.collectAsState()
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
+            val token = loginViewModel.getIdToken()
+            val me = RetrofitClient.api.getMyInfo("Bearer $token")
+            sessionViewModel.updateSession(me.uid, me.isAdmin)
             onLogin()
         }
     }
 
+
     if (errorMessage != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.clearError() },
+            onDismissRequest = { loginViewModel.clearError() },
             confirmButton = {
-                Button(onClick = { viewModel.clearError() }) {
+                Button(onClick = { loginViewModel.clearError() }) {
                     Text("Aceptar")
                 }
             },
@@ -169,7 +178,7 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            viewModel.login(email, password)
+                            loginViewModel.login(email, password)
                         },
                         modifier = Modifier
                             .fillMaxWidth(0.8f),
@@ -177,25 +186,37 @@ fun LoginScreen(
                     ) {
                         Text("Iniciar sesión")
                     }
+
+                    Button(
+                        onClick = {
+                            toRegister()
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = "Regístrate")
+                    }
                 }
             }
 
-            UiComponents.TextDivider("¿No tienes una cuenta?")
+            UiComponents.TextDivider("¿Te has olvidado de tu contraseña?")
 
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Button(
+                TextButton(
                     onClick = {
-                        toRegister()
-                    },
+
+                },
                     modifier = Modifier.fillMaxWidth(0.9f),
                     shape = RoundedCornerShape(8.dp)
-                ) { Text(text = "Regístrate")}
+                ) {
+                    Text(
+                        text = "He olvídado mi contraseña"
+                    )
+                }
             }
-
-
 
             Box(
                 Modifier.weight(1f)
@@ -217,7 +238,8 @@ fun LoginScreen(
 fun Preview_LoginScreen() {
     DelvoTheme {
         LoginScreen(
-            viewModel = viewModel(),
+            sessionViewModel = viewModel(),
+            loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},
             toForgotPassword = {}
@@ -233,7 +255,8 @@ fun Preview_LoginScreen() {
 fun PreviewDarkMode_LoginScreen() {
     DelvoTheme {
         LoginScreen(
-            viewModel = viewModel(),
+            sessionViewModel = viewModel(),
+            loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},
             toForgotPassword = {},

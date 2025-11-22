@@ -10,9 +10,9 @@ import com.gromber05.delvo.core.ui.DelvoTheme
 import com.gromber05.delvo.ui.navigation.AppScreens
 import com.gromber05.delvo.ui.screens.homescreen.HomeScreen
 import com.gromber05.delvo.ui.screens.loginscreen.LoginScreen
-import com.gromber05.delvo.ui.screens.loginscreen.LoginViewModel
+import com.gromber05.delvo.ui.viewmodel.AuthViewModel
 import com.gromber05.delvo.ui.screens.registerscreen.RegisterScreen
-
+import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun DelvoApp() {
@@ -20,7 +20,8 @@ fun DelvoApp() {
         val navController = rememberNavController()
         val startDestination = AppScreens.LoginScreen.route
 
-        val loginViewModel: LoginViewModel = hiltViewModel()
+        val loginViewModel: AuthViewModel = hiltViewModel()
+        val sessionViewModel: SessionViewModel = hiltViewModel()
 
         NavHost(
             navController = navController,
@@ -28,7 +29,8 @@ fun DelvoApp() {
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
-                    viewModel = loginViewModel,
+                    sessionViewModel = sessionViewModel,
+                    loginViewModel = loginViewModel,
                     onLogin = {
                         navController.navigate(AppScreens.HomeScreen.route) {
                             popUpTo(startDestination) { inclusive = true }
@@ -48,13 +50,16 @@ fun DelvoApp() {
                 RegisterScreen(
                     viewModel = loginViewModel,
                     onRegister = {
-
+                        navController.navigate(AppScreens.RegisterScreen.route) {
+                            popUpTo(startDestination) { inclusive = true }
+                        }
                     }
                 )
             }
 
             composable(AppScreens.HomeScreen.route) {
                 HomeScreen(
+                    sessionViewModel = sessionViewModel,
                     loginViewModel = loginViewModel,
                     onLogout = {
                         navController.navigate(AppScreens.LoginScreen.route) {
@@ -63,7 +68,6 @@ fun DelvoApp() {
                     }
                 )
             }
-
         }
     }
 }

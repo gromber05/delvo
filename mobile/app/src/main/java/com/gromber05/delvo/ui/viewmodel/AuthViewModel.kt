@@ -1,16 +1,19 @@
-package com.gromber05.delvo.ui.screens.loginscreen
+package com.gromber05.delvo.ui.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class AuthViewModel @Inject constructor(
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -71,12 +74,23 @@ class LoginViewModel @Inject constructor(
         _error.value = null
     }
 
-    fun isAdmin() {
-        auth.currentUser?.getIdToken(true)
-            ?.addOnSuccessListener { result ->
-                val idToken = result.token
-               TODO()
-            }
+    suspend fun getIdToken(): String {
+        return try {
+            val user = auth.currentUser ?: throw IllegalStateException("No hay usuario regsitrado")
+
+            val tokenResult = user.getIdToken(true).await()
+            return tokenResult.token ?: throw IllegalStateException("TOKEN nulo")
+        } catch (e: IllegalStateException) {
+            ""
+        }
     }
+
+    fun getUserToken() {
+        viewModelScope.launch {
+            val token = getIdToken()
+            Log.d("FIREBASE_TOKEN", token)
+        }
+    }
+
 
 }
