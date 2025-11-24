@@ -48,16 +48,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.gromber05.delvo.ui.components.UiComponents
 import com.gromber05.delvo.R
 import com.gromber05.delvo.core.ui.DelvoTheme
-import com.gromber05.delvo.data.remote.RetrofitClient
+import com.gromber05.delvo.ui.components.UiComponents
 import com.gromber05.delvo.ui.viewmodel.AuthViewModel
-import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun LoginScreen(
-    sessionViewModel: SessionViewModel,
     loginViewModel: AuthViewModel,
     modifier: Modifier = Modifier,
     onLogin: () -> Unit,
@@ -74,9 +71,6 @@ fun LoginScreen(
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            val token = loginViewModel.getIdToken()
-           // val me = RetrofitClient.api.getMyInfo("Bearer $token")
-           // sessionViewModel.updateSession(me.uid, me.isAdmin)
             onLogin()
         }
     }
@@ -235,7 +229,6 @@ fun LoginScreen(
 fun Preview_LoginScreen() {
     DelvoTheme {
         LoginScreen(
-            sessionViewModel = viewModel(),
             loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},
@@ -252,7 +245,6 @@ fun Preview_LoginScreen() {
 fun PreviewDarkMode_LoginScreen() {
     DelvoTheme {
         LoginScreen(
-            sessionViewModel = viewModel(),
             loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},

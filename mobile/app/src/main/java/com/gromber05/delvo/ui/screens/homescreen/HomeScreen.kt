@@ -18,17 +18,15 @@
     import androidx.compose.ui.Modifier
     import androidx.compose.ui.unit.dp
     import com.gromber05.delvo.ui.viewmodel.AuthViewModel
-    import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
     @Composable
     fun HomeScreen(
-        sessionViewModel: SessionViewModel,
         loginViewModel: AuthViewModel,
         onLogout: () -> Unit,
         modifier: Modifier = Modifier
     ) {
         val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
-        val isAdmin by sessionViewModel.isAdmin.collectAsState()
+        val user by loginViewModel.currentUser.collectAsState()
 
         LaunchedEffect(isLoggedIn) {
             if (!isLoggedIn) {
@@ -54,7 +52,7 @@
                 }) {
                     Text(text = "Cerrar Sesión")
                 }
-                if (isAdmin) {
+                if (user?.isAdmin ?: false) {
                     Text(
                         text = "Eres administrador"
                     )

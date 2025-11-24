@@ -14,7 +14,6 @@ import com.gromber05.delvo.ui.screens.homescreen.HomeScreen
 import com.gromber05.delvo.ui.screens.loginscreen.LoginScreen
 import com.gromber05.delvo.ui.viewmodel.AuthViewModel
 import com.gromber05.delvo.ui.screens.registerscreen.RegisterScreen
-import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun DelvoApp() {
@@ -23,7 +22,6 @@ fun DelvoApp() {
         val startDestination = AppScreens.LoginScreen.route
 
         val loginViewModel: AuthViewModel = hiltViewModel()
-        val sessionViewModel: SessionViewModel = hiltViewModel()
 
         val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
 
@@ -33,7 +31,6 @@ fun DelvoApp() {
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
-                    sessionViewModel = sessionViewModel,
                     loginViewModel = loginViewModel,
                     onLogin = {
                         navController.navigate(AppScreens.HomeScreen.route) {
@@ -65,7 +62,6 @@ fun DelvoApp() {
 
             composable(AppScreens.HomeScreen.route) {
                 HomeScreen(
-                    sessionViewModel = sessionViewModel,
                     loginViewModel = loginViewModel,
                     onLogout = {
                         navController.navigate(AppScreens.LoginScreen.route) {

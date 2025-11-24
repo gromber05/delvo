@@ -3,21 +3,21 @@ package com.gromber05.delvo.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
+import com.gromber05.delvo.data.repository.AuthRepository
+import com.gromber05.delvo.domain.model.SessionUser
+import com.gromber05.delvo.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val auth: FirebaseAuth
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val _isLoggedIn = MutableStateFlow(auth.currentUser != null)
+    private val _isLoggedIn = MutableStateFlow(authRepository.isLoggedIn())
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
     private val _error = MutableStateFlow<String?>(null)
@@ -29,66 +29,67 @@ class AuthViewModel @Inject constructor(
     private val _isRegistered = MutableStateFlow(false)
     val registered: StateFlow<Boolean> = _isRegistered
 
-    fun login(email: String, password: String) {
-        _loading.value = true
-        auth.signInWithEmailAndPassword(email.trim(), password)
-            .addOnSuccessListener {
-                _isLoggedIn.value = true
-                _loading.value = false
+    private val _currentUser = MutableStateFlow<SessionUser?>(null)
+    val currentUser: StateFlow<SessionUser?> = _currentUser
+
+    init {
+        viewModelScope.launch {
+            authRepository.getCachedUser().collect { user ->
+                _currentUser.value = user
             }
-            .addOnFailureListener { e ->
-                _loading.value = false
-                _isLoggedIn.value = false
-
-                _error.value = e.message
-
-                Log.e("LoginViewModel", "Error al iniciar sesión", e)
-
-                if (e is FirebaseAuthException) {
-                    Log.e("LoginViewModel", "FirebaseAuth errorCode = ${e.errorCode}")
-                }
-            }
+        }
     }
 
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
 
-    fun register(email: String, password: String) {
-        _loading.value = true
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                _isLoggedIn.value = true
-                _isRegistered.value = true
-                _loading.value = false
-            }
-            .addOnFailureListener {
-                _error.value = it.message
-                _loading.value = false
-            }
+            val result = authRepository.login(email, password)
+
+            result
+                .onSuccess {
+                    _isLoggedIn.value = true
+                }
+                .onFailure { e ->
+                    _isLoggedIn.value = false
+                    _error.value = e.message
+                    Log.e("AuthViewModel", "Error al iniciar sesión", e)
+                }
+
+            _loading.value = false
+        }
+    }
+
+    fun register(user: User) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+
+            val result = authRepository.register(user)
+
+            result
+                .onSuccess {
+                    _isLoggedIn.value = true
+                    _isRegistered.value = true
+                }
+                .onFailure { e ->
+                    _error.value = e.message
+                    Log.e("AuthViewModel", "Error al registrar usuario", e)
+                }
+
+            _loading.value = false
+        }
     }
 
     fun logout() {
-        auth.signOut()
-        _isLoggedIn.value = false
+        viewModelScope.launch {
+            authRepository.logout()
+            _isLoggedIn.value = false
+        }
     }
 
     fun clearError() {
         _error.value = null
-    }
-
-    suspend fun getIdToken(): String {
-        return try {
-            val user = auth.currentUser ?: throw IllegalStateException("No hay usuario regsitrado")
-
-            val tokenResult = user.getIdToken(true).await()
-            return tokenResult.token ?: throw IllegalStateException("TOKEN nulo")
-        } catch (e: IllegalStateException) {
-            ""
-        }
-    }
-
-    fun getUserToken() {
-        viewModelScope.launch {
-            val token = getIdToken()
-            Log.d("FIREBASE_TOKEN", token)
-        }
     }
 }
