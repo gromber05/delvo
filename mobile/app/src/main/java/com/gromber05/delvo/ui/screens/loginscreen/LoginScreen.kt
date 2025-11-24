@@ -52,11 +52,12 @@ import com.google.firebase.BuildConfig
 import com.gromber05.delvo.R
 import com.gromber05.delvo.core.ui.DelvoTheme
 import com.gromber05.delvo.ui.components.UiComponents
-import com.gromber05.delvo.ui.viewmodel.AuthViewModel
+import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun LoginScreen(
-    loginViewModel: AuthViewModel,
+    sessionViewModel: SessionViewModel,
+    loginViewModel: LoginViewModel,
     modifier: Modifier = Modifier,
     onLogin: () -> Unit,
     toRegister: () -> Unit,
@@ -66,7 +67,7 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val errorMessage by loginViewModel.error.collectAsState()
     val loading by loginViewModel.loading.collectAsState()
 
@@ -232,6 +233,7 @@ fun LoginScreen(
 fun Preview_LoginScreen() {
     DelvoTheme {
         LoginScreen(
+            sessionViewModel = viewModel(),
             loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},
@@ -248,6 +250,7 @@ fun Preview_LoginScreen() {
 fun PreviewDarkMode_LoginScreen() {
     DelvoTheme {
         LoginScreen(
+            sessionViewModel = viewModel(),
             loginViewModel = viewModel(),
             onLogin = {},
             toRegister = {},

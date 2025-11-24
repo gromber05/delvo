@@ -17,16 +17,16 @@
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
     import androidx.compose.ui.unit.dp
-    import com.gromber05.delvo.ui.viewmodel.AuthViewModel
+    import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
     @Composable
     fun HomeScreen(
-        loginViewModel: AuthViewModel,
+        viewModel: SessionViewModel,
         onLogout: () -> Unit,
         modifier: Modifier = Modifier
     ) {
-        val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
-        val user by loginViewModel.currentUser.collectAsState()
+        val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+        val user by viewModel.currentUser.collectAsState()
 
         LaunchedEffect(isLoggedIn) {
             if (!isLoggedIn) {
@@ -48,7 +48,7 @@
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = {
-                    loginViewModel.logout()
+                    viewModel.logout()
                 }) {
                     Text(text = "Cerrar Sesión")
                 }

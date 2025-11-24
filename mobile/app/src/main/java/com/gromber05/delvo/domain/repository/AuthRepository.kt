@@ -1,4 +1,4 @@
-package com.gromber05.delvo.data.repository
+package com.gromber05.delvo.domain.repository
 
 import com.gromber05.delvo.domain.model.SessionUser
 import com.gromber05.delvo.domain.model.User

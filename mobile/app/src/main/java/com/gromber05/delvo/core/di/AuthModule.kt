@@ -1,6 +1,6 @@
 package com.gromber05.delvo.core.di
 
-import com.gromber05.delvo.data.repository.AuthRepository
+import com.gromber05.delvo.domain.repository.AuthRepository
 import com.gromber05.delvo.data.repository.AuthService
 import dagger.Binds
 import dagger.Module

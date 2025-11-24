@@ -5,6 +5,7 @@ import com.gromber05.delvo.data.local.UserLocalDataSource
 import com.gromber05.delvo.data.remote.ApiService
 import com.gromber05.delvo.domain.model.SessionUser
 import com.gromber05.delvo.domain.model.User
+import com.gromber05.delvo.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject

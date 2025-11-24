@@ -1,4 +1,4 @@
-package com.gromber05.delvo.core.di
+package com.gromber05.delvo.core.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module

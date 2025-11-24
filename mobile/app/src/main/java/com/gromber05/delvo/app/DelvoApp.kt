@@ -12,8 +12,10 @@ import com.gromber05.delvo.core.ui.DelvoTheme
 import com.gromber05.delvo.ui.navigation.AppScreens
 import com.gromber05.delvo.ui.screens.homescreen.HomeScreen
 import com.gromber05.delvo.ui.screens.loginscreen.LoginScreen
-import com.gromber05.delvo.ui.viewmodel.AuthViewModel
+import com.gromber05.delvo.ui.screens.loginscreen.LoginViewModel
 import com.gromber05.delvo.ui.screens.registerscreen.RegisterScreen
+import com.gromber05.delvo.ui.screens.registerscreen.RegisterViewModel
+import com.gromber05.delvo.ui.viewmodel.SessionViewModel
 
 @Composable
 fun DelvoApp() {
@@ -21,9 +23,11 @@ fun DelvoApp() {
         val navController = rememberNavController()
         val startDestination = AppScreens.LoginScreen.route
 
-        val loginViewModel: AuthViewModel = hiltViewModel()
+        val sessionViewModel: SessionViewModel = hiltViewModel()
+        val loginViewModel: LoginViewModel = hiltViewModel()
+        val registerViewModel: RegisterViewModel = hiltViewModel()
 
-        val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
+        val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
 
         NavHost(
             navController = navController,
@@ -31,6 +35,7 @@ fun DelvoApp() {
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
+                    sessionViewModel = sessionViewModel,
                     loginViewModel = loginViewModel,
                     onLogin = {
                         navController.navigate(AppScreens.HomeScreen.route) {
@@ -51,7 +56,8 @@ fun DelvoApp() {
 
             composable(AppScreens.RegisterScreen.route) {
                 RegisterScreen(
-                    viewModel = loginViewModel,
+                    sessionViewModel = sessionViewModel,
+                    viewModel = registerViewModel,
                     onRegister = {
                         navController.navigate(AppScreens.RegisterScreen.route) {
                             popUpTo(startDestination) { inclusive = true }
@@ -62,7 +68,7 @@ fun DelvoApp() {
 
             composable(AppScreens.HomeScreen.route) {
                 HomeScreen(
-                    loginViewModel = loginViewModel,
+                    viewModel = sessionViewModel,
                     onLogout = {
                         navController.navigate(AppScreens.LoginScreen.route) {
                             popUpTo(startDestination) { inclusive = true }
