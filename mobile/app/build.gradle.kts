@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
-    // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
 
 }
@@ -18,7 +17,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "ALPHA 1"
+        versionName = "0.0.01A"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
