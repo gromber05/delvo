@@ -48,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.BuildConfig
 import com.gromber05.delvo.R
 import com.gromber05.delvo.core.ui.DelvoTheme
 import com.gromber05.delvo.ui.components.UiComponents
@@ -68,6 +69,8 @@ fun LoginScreen(
     val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
     val errorMessage by loginViewModel.error.collectAsState()
     val loading by loginViewModel.loading.collectAsState()
+
+    val appVersion = BuildConfig.VERSION_NAME
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
@@ -214,7 +217,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Al iniciar sesión, aceptas todos nuestro términos y condiciones de uso.",
+                text = "Versión: ${appVersion}",
                 fontWeight = FontWeight.ExtraLight,
                 fontStyle = FontStyle.Italic,
                 fontSize = 10.sp,
