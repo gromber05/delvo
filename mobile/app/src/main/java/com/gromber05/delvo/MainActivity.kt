@@ -4,6 +4,7 @@ package com.gromber05.delvo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.gromber05.delvo.app.DelvoApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

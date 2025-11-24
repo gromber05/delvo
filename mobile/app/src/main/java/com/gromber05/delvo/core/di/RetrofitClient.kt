@@ -1,5 +1,6 @@
-package com.gromber05.delvo.data.remote
+package com.gromber05.delvo.core.di
 
+import com.gromber05.delvo.data.remote.ApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

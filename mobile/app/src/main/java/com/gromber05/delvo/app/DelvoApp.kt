@@ -1,4 +1,4 @@
-package com.gromber05.delvo
+package com.gromber05.delvo.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
