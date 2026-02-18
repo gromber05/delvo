@@ -10,7 +10,7 @@ class User(BaseModel):
     username: str
 
 @app.put("/users/{user_id}")
-def create_user(user_id: int, user: User):
+def update_user(user_id, user: User):
     return {"userid": user_id, "username": user.username}
 
 @app.get("/health")
@@ -21,3 +21,10 @@ def health():
 def get_user(user_id: int, q: str = None):
     return { "username" : user_id, "q": q}
 
+@app.post("/users/{user_id}")
+def create_user(user_id, username: str):
+    return {"userid": user_id, "username": username}
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id):
+    return {"userid": user_id, "status": "deleted"} 
