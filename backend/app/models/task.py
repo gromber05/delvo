@@ -8,8 +8,8 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    description = Column(String)
+    title = Column(String(255))
+    description = Column(String(1000))
     createdAt = Column(DateTime)
     ownerId = Column(Integer, ForeignKey("users.id"))
 

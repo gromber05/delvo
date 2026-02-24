@@ -1,3 +1,5 @@
 fastapi
 sqlalchemy
-psycopg2
+uvicorn
+pymysql
+pydantic-settings

@@ -105,6 +105,9 @@ local.properties
 /backend/tmp/
 /backend/coverage/
 /backend/.env
+/backend/__pycache__/
+__pycache__/
+*.pyc
 
 # =========================
 # 🧪 TESTS Y REPORTES
