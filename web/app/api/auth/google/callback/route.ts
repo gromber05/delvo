@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const savedState = cookieStore.get("google_oauth_state")?.value ?? ""
   cookieStore.delete("google_oauth_state")
 
-  // Extract language from state (format: "<hex>:<lang>")
+  
   const lang = savedState.split(":")[1] ?? "es"
   const settingsUrl = `${APP_URL}/${lang}/settings`
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${settingsUrl}?google=error`)
   }
 
-  // Exchange code for tokens
+  
   const redirectUri = `${APP_URL}/api/auth/google/callback`
   let tokenData: Record<string, unknown>
   try {
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
   const expiresIn = typeof tokenData.expires_in === "number" ? tokenData.expires_in : 3600
   const expiry = new Date(Date.now() + expiresIn * 1000).toISOString()
 
-  // Get user email from Google userinfo
+  
   let googleEmail: string | null = null
   try {
     const infoRes = await fetch("https://www.googleapis.com/userinfo/v2/me", {
@@ -65,9 +65,9 @@ export async function GET(request: Request) {
       const info = (await infoRes.json()) as { email?: string }
       googleEmail = info.email ?? null
     }
-  } catch { /* non-fatal */ }
+  } catch {  }
 
-  // Save tokens to backend using the user's session JWT
+  
   const sessionToken = cookieStore.get(AUTH_COOKIE)?.value ?? ""
   if (!sessionToken) {
     return NextResponse.redirect(`${settingsUrl}?google=unauth`)

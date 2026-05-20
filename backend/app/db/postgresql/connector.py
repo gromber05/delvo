@@ -54,7 +54,7 @@ def get_connection() -> Connection:
             return connect(**config)
         except OperationalError as primary_error:
             last_error = primary_error
-            # If backend runs outside Docker, host "postgres" is not resolvable.
+            
             if str(config.get("host")) == "postgres" and _should_try_localhost_fallback(primary_error):
                 fallback_config = {**config, "host": _env("POSTGRES_FALLBACK_HOST", default="localhost")}
                 try:

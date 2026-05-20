@@ -14,6 +14,9 @@ from app.db.postgresql.user_repository import ensure_users_table
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    import google.auth._helpers as _helpers
+    from datetime import datetime, timezone as _tz
+    _helpers.utcnow = lambda: datetime.now(_tz.utc)
     ensure_users_table()
     ensure_planner_tables()
     yield

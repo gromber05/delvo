@@ -44,15 +44,16 @@ def create_event(
     event_time: str | None,
     location: str | None,
     event_type: str,
+    gcal_event_id: str | None = None,
 ) -> dict[str, Any]:
     with get_db_cursor() as (connection, cursor):
         cursor.execute(
             """
-            INSERT INTO events (user_id, title, description, event_date, event_time, location, event_type)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO events (user_id, title, description, event_date, event_time, location, event_type, gcal_event_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (user_id, title, description, event_date, event_time, location, event_type),
+            (user_id, title, description, event_date, event_time, location, event_type, gcal_event_id),
         )
         inserted = cursor.fetchone()
         event_id = int(inserted[0])
@@ -94,6 +95,15 @@ def update_event(
     if affected == 0:
         return None
     return get_event(event_id=event_id, user_id=user_id)
+
+
+def set_gcal_event_id(*, event_id: int, user_id: int, gcal_event_id: str) -> None:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            "UPDATE events SET gcal_event_id = %s WHERE id = %s AND user_id = %s",
+            (gcal_event_id, event_id, user_id),
+        )
+        connection.commit()
 
 
 def delete_event(*, event_id: int, user_id: int) -> bool:

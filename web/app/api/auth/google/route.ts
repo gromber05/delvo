@@ -2,11 +2,11 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { randomBytes } from "crypto"
 
-// Required env vars:
-//   GOOGLE_CLIENT_ID       – OAuth 2.0 Web client ID
-//   NEXT_PUBLIC_APP_URL    – e.g. https://delvo.app  (no trailing slash)
-// Optional:
-//   DELVO_AUTH_COOKIE_NAME – default "session_token"
+
+
+
+
+
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? ""
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "")
@@ -17,9 +17,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ detail: "Google OAuth no configurado" }, { status: 503 })
   }
 
-  // Preserve language prefix for the post-auth redirect
+  
   const referer = request.headers.get("referer") ?? ""
-  const langMatch = referer.match(/\/(es|en)\//)
+  const langMatch = referer.match(/\/(es|en)\
   const lang = langMatch ? langMatch[1] : "es"
 
   const state = randomBytes(16).toString("hex") + `:${lang}`
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 600, // 10 min
+    maxAge: 600, 
     path: "/",
   })
 

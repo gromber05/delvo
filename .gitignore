@@ -81,6 +81,8 @@ Desktop.ini
 *.ap_
 *.dex
 
+scripts/
+
 # iOS
 /mobile/ios/build/
 /mobile/ios/Pods/

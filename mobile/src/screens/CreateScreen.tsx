@@ -57,7 +57,7 @@ export function CreateScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {/* Type tabs */}
+        {}
         <View style={[styles.typeBar, { backgroundColor: c.surface }]}>
           {TYPES.map(t => {
             const active = type === t.key;
@@ -77,7 +77,7 @@ export function CreateScreen() {
           })}
         </View>
 
-        {/* Form */}
+        {}
         <View style={[styles.form, { backgroundColor: c.surface }]}>
           <FormField label="Título" c={c}>
             <TextInput

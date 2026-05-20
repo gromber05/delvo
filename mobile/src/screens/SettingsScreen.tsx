@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '../auth/AuthContext';
 import { useColors, useTheme } from '../theme/ThemeContext';
@@ -23,18 +24,24 @@ export function SettingsScreen() {
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
 
-  useEffect(() => {
-    api.me()
-      .then(data => setGoogleEmail(data.user.google_email ?? null))
-      .catch(() => undefined);
+  const refreshGoogleEmail = useCallback(async () => {
+    try {
+      const data = await api.me();
+      setGoogleEmail(data.user.google_email ?? null);
+    } catch {
+      
+    }
   }, []);
+
+  useEffect(() => { refreshGoogleEmail(); }, [refreshGoogleEmail]);
+
+  useFocusEffect(useCallback(() => { refreshGoogleEmail(); }, [refreshGoogleEmail]));
 
   async function connectGoogleCalendar() {
     setConnecting(true);
     try {
       const { url } = await api.googleCalendarConnectUrl();
-      // Closes automatically when the browser redirects to delvo://
-      const result = await WebBrowser.openAuthSessionAsync(url, 'delvo://');
+      const result = await WebBrowser.openAuthSessionAsync(url, 'https://delvo.gromber05.dev/oauth-done');
 
       if (result.type === 'success') {
         const query = result.url.split('?')[1] ?? '';
@@ -44,12 +51,23 @@ export function SettingsScreen() {
           if (k) params[k] = decodeURIComponent(rest.join('='));
         }
         if (params.status === 'ok') {
+          await refreshGoogleEmail();
           const email = params.email ?? null;
-          setGoogleEmail(email);
-          Alert.alert('Google Calendar', email ? `Conectado como ${email}` : 'Cuenta vinculada');
+          try {
+            const sync = await api.syncGoogleCalendar();
+            Alert.alert(
+              'Google Calendar',
+              `${email ? `Conectado como ${email}\n` : ''}${sync.imported} eventos importados.`,
+            );
+          } catch {
+            Alert.alert('Google Calendar', email ? `Conectado como ${email}` : 'Cuenta vinculada');
+          }
         } else {
           Alert.alert('Error', 'No se pudo vincular Google Calendar');
         }
+      } else {
+        
+        await refreshGoogleEmail();
       }
     } catch (e) {
       Alert.alert('Error', e instanceof Error ? e.message : 'Error desconocido');
@@ -60,7 +78,7 @@ export function SettingsScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.background }} contentContainerStyle={styles.content}>
-      {/* Profile hero */}
+      {}
       <View style={[styles.profileHero, { backgroundColor: c.surface }]}>
         <View style={[styles.avatar, { backgroundColor: c.primaryMuted }]}>
           <Text style={[styles.avatarText, { color: c.primary }]}>
@@ -71,7 +89,7 @@ export function SettingsScreen() {
         <Text style={[styles.profileEmail, { color: c.onSurfaceMuted }]}>{user?.email ?? ''}</Text>
       </View>
 
-      {/* Appearance */}
+      {}
       <Label text="Apariencia" c={c} />
       <View style={[styles.card, { backgroundColor: c.surface }]}>
         <SettingRow
@@ -83,7 +101,7 @@ export function SettingsScreen() {
         />
       </View>
 
-      {/* Integrations */}
+      {}
       <Label text="Integraciones" c={c} />
       <View style={[styles.card, { backgroundColor: c.surface }]}>
         <View style={styles.integrationRow}>
@@ -109,7 +127,7 @@ export function SettingsScreen() {
         </View>
       </View>
 
-      {/* Session */}
+      {}
       <Label text="Sesión" c={c} />
       <TouchableOpacity
         style={[styles.logoutBtn, { borderColor: c.error + '55', backgroundColor: c.surface }]}

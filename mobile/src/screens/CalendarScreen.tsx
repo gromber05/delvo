@@ -27,6 +27,7 @@ interface CalendarEntry {
   id: string;
   type: 'event' | 'meeting' | 'task' | 'gcal';
   rawId: number;
+  gcalId?: string;
   title: string;
   date: string;
   time: string;
@@ -89,11 +90,11 @@ export function CalendarScreen() {
   const [month, setMonth] = useState(now.getMonth());
   const [selected, setSelected] = useState(toISO(now));
 
-  // Month/year picker
+  
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pickerYear, setPickerYear] = useState(now.getFullYear());
 
-  // Edit modal
+  
   const [editTarget, setEditTarget] = useState<CalendarEntry | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDate, setEditDate] = useState('');
@@ -102,7 +103,7 @@ export function CalendarScreen() {
   const [deleting, setDeleting] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Mark complete
+  
   const [completing, setCompleting] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -130,7 +131,7 @@ export function CalendarScreen() {
       const res = await api.listGoogleCalendarEvents({ time_min: timeMin, time_max: timeMax, max_results: 100 });
       setGcalEvents(res.events);
     } catch {
-      // silently ignore — user may not have Google Calendar connected
+      
     }
   }, []);
 
@@ -139,7 +140,7 @@ export function CalendarScreen() {
     loadGcal(year, month);
   }, [load, loadGcal, year, month]));
 
-  // Reload Google Calendar when the displayed month changes
+  
   React.useEffect(() => { loadGcal(year, month); }, [year, month, loadGcal]);
 
   const entries: CalendarEntry[] = useMemo(() => [
@@ -183,6 +184,7 @@ export function CalendarScreen() {
         id: `gc-${g.id}`,
         type: 'gcal' as const,
         rawId: 0,
+        gcalId: g.id,
         title: g.summary ?? '(sin título)',
         date: dateStr,
         time: timeStr,
@@ -224,7 +226,21 @@ export function CalendarScreen() {
     if (!editTarget || !editTitle.trim() || !editDate.trim()) return;
     setSaving(true); setSaveError(null);
     try {
-      if (editTarget.type === 'event') {
+      if (editTarget.type === 'gcal' && editTarget.gcalId) {
+        const hasTime = !!editTime.trim();
+        const normalizeTime = (t: string) => (t.split(':').length === 2 ? `${t}:00` : t);
+        const startDt = hasTime
+          ? { dateTime: `${editDate.trim()}T${normalizeTime(editTime.trim())}`, timeZone: 'UTC' }
+          : { date: editDate.trim() };
+        const endDt = hasTime
+          ? { dateTime: `${editDate.trim()}T${normalizeTime(editTime.trim())}`, timeZone: 'UTC' }
+          : { date: editDate.trim() };
+        await api.patchGoogleCalendarEvent(editTarget.gcalId, {
+          summary: editTitle.trim(),
+          start: startDt,
+          end: endDt,
+        });
+      } else if (editTarget.type === 'event') {
         await api.updateEvent(editTarget.rawId, {
           title: editTitle.trim(),
           event_date: editDate.trim(),
@@ -237,7 +253,7 @@ export function CalendarScreen() {
           meeting_time: editTime.trim() || '09:00:00',
         });
       } else {
-        // task — preserve existing priority/status/description
+        
         await api.updateTask(editTarget.rawId, {
           title: editTitle.trim(),
           description: editTarget.taskData?.description ?? null,
@@ -319,7 +335,6 @@ export function CalendarScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
     >
-      {/* ── Month nav ─────────────────────────── */}
       <View style={[styles.monthNav, { backgroundColor: c.surface }]}>
         <TouchableOpacity onPress={() => shiftMonth(-1)} style={styles.navBtn} hitSlop={8}>
           <Text style={[styles.navArrow, { color: c.primary }]}>‹</Text>
@@ -336,7 +351,6 @@ export function CalendarScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ── Calendar grid ─────────────────────────── */}
       <View style={[styles.grid, { backgroundColor: c.surface }]}>
         <View style={styles.weekRow}>
           {WEEKDAYS.map(d => (
@@ -379,7 +393,6 @@ export function CalendarScreen() {
       {error ? <Text style={[styles.error, { color: c.error }]}>{error}</Text> : null}
       {loading && <ActivityIndicator color={c.primary} />}
 
-      {/* ── Selected day ──────────────────────────── */}
       <Text style={[styles.sectionHeader, { color: c.onSurfaceMuted }]}>
         {selected === today ? 'HOY' : selected.slice(5).replace('-', '/')}
       </Text>
@@ -393,13 +406,11 @@ export function CalendarScreen() {
           <View key={entry.id} style={[styles.entryCard, { backgroundColor: c.surface }]}>
             <View style={[styles.entryAccent, { backgroundColor: accentColor(entry) }]} />
             <View style={styles.entryBody}>
-              {/* Top row: type label + badges + actions */}
               <View style={styles.entryTopRow}>
                 <View style={styles.entryLeftMeta}>
                   <Text style={[styles.entryType, { color: typeLabelColor(entry) }]}>
                     {typeLabel(entry)}
                   </Text>
-                  {/* Priority dot + label for tasks */}
                   {entry.type === 'task' && entry.priority && (
                     <View style={styles.priorityBadge}>
                       <View style={[styles.priorityDot, { backgroundColor: PRIORITY_COLORS[entry.priority] }]} />
@@ -408,7 +419,6 @@ export function CalendarScreen() {
                       </Text>
                     </View>
                   )}
-                  {/* Done badge */}
                   {entry.status === 'done' && (
                     <View style={[styles.doneBadge, { backgroundColor: '#4CAF5020' }]}>
                       <Text style={styles.doneBadgeText}>Completada</Text>
@@ -428,15 +438,13 @@ export function CalendarScreen() {
                       </Text>
                     </TouchableOpacity>
                   )}
-                  {entry.type !== 'gcal' && (
-                    <TouchableOpacity onPress={() => openEdit(entry)}>
-                      <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity onPress={() => openEdit(entry)}>
+                    <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
-              {/* Title */}
+              {}
               <Text style={[
                 styles.entryTitle,
                 { color: c.onSurface },
@@ -445,7 +453,7 @@ export function CalendarScreen() {
                 {entry.title}
               </Text>
 
-              {/* Time */}
+              {}
               {entry.time ? (
                 <Text style={[styles.entryTime, { color: c.onSurfaceMuted }]}>{entry.time}</Text>
               ) : null}
@@ -454,7 +462,7 @@ export function CalendarScreen() {
         ))
       )}
 
-      {/* ── Month/year picker modal ────────────────── */}
+      {}
       <Modal visible={pickerVisible} transparent animationType="fade">
         <Pressable style={styles.overlay} onPress={() => setPickerVisible(false)}>
           <Pressable style={[styles.pickerCard, { backgroundColor: c.surface }]} onPress={() => {}}>
@@ -491,7 +499,7 @@ export function CalendarScreen() {
         </Pressable>
       </Modal>
 
-      {/* ── Edit / Delete modal ────────────────────────────── */}
+      {}
       <Modal visible={editTarget !== null} transparent animationType="slide">
         <View style={styles.overlay}>
           <View style={[styles.modalCard, { backgroundColor: c.surface }]}>
@@ -502,7 +510,7 @@ export function CalendarScreen() {
               </Text>
             </Text>
 
-            {/* Título */}
+            {}
             <View style={{ gap: 5 }}>
               <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>Título</Text>
               <TextInput
@@ -514,7 +522,7 @@ export function CalendarScreen() {
               />
             </View>
 
-            {/* Date field — labelled "Fecha de vencimiento" for tasks */}
+            {}
             <View style={{ gap: 5 }}>
               <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>
                 {editTarget?.type === 'task' ? 'Fecha de vencimiento (yyyy-MM-dd)' : 'Fecha (yyyy-MM-dd)'}
@@ -529,7 +537,7 @@ export function CalendarScreen() {
               />
             </View>
 
-            {/* Time */}
+            {}
             <View style={{ gap: 5 }}>
               <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>Hora (HH:mm:ss)</Text>
               <TextInput
@@ -546,7 +554,7 @@ export function CalendarScreen() {
               <Text style={[styles.saveError, { color: c.error }]}>{saveError}</Text>
             ) : null}
 
-            {/* Save / Cancel row */}
+            {}
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={[styles.modalBtn, { borderColor: c.outline, borderWidth: 1 }]}
@@ -566,7 +574,7 @@ export function CalendarScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Delete — destructive, separate row */}
+            {}
             <TouchableOpacity
               style={[styles.deleteBtn, { borderColor: c.error ?? '#F44336' }, (saving || deleting) && { opacity: 0.5 }]}
               onPress={() => editTarget && deleteEntry(editTarget)}
@@ -590,7 +598,7 @@ export function CalendarScreen() {
 const styles = StyleSheet.create({
   content: { padding: 16, gap: 12 },
 
-  // Nav
+  
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 14, paddingHorizontal: 8, paddingVertical: 4 },
   navBtn: { padding: 10 },
   navArrow: { fontSize: 26, lineHeight: 32 },
@@ -598,7 +606,7 @@ const styles = StyleSheet.create({
   monthLabel: { fontSize: 15, fontWeight: '700', textTransform: 'capitalize' },
   dropChevron: { fontSize: 13, lineHeight: 18 },
 
-  // Grid
+  
   grid: { borderRadius: 16, padding: 12, gap: 6 },
   weekRow: { flexDirection: 'row' },
   weekDay: { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '700', paddingVertical: 4 },
@@ -606,7 +614,7 @@ const styles = StyleSheet.create({
   dayNum: { fontSize: 13 },
   dot: { width: 4, height: 4, borderRadius: 2, marginTop: 2 },
 
-  // Entries
+  
   sectionHeader: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2 },
   emptyCard: { borderRadius: 12, padding: 16 },
   emptyText: { fontSize: 14 },
@@ -630,10 +638,10 @@ const styles = StyleSheet.create({
   error: { fontSize: 13 },
   saveError: { fontSize: 13 },
 
-  // Overlay (shared)
+  
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
 
-  // Month/year picker
+  
   pickerCard: { alignSelf: 'center', marginBottom: 80, width: 300, borderRadius: 20, padding: 20, gap: 16, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
   pickerYearRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pickerArrowBtn: { padding: 8 },
@@ -643,7 +651,7 @@ const styles = StyleSheet.create({
   pickerMonthCell: { width: '30%', paddingVertical: 10, alignItems: 'center', borderRadius: 10, flexGrow: 1 },
   pickerMonthText: { fontSize: 14, fontWeight: '500' },
 
-  // Edit modal
+  
   modalCard: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 14 },
   modalTitle: { fontSize: 18, fontWeight: '700' },
   modalTitleType: { fontSize: 16, fontWeight: '400' },

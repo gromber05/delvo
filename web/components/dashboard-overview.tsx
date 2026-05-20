@@ -130,7 +130,7 @@ export function DashboardOverview() {
         )
       )
     } catch {
-      // silently fail
+      
     } finally {
       setLoading(false)
     }
@@ -166,7 +166,7 @@ export function DashboardOverview() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4 pt-3">
 
-      {/* Greeting */}
+      {}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">
           {greeting(isSpanish)}{userName ? `, ${userName}` : ""}
@@ -174,7 +174,7 @@ export function DashboardOverview() {
         <p className="mt-1 text-sm capitalize text-muted-foreground">{todayLabel(locale)}</p>
       </div>
 
-      {/* 2×2 Metric tiles */}
+      {}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {metricCards.map((card) => (
           <div key={card.label} className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
@@ -187,7 +187,7 @@ export function DashboardOverview() {
         ))}
       </div>
 
-      {/* Pending tasks */}
+      {}
       <section>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {isSpanish ? "Pendientes" : "Pending"}
@@ -224,7 +224,7 @@ export function DashboardOverview() {
         </div>
       </section>
 
-      {/* Upcoming agenda */}
+      {}
       <section>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {isSpanish ? "Agenda próxima" : "Upcoming"}
@@ -254,7 +254,7 @@ export function DashboardOverview() {
         </div>
       </section>
 
-      {/* Calendar + Chat */}
+      {}
       <section className="grid min-h-0 gap-4 xl:grid-cols-[1.45fr_1fr]">
         <DashboardCalendar />
         <div className="flex min-h-0 min-h-72 flex-col overflow-hidden rounded-xl border bg-card">

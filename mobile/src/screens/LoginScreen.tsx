@@ -44,7 +44,7 @@ export function LoginScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Logo */}
+        {}
         <View style={styles.logoArea}>
           <View style={[styles.logoCircle, { backgroundColor: c.primaryMuted }]}>
             <Text style={[styles.logoLetter, { color: c.primary }]}>D</Text>
@@ -53,7 +53,7 @@ export function LoginScreen() {
           <Text style={[styles.logoSub, { color: c.onSurfaceMuted }]}>Tu asistente inteligente</Text>
         </View>
 
-        {/* Card */}
+        {}
         <View style={[styles.card, { backgroundColor: c.surface }]}>
           <Text style={[styles.cardTitle, { color: c.onSurface }]}>
             {registerMode ? 'Crear cuenta' : 'Iniciar sesión'}

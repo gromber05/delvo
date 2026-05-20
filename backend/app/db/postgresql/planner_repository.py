@@ -67,9 +67,20 @@ def ensure_planner_tables() -> None:
               event_time TIME NULL,
               location VARCHAR(255) NULL,
               event_type VARCHAR(80) NOT NULL DEFAULT 'general',
+              gcal_event_id VARCHAR(255) NULL,
               created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
               updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+            """
+        )
+        cursor.execute(
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS gcal_event_id VARCHAR(255) NULL;"
+        )
+        cursor.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_events_user_gcal
+            ON events (user_id, gcal_event_id)
+            WHERE gcal_event_id IS NOT NULL;
             """
         )
 

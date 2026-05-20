@@ -1,6 +1,6 @@
 const BASE_URL = 'https://apidelvo.gromber05.dev';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+
 
 export interface UserDto {
   id: number;
@@ -103,7 +103,7 @@ export interface AssistantChatResponse {
   context_used: string[];
 }
 
-// ─── Token store ──────────────────────────────────────────────────────────────
+
 
 let _token: string | null = null;
 let _refreshToken: string | null = null;
@@ -122,31 +122,21 @@ export function setApiRefreshToken(token: string | null) {
   _refreshToken = token;
 }
 
-/**
- * Register a callback that fires after a silent token refresh succeeds.
- * AuthContext uses this to persist the new tokens to AsyncStorage.
- */
+
 export function setOnTokensRefreshed(cb: TokensRefreshedCallback | null) {
   _onTokensRefreshed = cb;
 }
 
-/**
- * Register a callback that fires when the session is fully expired
- * (refresh also failed, or no refresh token available).
- * AuthContext uses this to log the user out and navigate to login.
- */
+
 export function setOnAuthExpired(cb: AuthExpiredCallback | null) {
   _onAuthExpired = cb;
 }
 
-// ─── Internal: silent refresh ─────────────────────────────────────────────────
+
 
 let _refreshPromise: Promise<string | null> | null = null;
 
-/**
- * Try to exchange the stored refresh token for a fresh access token.
- * Concurrent calls collapse into a single in-flight request.
- */
+
 function tryRefresh(): Promise<string | null> {
   if (_refreshPromise) return _refreshPromise;
   _refreshPromise = (async () => {
@@ -172,7 +162,7 @@ function tryRefresh(): Promise<string | null> {
   return _refreshPromise;
 }
 
-// ─── Request helper ───────────────────────────────────────────────────────────
+
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const buildHeaders = (token: string | null): Record<string, string> => ({
@@ -186,11 +176,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers: buildHeaders(_token),
   });
 
-  // ── 401 while a token is held: attempt one silent refresh ─────────────────
+  
   if (res.status === 401 && _token) {
     const newToken = await tryRefresh();
     if (newToken) {
-      // Retry original request with fresh token
+      
       const retried = await fetch(`${BASE_URL}${path}`, {
         ...options,
         headers: buildHeaders(newToken),
@@ -205,14 +195,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
         try {
           const body = await retried.json();
           message = body?.detail ?? body?.message ?? message;
-        } catch { /* ignore */ }
+        } catch {  }
         throw new Error(message);
       }
 
       return retried.json() as Promise<T>;
     }
 
-    // Refresh failed → full logout
+    
     _onAuthExpired?.();
     throw new Error('Sesión expirada. Por favor inicia sesión de nuevo.');
   }
@@ -222,17 +212,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     try {
       const body = await res.json();
       message = body?.detail ?? body?.message ?? message;
-    } catch { /* ignore */ }
+    } catch {  }
     throw new Error(message);
   }
 
   return res.json() as Promise<T>;
 }
 
-// ─── API surface ──────────────────────────────────────────────────────────────
+
 
 export const api = {
-  // Auth
+  
   login: (email: string, password: string) =>
     request<AuthResponse>('/api/v1/auth/login', {
       method: 'POST',
@@ -245,7 +235,7 @@ export const api = {
       body: JSON.stringify({ name, email, password }),
     }),
 
-  // Tasks
+  
   listTasks: () => request<ListResponse<TaskDto>>('/api/v1/planner/tasks'),
   createTask: (body: {
     title: string;
@@ -277,7 +267,7 @@ export const api = {
   deleteTask: (id: number) =>
     request<{ ok: boolean }>(`/api/v1/planner/tasks/${id}`, { method: 'DELETE' }),
 
-  // Events
+  
   listEvents: () => request<ListResponse<EventDto>>('/api/v1/planner/events'),
   createEvent: (body: {
     title: string;
@@ -302,7 +292,7 @@ export const api = {
   deleteEvent: (id: number) =>
     request<{ ok: boolean }>(`/api/v1/planner/events/${id}`, { method: 'DELETE' }),
 
-  // Meetings
+  
   listMeetings: () => request<ListResponse<MeetingDto>>('/api/v1/planner/meetings'),
   createMeeting: (body: {
     title: string;
@@ -329,7 +319,7 @@ export const api = {
   deleteMeeting: (id: number) =>
     request<{ ok: boolean }>(`/api/v1/planner/meetings/${id}`, { method: 'DELETE' }),
 
-  // Notes
+  
   listNotes: () => request<ListResponse<NoteDto>>('/api/v1/planner/notes'),
   createNote: (body: { title: string; content?: string; status?: string }) =>
     request<ItemResponse<NoteDto>>('/api/v1/planner/notes', {
@@ -337,19 +327,31 @@ export const api = {
       body: JSON.stringify({ status: 'active', ...body }),
     }),
 
-  // Assistant
+  
   chat: (message: string, history: AssistantChatTurn[]) =>
     request<AssistantChatResponse>('/api/v1/assistant/chat', {
       method: 'POST',
       body: JSON.stringify({ message, use_rag: true, history, language: 'es' }),
     }),
 
-  // User
+  
   me: () => request<{ user: UserDto }>('/api/v1/auth/me'),
 
-  // Google Calendar
+  
   googleCalendarConnectUrl: () =>
     request<{ url: string }>('/api/v1/google-calendar/connect?platform=mobile'),
+
+  syncGoogleCalendar: () =>
+    request<{ imported: number; skipped: number }>('/api/v1/google-calendar/sync', { method: 'POST' }),
+
+  patchGoogleCalendarEvent: (
+    gcalId: string,
+    body: { summary?: string; start?: object; end?: object; description?: string; location?: string },
+  ) =>
+    request<GoogleCalendarEvent>(`/api/v1/google-calendar/events/${gcalId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
 
   saveGoogleTokens: (tokens: {
     google_access_token: string;

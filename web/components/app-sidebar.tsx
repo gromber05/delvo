@@ -89,7 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }
           }
         } catch {
-          // Ignore invalid sessionStorage payload and continue with server fetch.
+          
         }
       }
 
@@ -117,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }
         sessionStorage.setItem("user", JSON.stringify(nextUser))
       } catch {
-        // Keep existing user info if /api/auth/me fails.
+        
       }
     }
 

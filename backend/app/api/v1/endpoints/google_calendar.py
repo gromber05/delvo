@@ -28,12 +28,12 @@ _CALLBACK_URL = os.environ.get(
 _SCOPES = "email https://www.googleapis.com/auth/calendar"
 
 
-# ── OAuth helpers ─────────────────────────────────────────────────────────────
+
 
 def _fail_redirect(platform: str) -> RedirectResponse:
     if platform == "web":
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=error", status_code=302)
-    return RedirectResponse("delvo://oauth-callback?status=error", status_code=302)
+    return RedirectResponse("https://delvo.gromber05.dev/oauth-done?status=error", status_code=302)
 
 
 @router.get("/connect")
@@ -80,7 +80,7 @@ def google_calendar_callback(
     except Exception:
         return _fail_redirect("mobile")
 
-    # Exchange code for tokens
+    
     try:
         post_data = urllib.parse.urlencode({
             "code": code,
@@ -100,10 +100,10 @@ def google_calendar_callback(
     expires_in: int = int(token_data.get("expires_in", 3600))
     expiry = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
 
-    # Get email from userinfo
+    
     google_email: str | None = None
     try:
-        req = _urllib.Request(  # type: ignore[assignment]
+        req = _urllib.Request(  
             "https://www.googleapis.com/userinfo/v2/me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
@@ -124,10 +124,24 @@ def google_calendar_callback(
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=ok", status_code=302)
 
     email_param = f"&email={urllib.parse.quote(google_email)}" if google_email else ""
-    return RedirectResponse(f"delvo://oauth-callback?status=ok{email_param}", status_code=302)
+    return RedirectResponse(f"https://delvo.gromber05.dev/oauth-done?status=ok{email_param}", status_code=302)
 
 
-# ── Calendar CRUD ─────────────────────────────────────────────────────────────
+@router.post("/sync")
+def google_calendar_sync(
+    user_id: int = Depends(get_authenticated_user_id),
+) -> dict[str, Any]:
+    """Import upcoming Google Calendar events as local Delvo events."""
+    try:
+        result = gcal.sync_events(user_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise _gcal_error(e)
+
+
+
 
 class EventDateTime(BaseModel):
     dateTime: str | None = None
@@ -145,6 +159,8 @@ class CalendarEventBody(BaseModel):
 
 
 def _gcal_error(e: Exception) -> HTTPException:
+    import traceback, logging
+    logging.error("Google Calendar error: %s\n%s", e, traceback.format_exc())
     msg = str(e)
     if "invalid_grant" in msg or "Token has been expired" in msg:
         return HTTPException(status_code=401, detail="Token de Google expirado, vuelve a vincular tu cuenta")
@@ -161,8 +177,8 @@ def get_events(
     try:
         events = gcal.list_events(user_id, time_min, time_max, max_results)
         return {"events": events}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        return {"events": []}
     except Exception as e:
         raise _gcal_error(e)
 
@@ -188,6 +204,28 @@ def update_event(
 ) -> dict[str, Any]:
     try:
         return gcal.update_event(user_id, event_id, body.model_dump(exclude_none=True))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise _gcal_error(e)
+
+
+class PatchEventBody(BaseModel):
+    summary: str | None = None
+    description: str | None = None
+    location: str | None = None
+    start: EventDateTime | None = None
+    end: EventDateTime | None = None
+
+
+@router.patch("/events/{event_id}")
+def patch_event(
+    event_id: str,
+    body: PatchEventBody,
+    user_id: int = Depends(get_authenticated_user_id),
+) -> dict[str, Any]:
+    try:
+        return gcal.patch_event(user_id, event_id, body.model_dump(exclude_none=True))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

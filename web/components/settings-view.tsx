@@ -46,7 +46,7 @@ export function SettingsView() {
     try {
       await fetch("/api/auth/logout", { method: "POST" })
     } catch {
-      // continue even if request fails
+      
     }
     sessionStorage.removeItem("user")
     toast.success(isSpanish ? "Sesión cerrada" : "Signed out")
@@ -59,7 +59,7 @@ export function SettingsView() {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 p-4">
 
-      {/* Profile hero */}
+      {}
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-border/70 bg-card p-8">
         <div className="flex size-20 items-center justify-center rounded-full bg-primary/15 text-3xl font-extrabold text-primary">
           {initial}
@@ -70,7 +70,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Appearance */}
+      {}
       <p className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
         {isSpanish ? "Apariencia" : "Appearance"}
       </p>
@@ -104,7 +104,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Integrations */}
+      {}
       <p className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
         {isSpanish ? "Integraciones" : "Integrations"}
       </p>
@@ -133,7 +133,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Session */}
+      {}
       <p className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
         {isSpanish ? "Sesión" : "Session"}
       </p>

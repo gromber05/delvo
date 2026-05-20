@@ -44,7 +44,7 @@ export function NavUser({
     try {
       await fetch("/api/auth/logout", { method: "POST" })
     } catch {
-      // Even if the request fails, continue with local cleanup.
+      
     } finally {
       sessionStorage.removeItem("user")
       toast.success(dictionary.nav.logoutSuccess)

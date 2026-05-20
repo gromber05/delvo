@@ -135,7 +135,7 @@ def _normalize_time(value: Any) -> str | None:
     if not raw:
         return None
 
-    # Accept hour-only inputs like "20" and normalize to "20:00".
+    
     for fmt in ("%H:%M", "%H:%M:%S", "%H"):
         try:
             return datetime.strptime(raw, fmt).strftime("%H:%M")
@@ -433,8 +433,8 @@ def _looks_like_only_meeting_reference(text: str) -> bool:
 
 
 def _extract_participants_from_previous_user_turn(history: List[Dict[str, str]]) -> List[str]:
-    # Only use the immediate previous user turn to avoid carrying stale names
-    # from older conversations.
+    
+    
     for turn in reversed(history):
         role = str(turn.get("role", "")).strip().lower()
         if role != "user":
@@ -756,7 +756,7 @@ def _looks_like_test_meeting_request(text: str) -> bool:
     ):
         return False
 
-    # Require an explicit creation intent.
+    
     asks_create = any(
         token in normalized
         for token in [
@@ -783,7 +783,7 @@ def _looks_like_test_meeting_request(text: str) -> bool:
     if not (asks_create and asks_test_meeting):
         return False
 
-    # Extra guard against emails like test@test.es.
+    
     return re.search(r"\b\S+@\S+\.\S+\b", normalized) is None
 
 
@@ -1671,7 +1671,7 @@ def assistant_chat(
             context_used=[c.source for c in chunks],
         )
     except RuntimeError:
-        # Keep chat available even if the LLM provider is temporarily unavailable.
+        
         return ChatResponse(
             intent="query",
             data={},

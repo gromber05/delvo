@@ -101,7 +101,7 @@ def delete_note(*, note_id: int, user_id: int) -> bool:
     return deleted
 
 
-# Backward-compatible aliases while codebase finishes migration.
+
 get_notes = get_note
 create_notes = create_note
 update_notes = update_note

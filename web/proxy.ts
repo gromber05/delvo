@@ -10,8 +10,8 @@ import {
 const isBypassEnabled = process.env.DELVO_PROXY_BYPASS === "true"
 const authCookieName = process.env.DELVO_AUTH_COOKIE_NAME ?? "session_token"
 
-const unauthOnlyRoutes = ["/login", "/signup"]
-const publicRoutes = ["/health"]
+const unauthOnlyRoutes = ["/login", "/signup", "/oauth-done"]
+const publicRoutes = ["/health", "/privacy-policy"]
 
 function isRouteMatch(pathname: string, routes: string[]) {
   return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`))

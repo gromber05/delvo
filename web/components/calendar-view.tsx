@@ -89,7 +89,7 @@ export function CalendarView() {
   const [pickerVisible, setPickerVisible] = useState(false)
   const [pickerYear, setPickerYear] = useState(now.getFullYear())
 
-  // Edit modal state
+  
   const [editTarget, setEditTarget] = useState<CalendarEntry | null>(null)
   const [editTitle, setEditTitle] = useState("")
   const [editDate, setEditDate] = useState("")
@@ -98,7 +98,7 @@ export function CalendarView() {
   const [deleting, setDeleting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  // Completing a task
+  
   const [completing, setCompleting] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -219,7 +219,7 @@ export function CalendarView() {
         url = `/api/planner/meetings/${editTarget.rawId}`
         body = { title: editTitle.trim(), meeting_date: editDate.trim(), meeting_time: editTime.trim() || "09:00:00" }
       } else {
-        // task — keep existing priority/status/description
+        
         url = `/api/planner/tasks/${editTarget.rawId}`
         body = {
           title: editTitle.trim(),
@@ -314,7 +314,7 @@ export function CalendarView() {
   return (
     <div className="flex flex-col gap-4 p-4">
 
-      {/* Month nav */}
+      {}
       <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card px-2 py-1">
         <button
           type="button"
@@ -340,7 +340,7 @@ export function CalendarView() {
         </button>
       </div>
 
-      {/* Calendar grid */}
+      {}
       <div className="rounded-2xl border border-border/70 bg-card p-3">
         <div className="mb-1 grid grid-cols-7 text-center">
           {weekdays.map((d, i) => (
@@ -386,7 +386,7 @@ export function CalendarView() {
       {error && <p className="text-sm text-destructive">{error}</p>}
       {loading && <p className="text-sm text-muted-foreground">{isSpanish ? "Cargando..." : "Loading..."}</p>}
 
-      {/* Selected day entries */}
+      {}
       <div>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {selected === today
@@ -405,20 +405,20 @@ export function CalendarView() {
               <div key={entry.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
                 <div className={`w-1 shrink-0 ${entryAccentClass(entry)}`} />
                 <div className="flex-1 p-3.5">
-                  {/* Top row: type label + actions */}
+                  {}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className={`text-[11px] font-bold uppercase tracking-wide ${entryTypeLabelClass(entry)}`}>
                         {entryTypeLabel(entry)}
                       </span>
-                      {/* Priority badge for tasks */}
+                      {}
                       {entry.type === "task" && entry.priority && (
                         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                           <span className={`size-1.5 rounded-full ${PRIORITY_DOT[entry.priority]}`} />
                           {priorityLabel[entry.priority]}
                         </span>
                       )}
-                      {/* Done badge */}
+                      {}
                       {entry.status === "done" && (
                         <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                           {isSpanish ? "Completada" : "Done"}
@@ -448,12 +448,12 @@ export function CalendarView() {
                     </div>
                   </div>
 
-                  {/* Title */}
+                  {}
                   <p className={`mt-1 text-sm font-semibold ${entry.status === "done" ? "line-through opacity-50" : ""}`}>
                     {entry.title}
                   </p>
 
-                  {/* Time / due info */}
+                  {}
                   {entry.time && (
                     <p className="mt-0.5 text-xs text-muted-foreground">{entry.time}</p>
                   )}
@@ -464,7 +464,7 @@ export function CalendarView() {
         )}
       </div>
 
-      {/* Month/year picker modal */}
+      {}
       {pickerVisible && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -513,7 +513,7 @@ export function CalendarView() {
         </div>
       )}
 
-      {/* Edit / Delete modal */}
+      {}
       {editTarget && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
@@ -574,7 +574,7 @@ export function CalendarView() {
               )}
             </div>
 
-            {/* Action buttons */}
+            {}
             <div className="mt-5 flex gap-3">
               <button
                 type="button"
@@ -594,7 +594,7 @@ export function CalendarView() {
               </button>
             </div>
 
-            {/* Delete — separate row, destructive */}
+            {}
             <button
               type="button"
               onClick={() => deleteEntry(editTarget)}

@@ -81,7 +81,7 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior="padding" keyboardVerticalOffset={0}>
-      {/* Header */}
+      {}
       <View style={[styles.header, { backgroundColor: c.background, borderBottomColor: c.outline }]}>
         <View style={[styles.stellaAvatar, { backgroundColor: c.primaryMuted }]}>
           <Text style={[styles.stellaLetter, { color: c.primary }]}>S</Text>
@@ -92,7 +92,7 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
         </View>
       </View>
 
-      {/* Messages */}
+      {}
       <FlatList
         ref={listRef}
         data={messages}
@@ -105,7 +105,7 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
 
       {error ? <Text style={[styles.error, { color: c.error }]}>{error}</Text> : null}
 
-      {/* Input row */}
+      {}
       <View style={[styles.inputRow, { backgroundColor: c.surface, borderTopColor: c.outline }]}>
         <TextInput
           style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}

@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  // ── Clear all session data ─────────────────────────────────────────────────
+  
   const logout = useCallback(async () => {
     setApiToken(null);
     setApiRefreshToken(null);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState({ token: null, user: null, loading: false });
   }, []);
 
-  // ── Restore session on mount ───────────────────────────────────────────────
+  
   useEffect(() => {
     (async () => {
       try {
@@ -61,9 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  // ── Wire client callbacks ──────────────────────────────────────────────────
+  
   useEffect(() => {
-    // After a silent refresh succeeds, persist the new token pair
+    
     setOnTokensRefreshed((newAccess, newRefresh) => {
       AsyncStorage.multiSet([
         [TOKEN_KEY, newAccess],
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState((s) => ({ ...s, token: newAccess }));
     });
 
-    // When both access and refresh are exhausted → force logout
+    
     setOnAuthExpired(() => {
       logout().catch(() => {});
     });
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [logout]);
 
-  // ── Persist tokens + user to AsyncStorage ──────────────────────────────────
+  
   const persist = useCallback(async (token: string, refreshToken: string, user: UserDto) => {
     setApiToken(token);
     setApiRefreshToken(refreshToken);
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState({ token, user, loading: false });
   }, []);
 
-  // ── Auth actions ───────────────────────────────────────────────────────────
+  
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await api.login(email, password);

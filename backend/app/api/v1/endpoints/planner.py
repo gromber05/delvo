@@ -13,6 +13,7 @@ from app.db.postgresql.event_repository import (
     delete_event,
     get_event,
     list_events,
+    set_gcal_event_id,
     update_event,
 )
 from app.db.postgresql.meeting_repository import (
@@ -256,6 +257,37 @@ def api_create_event(
         location=payload.location,
         event_type=payload.event_type,
     )
+
+    
+    try:
+        from app.services import google_calendar_service as gcal
+        from datetime import datetime, timedelta, timezone
+
+        if payload.event_time:
+            start_dt = datetime.fromisoformat(f"{payload.event_date}T{payload.event_time}").replace(tzinfo=timezone.utc)
+            end_dt = start_dt + timedelta(hours=1)
+            gcal_start = {"dateTime": start_dt.isoformat(), "timeZone": "UTC"}
+            gcal_end = {"dateTime": end_dt.isoformat(), "timeZone": "UTC"}
+        else:
+            from datetime import date, timedelta as td
+            next_day = (date.fromisoformat(payload.event_date) + td(days=1)).isoformat()
+            gcal_start = {"date": payload.event_date}
+            gcal_end = {"date": next_day}
+
+        body: Dict[str, Any] = {"summary": payload.title.strip(), "start": gcal_start, "end": gcal_end}
+        if payload.description:
+            body["description"] = payload.description
+        if payload.location:
+            body["location"] = payload.location
+
+        gcal_event = gcal.create_event(user_id, body)
+        gcal_id: str = gcal_event.get("id", "")
+        if gcal_id:
+            set_gcal_event_id(event_id=int(item["id"]), user_id=user_id, gcal_event_id=gcal_id)
+            item["gcal_event_id"] = gcal_id
+    except Exception:
+        pass  
+
     return {"item": item}
 
 

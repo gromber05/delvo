@@ -515,7 +515,7 @@ export function PlannerManager({ className }: Props) {
   return (
     <section className={cn("flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-sm backdrop-blur", className)}>
       <header className="border-b border-border/70 px-4 py-4">
-        {/* Type tab bar — mobile style */}
+        {}
         <div className="mb-3 flex gap-2 rounded-2xl bg-muted/60 p-1.5">
           {tabItems.map((tab) => {
             const active = activeTab === tab.key

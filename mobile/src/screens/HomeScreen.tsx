@@ -29,8 +29,8 @@ interface AgendaItem {
 
 function greeting(): string {
   const h = new Date().getHours();
-  if (h < 13) return 'Buenos días';
-  if (h < 20) return 'Buenas tardes';
+  if (h >= 6 && h < 13) return 'Buenos días';
+  if (h >= 14 && h < 20) return 'Buenas tardes';
   return 'Buenas noches';
 }
 
@@ -108,7 +108,7 @@ export function HomeScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
     >
-      {/* ── Greeting ─────────────────────────────── */}
+      {}
       <View style={styles.greetingSection}>
         <Text style={[styles.greetingText, { color: c.onSurface }]}>
           {greeting()}{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
@@ -116,7 +116,7 @@ export function HomeScreen() {
         <Text style={[styles.dateText, { color: c.onSurfaceMuted }]}>{todayLabel()}</Text>
       </View>
 
-      {/* ── Metrics 2x2 ──────────────────────────── */}
+      {}
       <View style={styles.metricsGrid}>
         {[
           { label: 'Tareas', value: summary.tasks, accent: c.primary },
@@ -134,10 +134,10 @@ export function HomeScreen() {
         ))}
       </View>
 
-      {/* ── Error ────────────────────────────────── */}
+      {}
       {error ? <Text style={[styles.errorText, { color: c.error }]}>{error}</Text> : null}
 
-      {/* ── Pending tasks ────────────────────────── */}
+      {}
       <View style={styles.sectionHeaderRow}>
         <SectionHeader title="Pendientes" color={c.onSurfaceMuted} />
         <TouchableOpacity onPress={() => navigation.navigate('Create' as never)} style={[styles.createBtn, { backgroundColor: c.primaryMuted }]}>
@@ -173,7 +173,7 @@ export function HomeScreen() {
         </>
       )}
 
-      {/* ── Upcoming agenda ──────────────────────── */}
+      {}
       <SectionHeader title="Agenda próxima" color={c.onSurfaceMuted} />
 
       {agenda.length === 0 && !loading ? (
@@ -221,11 +221,11 @@ function EmptyRow({ label, color, bg }: { label: string; color: string; bg: stri
 
 const styles = StyleSheet.create({
   content: { padding: 20, gap: 10 },
-  // Greeting
+  
   greetingSection: { marginBottom: 6 },
   greetingText: { fontSize: 26, fontWeight: '800', lineHeight: 32 },
   dateText: { fontSize: 14, marginTop: 4, textTransform: 'capitalize' },
-  // Metrics
+  
   metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   metricTile: {
     width: '47.5%',
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
   metricAccent: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
   metricValue: { fontSize: 36, fontWeight: '800', marginTop: 10 },
   metricLabel: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
-  // Section
+  
   sectionHeader: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginTop: 8, marginBottom: 2 },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   createBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
   createBtnText: { fontSize: 12, fontWeight: '600' },
-  // Tasks
+  
   taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 11, fontWeight: '700' },
   showMore: { alignItems: 'center', paddingVertical: 6 },
   showMoreText: { fontSize: 13, fontWeight: '600' },
-  // Agenda
+  
   agendaRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   agendaInfo: { flex: 1 },
   agendaTitle: { fontSize: 14, fontWeight: '500' },
   agendaType: { fontSize: 12, marginTop: 1 },
-  // Misc
+  
   emptyRow: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14 },
   emptyText: { fontSize: 14 },
   errorText: { fontSize: 13 },
