@@ -1,0 +1,147 @@
+﻿# =========================
+# General
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+
+*.log
+*.tmp
+*.bak
+*.old
+*.swp
+*.swo
+*.orig
+
+*.zip
+*.tar
+*.gz
+*.7z
+
+# =========================
+# IDE / Local config
+# =========================
+.idea/
+.vscode/
+.claude/
+*.code-workspace
+*.iml
+*.ipr
+*.iws
+
+# =========================
+# Env files
+# =========================
+.env
+*.env
+.env.local
+.env.*.local
+
+# =========================
+# Mobile (React Native)
+# =========================
+/mobile/node_modules/
+/mobile-rn/node_modules/
+/mobile/.expo/
+/mobile/.expo-shared/
+/mobile/.metro-health-check*
+/mobile/.yarn/
+/mobile/.pnp.*
+/mobile/.bundle/
+/mobile/coverage/
+/mobile/.nyc_output/
+/mobile/npm-debug.log*
+/mobile/yarn-debug.log*
+/mobile/yarn-error.log*
+/mobile/pnpm-debug.log*
+
+# React Native cache/output
+/mobile/.react-native/
+/mobile/.gradle/
+/mobile/.cxx/
+/mobile/build/
+/mobile/dist/
+/mobile/tmp/
+/mobile/temp/
+/mobile/.eslintcache
+
+# Android
+/mobile/android/.gradle/
+/mobile/android/app/build/
+/mobile/android/build/
+/mobile/android/captures/
+/mobile/android/local.properties
+/mobile/android/.idea/
+/mobile/android/**/*.iml
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# iOS
+/mobile/ios/build/
+/mobile/ios/Pods/
+/mobile/ios/.symlinks/
+/mobile/ios/DerivedData/
+/mobile/ios/*.xcworkspace
+/mobile/ios/*.xcodeproj/xcuserdata/
+/mobile/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+/mobile/ios/**/*.hmap
+/mobile/ios/**/*.ipa
+
+# Expo / EAS
+/mobile/.eas/
+/mobile/eas-debug.log
+
+# =========================
+# Web (Next.js)
+# =========================
+/web/node_modules/
+/web/.next/
+/web/out/
+/web/build/
+/web/dist/
+/web/.cache/
+/web/coverage/
+/web/npm-debug.log*
+/web/yarn-debug.log*
+/web/yarn-error.log*
+/web/pnpm-debug.log*
+
+# =========================
+# Backend
+# =========================
+/backend/node_modules/
+/backend/dist/
+/backend/logs/
+/backend/tmp/
+/backend/coverage/
+/backend/__pycache__/
+__pycache__/
+*.pyc
+
+# =========================
+# Tests / Reports
+# =========================
+coverage/
+test-output/
+reports/
+junit/
+
+# =========================
+# Deploy / Build artifacts
+# =========================
+.deploy/
+.deploy_cache/
+
+# =========================
+# Secrets / keys
+# =========================
+*.jks
+*.keystore
+*.pem
+*.key
+google-services.json
+serviceAccountKey.json

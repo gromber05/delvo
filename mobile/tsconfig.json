@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["dom", "esnext"],
+    "jsx": "react-native",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

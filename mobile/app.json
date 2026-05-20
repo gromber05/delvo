@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Delvo",
+    "slug": "delvo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.gromber05.delvo"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.gromber05.delvo"
+    },
+    "newArchEnabled": true
+  }
+}
