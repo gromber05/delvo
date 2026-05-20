@@ -4,6 +4,8 @@ const backendUrl = process.env.DELVO_BACKEND_URL ?? "https://apidelvo.gromber05.
 const normalizedBackendUrl = backendUrl.replace(/\/+$/, "")
 const authCookieName = process.env.DELVO_AUTH_COOKIE_NAME ?? "session_token"
 const authCookieMaxAge = Number(process.env.DELVO_AUTH_COOKIE_MAX_AGE ?? 60 * 60)
+const refreshCookieName = process.env.DELVO_REFRESH_COOKIE_NAME ?? "refresh_token"
+const refreshCookieMaxAge = Number(process.env.DELVO_REFRESH_COOKIE_MAX_AGE ?? 60 * 60 * 24 * 7)
 
 type LoginRequestBody = {
   email?: string
@@ -12,6 +14,7 @@ type LoginRequestBody = {
 
 type BackendAuthResponse = {
   access_token: string
+  refresh_token: string
   token_type: string
   user: {
     id: number
@@ -104,15 +107,15 @@ export async function POST(request: Request) {
     { status: 200 }
   )
 
-  response.cookies.set({
-    name: authCookieName,
-    value: data.access_token,
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
-    maxAge: authCookieMaxAge,
-  })
+  }
+
+  response.cookies.set({ ...cookieOptions, name: authCookieName, value: data.access_token, maxAge: authCookieMaxAge })
+  response.cookies.set({ ...cookieOptions, name: refreshCookieName, value: data.refresh_token, maxAge: refreshCookieMaxAge })
 
   return response
 }

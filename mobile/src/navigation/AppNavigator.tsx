@@ -71,18 +71,18 @@ export function AppNavigator() {
           },
           tabBarActiveTintColor: c.primary,
           tabBarInactiveTintColor: c.onSurfaceMuted,
-          tabBarIcon: ({ color, size }) => {
+          tabBarIcon: ({ color }) => {
             const Icon = TAB_ICONS[route.name];
-            return <Icon size={size} color={color} />;
+            return <Icon size={24} color={color} />;
           },
           tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
         <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario' }} />
-        <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear' }} />
-        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella' }} />
         <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
+        <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
+        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: false, tabBarHideOnKeyboard: true, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }, tabBarStyle: { display: 'none' } }} />
       </Tab.Navigator>
     </NavigationContainer>
   );

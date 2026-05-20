@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { IconPlus } from '@tabler/icons-react-native';
 import { api, EventDto, MeetingDto, NoteDto, TaskDto } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
+import { StellaFAB } from '../components/StellaFAB';
 
 interface Summary {
   tasks: number;
@@ -61,6 +63,7 @@ function priorityColor(priority: string, c: ReturnType<typeof useColors>) {
 export function HomeScreen() {
   const { user } = useAuth();
   const c = useColors();
+  const navigation = useNavigation();
 
   const [summary, setSummary] = useState<Summary>({ tasks: 0, meetings: 0, events: 0, notes: 0 });
   const [pendingTasks, setPendingTasks] = useState<TaskDto[]>([]);
@@ -99,8 +102,9 @@ export function HomeScreen() {
   const visibleTasks = showAllTasks ? pendingTasks : pendingTasks.slice(0, 4);
 
   return (
+    <View style={{ flex: 1, backgroundColor: c.background }}>
     <ScrollView
-      style={{ flex: 1, backgroundColor: c.background }}
+      style={{ flex: 1 }}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
     >
@@ -134,7 +138,13 @@ export function HomeScreen() {
       {error ? <Text style={[styles.errorText, { color: c.error }]}>{error}</Text> : null}
 
       {/* ── Pending tasks ────────────────────────── */}
-      <SectionHeader title="Pendientes" color={c.onSurfaceMuted} />
+      <View style={styles.sectionHeaderRow}>
+        <SectionHeader title="Pendientes" color={c.onSurfaceMuted} />
+        <TouchableOpacity onPress={() => navigation.navigate('Create' as never)} style={[styles.createBtn, { backgroundColor: c.primaryMuted }]}>
+          <IconPlus size={14} color={c.primary} />
+          <Text style={[styles.createBtnText, { color: c.primary }]}>Crear</Text>
+        </TouchableOpacity>
+      </View>
 
       {pendingTasks.length === 0 && !loading ? (
         <EmptyRow label="Sin tareas pendientes" color={c.onSurfaceMuted} bg={c.surface} />
@@ -190,6 +200,8 @@ export function HomeScreen() {
 
       <View style={styles.bottomPad} />
     </ScrollView>
+    <StellaFAB />
+    </View>
   );
 }
 
@@ -227,6 +239,9 @@ const styles = StyleSheet.create({
   metricLabel: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
   // Section
   sectionHeader: { fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginTop: 8, marginBottom: 2 },
+  sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  createBtnText: { fontSize: 12, fontWeight: '600' },
   // Tasks
   taskRow: {
     flexDirection: 'row',

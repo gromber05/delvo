@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { api, AssistantChatTurn } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
+import { IconSend } from '@tabler/icons-react-native';
 
 interface Message {
   id: string;
@@ -20,7 +21,7 @@ interface Message {
   contextUsed?: string[];
 }
 
-export function ChatScreen() {
+export function ChatScreen({ navigation }: { navigation: { setOptions: (options: { headerShown: boolean }) => void; goBack: () => void } }) {
   const c = useColors();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -32,6 +33,25 @@ export function ChatScreen() {
     if (messages.length > 0)
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 80);
   }, [messages]);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      navigation.setOptions({
+        headerShown: false,
+      });
+    });
+
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      navigation.setOptions({
+        headerShown: true,
+      });
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [navigation]);
 
   async function send() {
     const text = input.trim();
@@ -57,8 +77,10 @@ export function ChatScreen() {
     }
   }
 
+  const IconComp = IconSend
+
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={88}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior="padding" keyboardVerticalOffset={0}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: c.background, borderBottomColor: c.outline }]}>
         <View style={[styles.stellaAvatar, { backgroundColor: c.primaryMuted }]}>
@@ -103,7 +125,7 @@ export function ChatScreen() {
         >
           {sending
             ? <ActivityIndicator size="small" color={c.primary} />
-            : <Text style={[styles.sendIcon, { color: input.trim() ? c.onPrimary : c.onSurfaceMuted }]}>↑</Text>}
+            : <IconComp width={20} height={20} strokeWidth={1.5} color={input.trim() ? c.onPrimary : c.onSurfaceMuted} /> }
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

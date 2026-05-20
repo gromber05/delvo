@@ -67,6 +67,7 @@ flowchart LR
     B --> DB[(PostgreSQL)]
     B --> O[Ollama]
     B --> K[Knowledge Base RAG]
+    B --> G[Google Calendar]
 ```
 
 ---

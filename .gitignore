@@ -52,6 +52,7 @@ Desktop.ini
 /mobile/.bundle/
 /mobile/coverage/
 /mobile/.nyc_output/
+/mobile/android/
 /mobile/npm-debug.log*
 /mobile/yarn-debug.log*
 /mobile/yarn-error.log*

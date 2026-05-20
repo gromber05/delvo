@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { api, EventDto, MeetingDto, TaskDto } from '../api/client';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { IconPlus } from '@tabler/icons-react-native';
+import { api, EventDto, GoogleCalendarEvent, MeetingDto, TaskDto } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
+import { StellaFAB } from '../components/StellaFAB';
 
 const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const MONTH_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -23,7 +25,7 @@ type TaskStatus = 'pending' | 'in_progress' | 'done';
 
 interface CalendarEntry {
   id: string;
-  type: 'event' | 'meeting' | 'task';
+  type: 'event' | 'meeting' | 'task' | 'gcal';
   rawId: number;
   title: string;
   date: string;
@@ -33,7 +35,12 @@ interface CalendarEntry {
   taskData?: TaskDto;
 }
 
-function toISO(d: Date) { return d.toISOString().split('T')[0]; }
+function toISO(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 function buildGrid(year: number, month: number): Date[] {
   const first = new Date(year, month, 1);
@@ -68,11 +75,13 @@ const PRIORITY_LABEL: Record<Priority, string> = {
 
 export function CalendarScreen() {
   const c = useColors();
+  const navigation = useNavigation();
   const now = new Date();
 
   const [events, setEvents] = useState<EventDto[]>([]);
   const [meetings, setMeetings] = useState<MeetingDto[]>([]);
   const [tasks, setTasks] = useState<TaskDto[]>([]);
+  const [gcalEvents, setGcalEvents] = useState<GoogleCalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,7 +123,24 @@ export function CalendarScreen() {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const loadGcal = useCallback(async (y: number, m: number) => {
+    const timeMin = new Date(y, m - 1, 1).toISOString();
+    const timeMax = new Date(y, m + 2, 0, 23, 59, 59).toISOString();
+    try {
+      const res = await api.listGoogleCalendarEvents({ time_min: timeMin, time_max: timeMax, max_results: 100 });
+      setGcalEvents(res.events);
+    } catch {
+      // silently ignore — user may not have Google Calendar connected
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    load();
+    loadGcal(year, month);
+  }, [load, loadGcal, year, month]));
+
+  // Reload Google Calendar when the displayed month changes
+  React.useEffect(() => { loadGcal(year, month); }, [year, month, loadGcal]);
 
   const entries: CalendarEntry[] = useMemo(() => [
     ...events.map(e => ({
@@ -133,7 +159,6 @@ export function CalendarScreen() {
       date: m.meeting_date,
       time: m.meeting_time,
     })),
-    // Tasks with a due_date appear in the calendar
     ...tasks
       .filter(t => !!t.due_date)
       .map(t => ({
@@ -147,7 +172,23 @@ export function CalendarScreen() {
         status: (t.status as TaskStatus) ?? 'pending',
         taskData: t,
       })),
-  ], [events, meetings, tasks]);
+    ...gcalEvents.map(g => {
+      const dateStr = g.start.dateTime
+        ? g.start.dateTime.split('T')[0]
+        : (g.start.date ?? '');
+      const timeStr = g.start.dateTime
+        ? new Date(g.start.dateTime).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+        : '';
+      return {
+        id: `gc-${g.id}`,
+        type: 'gcal' as const,
+        rawId: 0,
+        title: g.summary ?? '(sin título)',
+        date: dateStr,
+        time: timeStr,
+      };
+    }),
+  ], [events, meetings, tasks, gcalEvents]);
 
   const countsByDate = useMemo(() => {
     const map: Record<string, number> = {};
@@ -253,24 +294,28 @@ export function CalendarScreen() {
   function accentColor(entry: CalendarEntry): string {
     if (entry.type === 'task') return PRIORITY_COLORS[entry.priority ?? 'medium'];
     if (entry.type === 'event') return c.medium;
+    if (entry.type === 'gcal') return '#4285F4';
     return c.primary;
   }
 
   function typeLabel(entry: CalendarEntry): string {
     if (entry.type === 'task') return 'Tarea';
     if (entry.type === 'event') return 'Evento';
+    if (entry.type === 'gcal') return 'Google';
     return 'Reunión';
   }
 
   function typeLabelColor(entry: CalendarEntry): string {
     if (entry.type === 'task') return PRIORITY_COLORS[entry.priority ?? 'medium'];
     if (entry.type === 'event') return c.medium;
+    if (entry.type === 'gcal') return '#4285F4';
     return c.primary;
   }
 
   return (
+    <View style={{ flex: 1, backgroundColor: c.background }}>
     <ScrollView
-      style={{ flex: 1, backgroundColor: c.background }}
+      style={{ flex: 1 }}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
     >
@@ -285,6 +330,9 @@ export function CalendarScreen() {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => shiftMonth(1)} style={styles.navBtn} hitSlop={8}>
           <Text style={[styles.navArrow, { color: c.primary }]}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Create' as never)} style={styles.navBtn} hitSlop={8}>
+          <IconPlus size={22} color={c.primary} />
         </TouchableOpacity>
       </View>
 
@@ -369,7 +417,6 @@ export function CalendarScreen() {
                 </View>
 
                 <View style={styles.entryActions}>
-                  {/* Complete button — only for pending/in_progress tasks */}
                   {entry.type === 'task' && entry.status !== 'done' && (
                     <TouchableOpacity
                       onPress={() => markComplete(entry)}
@@ -381,9 +428,11 @@ export function CalendarScreen() {
                       </Text>
                     </TouchableOpacity>
                   )}
-                  <TouchableOpacity onPress={() => openEdit(entry)}>
-                    <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
-                  </TouchableOpacity>
+                  {entry.type !== 'gcal' && (
+                    <TouchableOpacity onPress={() => openEdit(entry)}>
+                      <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
 
@@ -533,6 +582,8 @@ export function CalendarScreen() {
 
       <View style={{ height: 16 }} />
     </ScrollView>
+    <StellaFAB />
+    </View>
   );
 }
 

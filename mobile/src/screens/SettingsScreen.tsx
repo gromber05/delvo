@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -7,13 +9,54 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '../auth/AuthContext';
 import { useColors, useTheme } from '../theme/ThemeContext';
+import { api } from '../api/client';
+import { IconBrandGoogle } from '@tabler/icons-react-native';
 
 export function SettingsScreen() {
   const { user, logout } = useAuth();
   const { isDark, toggle } = useTheme();
   const c = useColors();
+
+  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+
+  useEffect(() => {
+    api.me()
+      .then(data => setGoogleEmail(data.user.google_email ?? null))
+      .catch(() => undefined);
+  }, []);
+
+  async function connectGoogleCalendar() {
+    setConnecting(true);
+    try {
+      const { url } = await api.googleCalendarConnectUrl();
+      // Closes automatically when the browser redirects to delvo://
+      const result = await WebBrowser.openAuthSessionAsync(url, 'delvo://');
+
+      if (result.type === 'success') {
+        const query = result.url.split('?')[1] ?? '';
+        const params: Record<string, string> = {};
+        for (const part of query.split('&')) {
+          const [k, ...rest] = part.split('=');
+          if (k) params[k] = decodeURIComponent(rest.join('='));
+        }
+        if (params.status === 'ok') {
+          const email = params.email ?? null;
+          setGoogleEmail(email);
+          Alert.alert('Google Calendar', email ? `Conectado como ${email}` : 'Cuenta vinculada');
+        } else {
+          Alert.alert('Error', 'No se pudo vincular Google Calendar');
+        }
+      }
+    } catch (e) {
+      Alert.alert('Error', e instanceof Error ? e.message : 'Error desconocido');
+    } finally {
+      setConnecting(false);
+    }
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.background }} contentContainerStyle={styles.content}>
@@ -40,9 +83,38 @@ export function SettingsScreen() {
         />
       </View>
 
+      {/* Integrations */}
+      <Label text="Integraciones" c={c} />
+      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <View style={styles.integrationRow}>
+          <IconBrandGoogle size={22} color="#4285F4" />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.settingTitle, { color: c.onSurface }]}>Google Calendar</Text>
+            <Text style={[styles.settingSub, { color: googleEmail ? '#4285F4' : c.onSurfaceMuted }]}>
+              {googleEmail ? `● ${googleEmail}` : 'Sin vincular'}
+            </Text>
+          </View>
+          {connecting ? (
+            <ActivityIndicator size="small" color="#4285F4" />
+          ) : (
+            <TouchableOpacity
+              style={[styles.connectBtn, { borderColor: googleEmail ? c.outline : '#4285F4' }]}
+              onPress={connectGoogleCalendar}
+            >
+              <Text style={[styles.connectBtnText, { color: googleEmail ? c.onSurfaceMuted : '#4285F4' }]}>
+                {googleEmail ? 'Reconectar' : 'Conectar'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       {/* Session */}
       <Label text="Sesión" c={c} />
-      <TouchableOpacity style={[styles.logoutBtn, { borderColor: c.error + '55', backgroundColor: c.surface }]} onPress={logout}>
+      <TouchableOpacity
+        style={[styles.logoutBtn, { borderColor: c.error + '55', backgroundColor: c.surface }]}
+        onPress={logout}
+      >
         <Text style={[styles.logoutText, { color: c.error }]}>Cerrar sesión</Text>
       </TouchableOpacity>
 
@@ -85,8 +157,11 @@ const styles = StyleSheet.create({
   label: { fontSize: 10, fontWeight: '700', letterSpacing: 1, marginTop: 6, marginLeft: 4 },
   card: { borderRadius: 16, overflow: 'hidden' },
   settingRow: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
+  integrationRow: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
   settingTitle: { fontSize: 15, fontWeight: '600' },
   settingSub: { fontSize: 12, marginTop: 2 },
+  connectBtn: { borderRadius: 10, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 7 },
+  connectBtnText: { fontSize: 13, fontWeight: '700' },
   logoutBtn: { borderRadius: 14, borderWidth: 1, paddingVertical: 16, alignItems: 'center' },
   logoutText: { fontSize: 15, fontWeight: '700' },
   version: { textAlign: 'center', fontSize: 12, marginTop: 8 },

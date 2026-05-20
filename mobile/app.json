@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
     "android": {
       "package": "com.gromber05.delvo"
     },
@@ -12,6 +13,12 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.gromber05.delvo"
     },
-    "newArchEnabled": true
+    "scheme": "delvo",
+    "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "df10e9a8-a6fd-427b-9d1b-39e56a0c7cb6"
+      }
+    }
   }
 }

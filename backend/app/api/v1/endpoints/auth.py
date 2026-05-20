@@ -20,6 +20,7 @@ from app.db.postgresql.user_repository import (
     ensure_users_table,
     get_user_by_email,
     get_user_by_id,
+    update_google_tokens,
     update_user_profile,
 )
 
@@ -55,6 +56,13 @@ class RefreshRequest(BaseModel):
     refresh_token: str = Field(..., min_length=1)
 
 
+class SaveGoogleTokensRequest(BaseModel):
+    google_access_token: str = Field(..., min_length=1)
+    google_refresh_token: str | None = None
+    google_token_expiry: str | None = None
+    google_email: str | None = None
+
+
 def _normalize_email(email: str) -> str:
     return email.strip().lower()
 
@@ -65,6 +73,7 @@ def _build_safe_user(user: dict[str, Any]) -> dict[str, Any]:
         "name": str(user.get("name") or ""),
         "email": str(user["email"]),
         "profile_photo_base64": user.get("profile_photo_base64"),
+        "google_email": user.get("google_email"),
         "created_at": user.get("created_at"),
         "updated_at": user.get("updated_at"),
     }
@@ -130,10 +139,9 @@ def login(payload: LoginRequest) -> AuthResponse:
 
 @router.get("/me")
 def me(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
-    ensure_users_table()
     user = get_user_by_id(user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        raise HTTPException(status_code=401, detail="Token invalido")
     return {"user": _build_safe_user(user)}
 
 
@@ -178,3 +186,21 @@ def update_me(
     if not updated:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"user": _build_safe_user(updated)}
+
+
+@router.put("/me/google-calendar")
+def save_google_calendar_tokens(
+    payload: SaveGoogleTokensRequest,
+    user_id: int = Depends(get_authenticated_user_id),
+) -> dict[str, Any]:
+    ensure_users_table()
+    updated = update_google_tokens(
+        user_id=user_id,
+        google_access_token=payload.google_access_token,
+        google_refresh_token=payload.google_refresh_token,
+        google_token_expiry=payload.google_token_expiry,
+        google_email=payload.google_email,
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True, "google_email": payload.google_email}

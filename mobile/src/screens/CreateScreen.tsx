@@ -12,14 +12,15 @@ import {
 } from 'react-native';
 import { api } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
+import { IconCalendarBolt, IconNote, IconPencil, IconProps, IconUsers } from '@tabler/icons-react-native';
 
 type CreateType = 'task' | 'event' | 'meeting' | 'note';
 
-const TYPES: { key: CreateType; label: string; icon: string }[] = [
-  { key: 'task', label: 'Tarea', icon: '✓' },
-  { key: 'event', label: 'Evento', icon: '◆' },
-  { key: 'meeting', label: 'Reunión', icon: '◉' },
-  { key: 'note', label: 'Nota', icon: '≡' },
+const TYPES: { key: CreateType; label: string; icon: React.FC<IconProps> }[] = [
+  { key: 'task', label: 'Tarea', icon: IconPencil },
+  { key: 'event', label: 'Evento', icon: IconCalendarBolt },
+  { key: 'meeting', label: 'Reunión', icon: IconUsers },
+  { key: 'note', label: 'Nota', icon: IconNote },
 ];
 
 export function CreateScreen() {
@@ -60,13 +61,14 @@ export function CreateScreen() {
         <View style={[styles.typeBar, { backgroundColor: c.surface }]}>
           {TYPES.map(t => {
             const active = type === t.key;
+            const IconComp = t.icon;
             return (
               <TouchableOpacity
                 key={t.key}
                 style={[styles.typeTab, active && { backgroundColor: c.primaryMuted }]}
                 onPress={() => { setType(t.key); resetForm(); }}
               >
-                <Text style={[styles.typeIcon, { color: active ? c.primary : c.onSurfaceMuted }]}>{t.icon}</Text>
+                <IconComp width={20} height={20} strokeWidth={1.5} color={active ? c.primary : c.onSurfaceMuted} />
                 <Text style={[styles.typeLabel, { color: active ? c.primary : c.onSurfaceMuted, fontWeight: active ? '700' : '400' }]}>
                   {t.label}
                 </Text>

@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   title: "Delvo",
   description: "An AI powered assistant",
   icons: {
-    icon: "/delvo-logo-nobg.png",
-    shortcut: "/delvo-logo-nobg.png",
-    apple: "/delvo-logo-nobg.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon-nobg.png",
   },
 };
 

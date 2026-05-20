@@ -25,9 +25,15 @@ type TaskData = {
   status: "pending" | "in_progress" | "done"
 }
 
+type GcalEvent = {
+  id: string
+  summary: string
+  start: { dateTime?: string; date?: string }
+}
+
 type CalendarEntry = {
   id: string
-  type: "event" | "meeting" | "task"
+  type: "event" | "meeting" | "task" | "gcal"
   rawId: number
   title: string
   date: string
@@ -72,6 +78,7 @@ export function CalendarView() {
   const [events, setEvents] = useState<Array<{ id: number; title: string; event_date: string; event_time?: string | null }>>([])
   const [meetings, setMeetings] = useState<Array<{ id: number; title: string; meeting_date: string; meeting_time: string }>>([])
   const [tasks, setTasks] = useState<TaskData[]>([])
+  const [gcalEvents, setGcalEvents] = useState<GcalEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -118,6 +125,15 @@ export function CalendarView() {
 
   useEffect(() => { load() }, [load])
 
+  useEffect(() => {
+    const timeMin = new Date(year, month - 1, 1).toISOString()
+    const timeMax = new Date(year, month + 2, 0, 23, 59, 59).toISOString()
+    fetch(`/api/google-calendar/events?time_min=${encodeURIComponent(timeMin)}&time_max=${encodeURIComponent(timeMax)}&max_results=100`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (Array.isArray(data?.events)) setGcalEvents(data.events as GcalEvent[]) })
+      .catch(() => undefined)
+  }, [year, month])
+
   const entries: CalendarEntry[] = useMemo(() => [
     ...events.map((e) => ({
       id: `ev-${e.id}`,
@@ -135,7 +151,6 @@ export function CalendarView() {
       date: m.meeting_date,
       time: m.meeting_time,
     })),
-    // Tasks with a due_date appear in the calendar
     ...tasks
       .filter((t) => t.due_date)
       .map((t) => ({
@@ -149,7 +164,14 @@ export function CalendarView() {
         status: t.status,
         taskData: t,
       })),
-  ], [events, meetings, tasks])
+    ...gcalEvents.map((g) => {
+      const dateStr = g.start.dateTime ? g.start.dateTime.split("T")[0] : (g.start.date ?? "")
+      const timeStr = g.start.dateTime
+        ? new Date(g.start.dateTime).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+        : ""
+      return { id: `gc-${g.id}`, type: "gcal" as const, rawId: 0, title: g.summary ?? "(sin título)", date: dateStr, time: timeStr }
+    }),
+  ], [events, meetings, tasks, gcalEvents])
 
   const countsByDate = useMemo(() => {
     const map: Record<string, number> = {}
@@ -271,18 +293,21 @@ export function CalendarView() {
   function entryAccentClass(entry: CalendarEntry) {
     if (entry.type === "task") return PRIORITY_DOT[entry.priority ?? "medium"]
     if (entry.type === "event") return "bg-amber-400"
+    if (entry.type === "gcal") return "bg-[#4285F4]"
     return "bg-primary"
   }
 
   function entryTypeLabel(entry: CalendarEntry) {
     if (entry.type === "task") return isSpanish ? "Tarea" : "Task"
     if (entry.type === "event") return isSpanish ? "Evento" : "Event"
+    if (entry.type === "gcal") return "Google"
     return isSpanish ? "Reunión" : "Meeting"
   }
 
   function entryTypeLabelClass(entry: CalendarEntry) {
     if (entry.type === "task") return `text-${entry.priority === "high" ? "destructive" : entry.priority === "medium" ? "amber-500" : "emerald-500"}`
     if (entry.type === "event") return "text-amber-500"
+    if (entry.type === "gcal") return "text-[#4285F4]"
     return "text-primary"
   }
 
@@ -401,7 +426,6 @@ export function CalendarView() {
                       )}
                     </div>
                     <div className="flex items-center gap-3">
-                      {/* Complete button — only for pending/in_progress tasks */}
                       {entry.type === "task" && entry.status !== "done" && (
                         <button
                           type="button"
@@ -412,13 +436,15 @@ export function CalendarView() {
                           {completing === entry.id ? "..." : isSpanish ? "Completar ✓" : "Complete ✓"}
                         </button>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => openEdit(entry)}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        {isSpanish ? "Editar" : "Edit"}
-                      </button>
+                      {entry.type !== "gcal" && (
+                        <button
+                          type="button"
+                          onClick={() => openEdit(entry)}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          {isSpanish ? "Editar" : "Edit"}
+                        </button>
+                      )}
                     </div>
                   </div>
 

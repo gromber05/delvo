@@ -6,6 +6,17 @@ export interface UserDto {
   id: number;
   name: string;
   email: string;
+  google_email?: string | null;
+}
+
+export interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  description?: string;
+  location?: string;
+  start: { dateTime?: string; date?: string; timeZone?: string };
+  end: { dateTime?: string; date?: string; timeZone?: string };
+  status?: string;
 }
 
 export interface AuthResponse {
@@ -332,4 +343,37 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ message, use_rag: true, history, language: 'es' }),
     }),
+
+  // User
+  me: () => request<{ user: UserDto }>('/api/v1/auth/me'),
+
+  // Google Calendar
+  googleCalendarConnectUrl: () =>
+    request<{ url: string }>('/api/v1/google-calendar/connect?platform=mobile'),
+
+  saveGoogleTokens: (tokens: {
+    google_access_token: string;
+    google_refresh_token?: string | null;
+    google_token_expiry?: string | null;
+    google_email?: string | null;
+  }) =>
+    request<{ ok: boolean; google_email?: string }>('/api/v1/auth/me/google-calendar', {
+      method: 'PUT',
+      body: JSON.stringify(tokens),
+    }),
+
+  listGoogleCalendarEvents: (params?: {
+    time_min?: string;
+    time_max?: string;
+    max_results?: number;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.time_min) qs.set('time_min', params.time_min);
+    if (params?.time_max) qs.set('time_max', params.time_max);
+    if (params?.max_results) qs.set('max_results', String(params.max_results));
+    const q = qs.toString();
+    return request<{ events: GoogleCalendarEvent[] }>(
+      `/api/v1/google-calendar/events${q ? `?${q}` : ''}`,
+    );
+  },
 };

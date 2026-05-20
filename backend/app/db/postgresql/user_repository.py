@@ -26,6 +26,18 @@ def ensure_users_table() -> None:
         cursor.execute(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;"
         )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_access_token TEXT NULL;"
+        )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_refresh_token TEXT NULL;"
+        )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_token_expiry TEXT NULL;"
+        )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_email VARCHAR(190) NULL;"
+        )
         connection.commit()
 
 
@@ -48,7 +60,8 @@ def get_user_by_id(user_id: int) -> dict[str, Any] | None:
     with get_db_cursor(dictionary=True) as (_, cursor):
         cursor.execute(
             """
-            SELECT id, name, email, profile_photo_base64, created_at, updated_at
+            SELECT id, name, email, profile_photo_base64,
+                   google_email, created_at, updated_at
             FROM users
             WHERE id = %s
             LIMIT 1
@@ -93,6 +106,51 @@ def update_user_profile(
             WHERE id = %s
             """,
             (name, profile_photo_base64, user_id),
+        )
+        affected = cursor.rowcount
+        connection.commit()
+
+    if affected == 0:
+        return None
+    return get_user_by_id(user_id=user_id)
+
+
+def get_user_google_tokens(user_id: int) -> dict[str, Any] | None:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT google_access_token, google_refresh_token,
+                   google_token_expiry, google_email
+            FROM users
+            WHERE id = %s
+            LIMIT 1
+            """,
+            (user_id,),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
+def update_google_tokens(
+    *,
+    user_id: int,
+    google_access_token: str,
+    google_refresh_token: str | None,
+    google_token_expiry: str | None,
+    google_email: str | None,
+) -> dict[str, Any] | None:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            """
+            UPDATE users
+            SET google_access_token = %s,
+                google_refresh_token = %s,
+                google_token_expiry = %s,
+                google_email = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """,
+            (google_access_token, google_refresh_token, google_token_expiry, google_email, user_id),
         )
         affected = cursor.rowcount
         connection.commit()
