@@ -72,6 +72,8 @@ type UiDictionary = {
     sectionLabel: string
     home: string
     planner: string
+    calendar: string
+    settings: string
     tagline: string
   }
 }
@@ -150,6 +152,8 @@ export const dictionary: Record<SupportedLanguage, UiDictionary> = {
       sectionLabel: "Resumen",
       home: "Inicio",
       planner: "Planner",
+      calendar: "Calendario",
+      settings: "Ajustes",
       tagline: "Tu asistente personal.",
     },
   },
@@ -226,6 +230,8 @@ export const dictionary: Record<SupportedLanguage, UiDictionary> = {
       sectionLabel: "Overview",
       home: "Home",
       planner: "Planner",
+      calendar: "Calendar",
+      settings: "Settings",
       tagline: "Your personal assistant.",
     },
   },

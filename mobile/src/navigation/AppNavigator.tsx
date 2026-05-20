@@ -1,7 +1,14 @@
 import React from 'react';
-import { Text } from 'react-native';
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  IconHome,
+  IconCalendar,
+  IconPlus,
+  IconMessage,
+  IconSettings,
+  type IconProps,
+} from '@tabler/icons-react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { LoginScreen } from '../screens/LoginScreen';
@@ -13,12 +20,12 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
-const TAB_ICONS: Record<string, string> = {
-  Home: '⊙',
-  Calendar: '▦',
-  Create: '✚',
-  Chat: '✉',
-  Settings: '⚙',
+const TAB_ICONS: Record<string, React.FC<IconProps>> = {
+  Home: IconHome,
+  Calendar: IconCalendar,
+  Create: IconPlus,
+  Chat: IconMessage,
+  Settings: IconSettings,
 };
 
 export function AppNavigator() {
@@ -52,9 +59,8 @@ export function AppNavigator() {
     <NavigationContainer theme={navTheme}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          headerStyle: { backgroundColor: c.surface },
-          headerTintColor: c.onSurface,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: c.surface, height: 44 },
+          headerTitle: () => null,
           headerShadowVisible: false,
           tabBarStyle: {
             backgroundColor: c.surface,
@@ -65,9 +71,10 @@ export function AppNavigator() {
           },
           tabBarActiveTintColor: c.primary,
           tabBarInactiveTintColor: c.onSurfaceMuted,
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 22, color, lineHeight: 26 }}>{TAB_ICONS[route.name]}</Text>
-          ),
+          tabBarIcon: ({ color, size }) => {
+            const Icon = TAB_ICONS[route.name];
+            return <Icon size={size} color={color} />;
+          },
           tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         })}
       >

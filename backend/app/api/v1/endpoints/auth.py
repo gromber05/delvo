@@ -7,7 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
-from app.core.security import create_access_token, decode_access_token, hash_password, verify_password
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_access_token,
+    decode_refresh_token,
+    hash_password,
+    verify_password,
+)
 from app.db.postgresql.user_repository import (
     create_user,
     ensure_users_table,
@@ -39,8 +46,13 @@ class UpdateProfileRequest(BaseModel):
 
 class AuthResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
     user: dict[str, Any]
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(..., min_length=1)
 
 
 def _normalize_email(email: str) -> str:
@@ -94,8 +106,10 @@ def register(payload: RegisterRequest) -> AuthResponse:
         email=email,
         password_hash=hash_password(payload.password),
     )
-    access_token = create_access_token(subject=email, user_id=int(user["id"]))
-    return AuthResponse(access_token=access_token, user=_build_safe_user(user))
+    uid = int(user["id"])
+    access_token = create_access_token(subject=email, user_id=uid)
+    refresh_token = create_refresh_token(subject=email, user_id=uid)
+    return AuthResponse(access_token=access_token, refresh_token=refresh_token, user=_build_safe_user(user))
 
 
 @router.post("/login", response_model=AuthResponse)
@@ -108,8 +122,10 @@ def login(payload: LoginRequest) -> AuthResponse:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     safe_user = _build_safe_user(user)
-    access_token = create_access_token(subject=email, user_id=safe_user["id"])
-    return AuthResponse(access_token=access_token, user=safe_user)
+    uid = safe_user["id"]
+    access_token = create_access_token(subject=email, user_id=uid)
+    refresh_token = create_refresh_token(subject=email, user_id=uid)
+    return AuthResponse(access_token=access_token, refresh_token=refresh_token, user=safe_user)
 
 
 @router.get("/me")
@@ -119,6 +135,32 @@ def me(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"user": _build_safe_user(user)}
+
+
+@router.post("/refresh")
+def refresh(payload: RefreshRequest) -> dict[str, Any]:
+    """Exchange a valid refresh token for a new access + refresh token pair."""
+    try:
+        data = decode_refresh_token(payload.refresh_token)
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token de refresco inválido o expirado") from None
+
+    uid = data.get("uid")
+    sub = data.get("sub")
+    if not isinstance(uid, int) or not isinstance(sub, str):
+        raise HTTPException(status_code=401, detail="Token de refresco inválido")
+
+    user = get_user_by_id(uid)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+
+    new_access = create_access_token(subject=sub, user_id=uid)
+    new_refresh = create_refresh_token(subject=sub, user_id=uid)
+    return {
+        "access_token": new_access,
+        "refresh_token": new_refresh,
+        "token_type": "bearer",
+    }
 
 
 @router.put("/me")

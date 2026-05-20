@@ -508,52 +508,46 @@ export function PlannerManager({ className }: Props) {
     { key: "notes", label: "Notas", count: counters.notes },
   ]
 
+  const TAB_ICONS: Record<Tab, string> = { tasks: "✓", meetings: "◉", events: "◆", notes: "≡" }
+  const PRIORITY_DOT: Record<string, string> = { high: "bg-destructive", medium: "bg-amber-500", low: "bg-emerald-500" }
+  const PRIORITY_LABEL: Record<string, string> = { high: "Alta", medium: "Media", low: "Baja" }
+
   return (
     <section className={cn("flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-sm backdrop-blur", className)}>
-      <header className="border-b border-border/70 bg-gradient-to-r from-primary/10 via-accent/20 to-transparent px-4 py-4">
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold tracking-tight">Planner Hub</h2>
-          <p className="text-sm text-muted-foreground">Gestiona todo desde un solo panel.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",
-                activeTab === tab.key
-                  ? "border-primary/40 bg-primary text-primary-foreground"
-                  : "border-border/80 bg-background/80 hover:bg-accent"
-              )}
-            >
-              <span>{tab.label}</span>
-              <span
+      <header className="border-b border-border/70 px-4 py-4">
+        {/* Type tab bar — mobile style */}
+        <div className="mb-3 flex gap-2 rounded-2xl bg-muted/60 p-1.5">
+          {tabItems.map((tab) => {
+            const active = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  "rounded-full px-2 py-0.5 text-xs",
-                  activeTab === tab.key
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                  "flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2.5 text-xs transition-colors",
+                  active ? "bg-primary/15 font-bold text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {tab.count}
-              </span>
-            </button>
-          ))}
+                <span className="text-base">{TAB_ICONS[tab.key]}</span>
+                <span>{tab.label}</span>
+                <span className={cn("text-[10px]", active ? "text-primary" : "text-muted-foreground")}>
+                  {tab.count}
+                </span>
+              </button>
+            )
+          })}
         </div>
-        <div className="mt-3">
-          <Input
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Buscar en la pestaña actual..."
-            className="max-w-md bg-background/90"
-          />
-        </div>
+        <Input
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Buscar..."
+          className="bg-background/90"
+        />
       </header>
 
       <div className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 xl:grid-cols-[1.1fr_1.3fr]">
-        <article className="space-y-3 overflow-auto rounded-xl border border-border/70 bg-background/90 p-4 shadow-sm">
+        <article className="space-y-3 overflow-auto rounded-2xl border border-border/70 bg-background/90 p-4 shadow-sm">
           {activeTab === "tasks" ? (
             <>
               <Input placeholder="Titulo" value={taskForm.title} onChange={(e) => setTaskForm((v) => ({ ...v, title: e.target.value }))} />
@@ -641,56 +635,86 @@ export function PlannerManager({ className }: Props) {
           </Button>
         </article>
 
-        <article className="space-y-2 overflow-auto rounded-xl border border-border/70 bg-background/90 p-4 shadow-sm">
+        <article className="space-y-2 overflow-auto rounded-2xl border border-border/70 bg-background/90 p-4 shadow-sm">
           {loading ? <p className="text-sm text-muted-foreground">Cargando...</p> : null}
-          {!loading && activeTab === "tasks" && visibleTasks.length === 0 ? <p className="text-sm text-muted-foreground">No hay tareas para esta busqueda.</p> : null}
-          {!loading && activeTab === "meetings" && visibleMeetings.length === 0 ? <p className="text-sm text-muted-foreground">No hay reuniones para esta busqueda.</p> : null}
-          {!loading && activeTab === "events" && visibleEvents.length === 0 ? <p className="text-sm text-muted-foreground">No hay eventos para esta busqueda.</p> : null}
-          {!loading && activeTab === "notes" && visibleNotes.length === 0 ? <p className="text-sm text-muted-foreground">No hay notas para esta busqueda.</p> : null}
+          {!loading && activeTab === "tasks" && visibleTasks.length === 0 ? <p className="text-sm text-muted-foreground">Sin resultados.</p> : null}
+          {!loading && activeTab === "meetings" && visibleMeetings.length === 0 ? <p className="text-sm text-muted-foreground">Sin resultados.</p> : null}
+          {!loading && activeTab === "events" && visibleEvents.length === 0 ? <p className="text-sm text-muted-foreground">Sin resultados.</p> : null}
+          {!loading && activeTab === "notes" && visibleNotes.length === 0 ? <p className="text-sm text-muted-foreground">Sin resultados.</p> : null}
+
           {activeTab === "tasks"
             ? visibleTasks.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border/70 bg-card px-3 py-2 shadow-xs transition-colors hover:bg-accent/30">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.due_date || "sin fecha"} {item.due_time || "sin hora"} - {item.priority} - {item.status}</p>
-                  <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleQuickEdit("tasks", item)}>Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete("tasks", item.id)} disabled={saving}>Borrar</Button>
+                <div key={item.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
+                  <div className={cn("w-1 shrink-0", PRIORITY_DOT[item.priority])} />
+                  <div className="flex-1 px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold">{item.title}</p>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                        {PRIORITY_LABEL[item.priority]}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.due_date || "Sin fecha"} {item.due_time ? `· ${item.due_time}` : ""} · {item.status}
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("tasks", item)}>Editar</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete("tasks", item.id)} disabled={saving}>Borrar</Button>
+                    </div>
                   </div>
                 </div>
               ))
             : null}
           {activeTab === "meetings"
             ? visibleMeetings.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border/70 bg-card px-3 py-2 shadow-xs transition-colors hover:bg-accent/30">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.meeting_date} {item.meeting_time} - {item.location || "sin ubicacion"} - {item.status}</p>
-                  <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleQuickEdit("meetings", item)}>Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete("meetings", item.id)} disabled={saving}>Borrar</Button>
+                <div key={item.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
+                  <div className="w-1 shrink-0 bg-primary" />
+                  <div className="flex-1 px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold">{item.title}</p>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Reunión</span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.meeting_date} · {item.meeting_time} {item.location ? `· ${item.location}` : ""}
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("meetings", item)}>Editar</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete("meetings", item.id)} disabled={saving}>Borrar</Button>
+                    </div>
                   </div>
                 </div>
               ))
             : null}
           {activeTab === "events"
             ? visibleEvents.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border/70 bg-card px-3 py-2 shadow-xs transition-colors hover:bg-accent/30">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.event_date} {item.event_time || "sin hora"} - {item.location || "sin ubicacion"} - {item.event_type}</p>
-                  <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleQuickEdit("events", item)}>Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete("events", item.id)} disabled={saving}>Borrar</Button>
+                <div key={item.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
+                  <div className="w-1 shrink-0 bg-amber-400" />
+                  <div className="flex-1 px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold">{item.title}</p>
+                      <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">Evento</span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.event_date} {item.event_time ? `· ${item.event_time}` : ""} {item.location ? `· ${item.location}` : ""}
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("events", item)}>Editar</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete("events", item.id)} disabled={saving}>Borrar</Button>
+                    </div>
                   </div>
                 </div>
               ))
             : null}
           {activeTab === "notes"
             ? visibleNotes.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border/70 bg-card px-3 py-2 shadow-xs transition-colors hover:bg-accent/30">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.status}</p>
-                  <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleQuickEdit("notes", item)}>Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete("notes", item.id)} disabled={saving}>Borrar</Button>
+                <div key={item.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
+                  <div className="w-1 shrink-0 bg-muted-foreground/40" />
+                  <div className="flex-1 px-3 py-2.5">
+                    <p className="text-sm font-semibold">{item.title}</p>
+                    {item.content && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{item.content}</p>}
+                    <div className="mt-2 flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("notes", item)}>Editar</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete("notes", item.id)} disabled={saving}>Borrar</Button>
+                    </div>
                   </div>
                 </div>
               ))

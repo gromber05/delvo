@@ -19,7 +19,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Calendar03Icon, House } from "@hugeicons/core-free-icons"
+import { Calendar01Icon, Calendar03Icon, House, Settings01Icon } from "@hugeicons/core-free-icons"
 
 type SidebarUser = {
   name: string
@@ -53,6 +53,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: withLanguagePrefix("/planner", language),
       icon: <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />,
       isActive: currentPath === "/planner",
+    },
+    {
+      title: dictionary.sidebar.calendar,
+      url: withLanguagePrefix("/calendar", language),
+      icon: <HugeiconsIcon icon={Calendar01Icon} strokeWidth={2} />,
+      isActive: currentPath === "/calendar",
+    },
+    {
+      title: dictionary.sidebar.settings,
+      url: withLanguagePrefix("/settings", language),
+      icon: <HugeiconsIcon icon={Settings01Icon} strokeWidth={2} />,
+      isActive: currentPath === "/settings",
     },
   ]
 

@@ -10,8 +10,15 @@ export interface UserDto {
 
 export interface AuthResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
   user: UserDto;
+}
+
+export interface RefreshResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
 }
 
 export interface TaskDto {
@@ -88,30 +95,123 @@ export interface AssistantChatResponse {
 // ─── Token store ──────────────────────────────────────────────────────────────
 
 let _token: string | null = null;
+let _refreshToken: string | null = null;
+
+type TokensRefreshedCallback = (accessToken: string, refreshToken: string) => void;
+type AuthExpiredCallback = () => void;
+
+let _onTokensRefreshed: TokensRefreshedCallback | null = null;
+let _onAuthExpired: AuthExpiredCallback | null = null;
 
 export function setApiToken(token: string | null) {
   _token = token;
 }
 
+export function setApiRefreshToken(token: string | null) {
+  _refreshToken = token;
+}
+
+/**
+ * Register a callback that fires after a silent token refresh succeeds.
+ * AuthContext uses this to persist the new tokens to AsyncStorage.
+ */
+export function setOnTokensRefreshed(cb: TokensRefreshedCallback | null) {
+  _onTokensRefreshed = cb;
+}
+
+/**
+ * Register a callback that fires when the session is fully expired
+ * (refresh also failed, or no refresh token available).
+ * AuthContext uses this to log the user out and navigate to login.
+ */
+export function setOnAuthExpired(cb: AuthExpiredCallback | null) {
+  _onAuthExpired = cb;
+}
+
+// ─── Internal: silent refresh ─────────────────────────────────────────────────
+
+let _refreshPromise: Promise<string | null> | null = null;
+
+/**
+ * Try to exchange the stored refresh token for a fresh access token.
+ * Concurrent calls collapse into a single in-flight request.
+ */
+function tryRefresh(): Promise<string | null> {
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = (async () => {
+    if (!_refreshToken) return null;
+    try {
+      const res = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: _refreshToken }),
+      });
+      if (!res.ok) return null;
+      const data = (await res.json()) as RefreshResponse;
+      _token = data.access_token;
+      _refreshToken = data.refresh_token;
+      _onTokensRefreshed?.(data.access_token, data.refresh_token);
+      return data.access_token;
+    } catch {
+      return null;
+    } finally {
+      _refreshPromise = null;
+    }
+  })();
+  return _refreshPromise;
+}
+
 // ─── Request helper ───────────────────────────────────────────────────────────
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const headers: Record<string, string> = {
+  const buildHeaders = (token: string | null): Record<string, string> => ({
     'Content-Type': 'application/json',
-    ...(_token ? { Authorization: `Bearer ${_token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string> | undefined ?? {}),
-  };
+  });
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: buildHeaders(_token),
+  });
+
+  // ── 401 while a token is held: attempt one silent refresh ─────────────────
+  if (res.status === 401 && _token) {
+    const newToken = await tryRefresh();
+    if (newToken) {
+      // Retry original request with fresh token
+      const retried = await fetch(`${BASE_URL}${path}`, {
+        ...options,
+        headers: buildHeaders(newToken),
+      });
+
+      if (!retried.ok) {
+        if (retried.status === 401) {
+          _onAuthExpired?.();
+          throw new Error('Sesión expirada. Por favor inicia sesión de nuevo.');
+        }
+        let message = `HTTP ${retried.status}`;
+        try {
+          const body = await retried.json();
+          message = body?.detail ?? body?.message ?? message;
+        } catch { /* ignore */ }
+        throw new Error(message);
+      }
+
+      return retried.json() as Promise<T>;
+    }
+
+    // Refresh failed → full logout
+    _onAuthExpired?.();
+    throw new Error('Sesión expirada. Por favor inicia sesión de nuevo.');
+  }
 
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
       const body = await res.json();
       message = body?.detail ?? body?.message ?? message;
-    } catch {
-      // ignore parse failure
-    }
+    } catch { /* ignore */ }
     throw new Error(message);
   }
 
@@ -148,6 +248,21 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ priority: 'medium', status: 'pending', ...body }),
     }),
+  updateTask: (
+    id: number,
+    body: {
+      title: string;
+      description?: string | null;
+      due_date?: string | null;
+      due_time?: string | null;
+      priority: string;
+      status: string;
+    },
+  ) =>
+    request<ItemResponse<TaskDto>>(`/api/v1/planner/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
   deleteTask: (id: number) =>
     request<{ ok: boolean }>(`/api/v1/planner/tasks/${id}`, { method: 'DELETE' }),
 
@@ -173,6 +288,8 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ event_type: 'general', ...body }),
     }),
+  deleteEvent: (id: number) =>
+    request<{ ok: boolean }>(`/api/v1/planner/events/${id}`, { method: 'DELETE' }),
 
   // Meetings
   listMeetings: () => request<ListResponse<MeetingDto>>('/api/v1/planner/meetings'),
@@ -198,6 +315,8 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ participants: [], status: 'scheduled', ...body }),
     }),
+  deleteMeeting: (id: number) =>
+    request<{ ok: boolean }>(`/api/v1/planner/meetings/${id}`, { method: 'DELETE' }),
 
   // Notes
   listNotes: () => request<ListResponse<NoteDto>>('/api/v1/planner/notes'),

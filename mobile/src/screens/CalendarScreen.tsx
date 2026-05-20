@@ -12,19 +12,25 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { api, EventDto, MeetingDto } from '../api/client';
+import { api, EventDto, MeetingDto, TaskDto } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
 
 const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const MONTH_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
+type Priority = 'low' | 'medium' | 'high';
+type TaskStatus = 'pending' | 'in_progress' | 'done';
+
 interface CalendarEntry {
   id: string;
-  type: 'event' | 'meeting';
+  type: 'event' | 'meeting' | 'task';
   rawId: number;
   title: string;
   date: string;
   time: string;
+  priority?: Priority;
+  status?: TaskStatus;
+  taskData?: TaskDto;
 }
 
 function toISO(d: Date) { return d.toISOString().split('T')[0]; }
@@ -48,12 +54,25 @@ function chunk<T>(arr: T[], n: number): T[][] {
   return out;
 }
 
+const PRIORITY_COLORS: Record<Priority, string> = {
+  high: '#F44336',
+  medium: '#FFC107',
+  low: '#4CAF50',
+};
+
+const PRIORITY_LABEL: Record<Priority, string> = {
+  high: 'Alta',
+  medium: 'Media',
+  low: 'Baja',
+};
+
 export function CalendarScreen() {
   const c = useColors();
   const now = new Date();
 
   const [events, setEvents] = useState<EventDto[]>([]);
   const [meetings, setMeetings] = useState<MeetingDto[]>([]);
+  const [tasks, setTasks] = useState<TaskDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,22 +90,64 @@ export function CalendarScreen() {
   const [editDate, setEditDate] = useState('');
   const [editTime, setEditTime] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Mark complete
+  const [completing, setCompleting] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [ev, mt] = await Promise.all([api.listEvents(), api.listMeetings()]);
-      setEvents(ev.items); setMeetings(mt.items);
-    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al cargar.'); }
-    finally { setLoading(false); }
+      const [ev, mt, tk] = await Promise.all([
+        api.listEvents(),
+        api.listMeetings(),
+        api.listTasks(),
+      ]);
+      setEvents(ev.items);
+      setMeetings(mt.items);
+      setTasks(tk.items);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al cargar.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const entries: CalendarEntry[] = useMemo(() => [
-    ...events.map(e => ({ id: `ev-${e.id}`, type: 'event' as const, rawId: e.id, title: e.title, date: e.event_date, time: e.event_time ?? '' })),
-    ...meetings.map(m => ({ id: `mt-${m.id}`, type: 'meeting' as const, rawId: m.id, title: m.title, date: m.meeting_date, time: m.meeting_time })),
-  ], [events, meetings]);
+    ...events.map(e => ({
+      id: `ev-${e.id}`,
+      type: 'event' as const,
+      rawId: e.id,
+      title: e.title,
+      date: e.event_date,
+      time: e.event_time ?? '',
+    })),
+    ...meetings.map(m => ({
+      id: `mt-${m.id}`,
+      type: 'meeting' as const,
+      rawId: m.id,
+      title: m.title,
+      date: m.meeting_date,
+      time: m.meeting_time,
+    })),
+    // Tasks with a due_date appear in the calendar
+    ...tasks
+      .filter(t => !!t.due_date)
+      .map(t => ({
+        id: `tk-${t.id}`,
+        type: 'task' as const,
+        rawId: t.id,
+        title: t.title,
+        date: t.due_date!,
+        time: t.due_time ?? '',
+        priority: (t.priority as Priority) ?? 'medium',
+        status: (t.status as TaskStatus) ?? 'pending',
+        taskData: t,
+      })),
+  ], [events, meetings, tasks]);
 
   const countsByDate = useMemo(() => {
     const map: Record<string, number> = {};
@@ -111,20 +172,100 @@ export function CalendarScreen() {
   }
 
   function openEdit(e: CalendarEntry) {
-    setEditTarget(e); setEditTitle(e.title); setEditDate(e.date); setEditTime(e.time);
+    setEditTarget(e);
+    setEditTitle(e.title);
+    setEditDate(e.date);
+    setEditTime(e.time);
+    setSaveError(null);
   }
 
   async function saveEdit() {
     if (!editTarget || !editTitle.trim() || !editDate.trim()) return;
-    setSaving(true);
+    setSaving(true); setSaveError(null);
     try {
-      if (editTarget.type === 'event')
-        await api.updateEvent(editTarget.rawId, { title: editTitle.trim(), event_date: editDate.trim(), event_time: editTime.trim() || undefined });
-      else
-        await api.updateMeeting(editTarget.rawId, { title: editTitle.trim(), meeting_date: editDate.trim(), meeting_time: editTime.trim() || '09:00:00' });
-      setEditTarget(null); load();
-    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al guardar.'); }
-    finally { setSaving(false); }
+      if (editTarget.type === 'event') {
+        await api.updateEvent(editTarget.rawId, {
+          title: editTitle.trim(),
+          event_date: editDate.trim(),
+          event_time: editTime.trim() || undefined,
+        });
+      } else if (editTarget.type === 'meeting') {
+        await api.updateMeeting(editTarget.rawId, {
+          title: editTitle.trim(),
+          meeting_date: editDate.trim(),
+          meeting_time: editTime.trim() || '09:00:00',
+        });
+      } else {
+        // task — preserve existing priority/status/description
+        await api.updateTask(editTarget.rawId, {
+          title: editTitle.trim(),
+          description: editTarget.taskData?.description ?? null,
+          due_date: editDate.trim() || null,
+          due_time: editTime.trim() || null,
+          priority: editTarget.taskData?.priority ?? 'medium',
+          status: editTarget.taskData?.status ?? 'pending',
+        });
+      }
+      setEditTarget(null);
+      load();
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : 'Error al guardar.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteEntry(entry: CalendarEntry) {
+    setDeleting(true); setSaveError(null);
+    try {
+      if (entry.type === 'event') await api.deleteEvent(entry.rawId);
+      else if (entry.type === 'meeting') await api.deleteMeeting(entry.rawId);
+      else await api.deleteTask(entry.rawId);
+      setEditTarget(null);
+      load();
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : 'Error al eliminar.');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function markComplete(entry: CalendarEntry) {
+    if (!entry.taskData || entry.status === 'done') return;
+    setCompleting(entry.id);
+    try {
+      await api.updateTask(entry.rawId, {
+        title: entry.taskData.title,
+        description: entry.taskData.description ?? null,
+        due_date: entry.taskData.due_date ?? null,
+        due_time: entry.taskData.due_time ?? null,
+        priority: entry.taskData.priority,
+        status: 'done',
+      });
+      load();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al completar.');
+    } finally {
+      setCompleting(null);
+    }
+  }
+
+  function accentColor(entry: CalendarEntry): string {
+    if (entry.type === 'task') return PRIORITY_COLORS[entry.priority ?? 'medium'];
+    if (entry.type === 'event') return c.medium;
+    return c.primary;
+  }
+
+  function typeLabel(entry: CalendarEntry): string {
+    if (entry.type === 'task') return 'Tarea';
+    if (entry.type === 'event') return 'Evento';
+    return 'Reunión';
+  }
+
+  function typeLabelColor(entry: CalendarEntry): string {
+    if (entry.type === 'task') return PRIORITY_COLORS[entry.priority ?? 'medium'];
+    if (entry.type === 'event') return c.medium;
+    return c.primary;
   }
 
   return (
@@ -133,17 +274,15 @@ export function CalendarScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
     >
-      {/* ── Month nav ─────────────────────────────── */}
+      {/* ── Month nav ─────────────────────────── */}
       <View style={[styles.monthNav, { backgroundColor: c.surface }]}>
         <TouchableOpacity onPress={() => shiftMonth(-1)} style={styles.navBtn} hitSlop={8}>
           <Text style={[styles.navArrow, { color: c.primary }]}>‹</Text>
         </TouchableOpacity>
-
         <TouchableOpacity onPress={openPicker} style={styles.monthLabelBtn}>
           <Text style={[styles.monthLabel, { color: c.onSurface }]}>{fmtMonthYear(year, month)}</Text>
           <Text style={[styles.dropChevron, { color: c.primary }]}>⌄</Text>
         </TouchableOpacity>
-
         <TouchableOpacity onPress={() => shiftMonth(1)} style={styles.navBtn} hitSlop={8}>
           <Text style={[styles.navArrow, { color: c.primary }]}>›</Text>
         </TouchableOpacity>
@@ -204,18 +343,63 @@ export function CalendarScreen() {
       ) : (
         visible.map(entry => (
           <View key={entry.id} style={[styles.entryCard, { backgroundColor: c.surface }]}>
-            <View style={[styles.entryAccent, { backgroundColor: entry.type === 'event' ? c.medium : c.primary }]} />
+            <View style={[styles.entryAccent, { backgroundColor: accentColor(entry) }]} />
             <View style={styles.entryBody}>
+              {/* Top row: type label + badges + actions */}
               <View style={styles.entryTopRow}>
-                <Text style={[styles.entryType, { color: entry.type === 'event' ? c.medium : c.primary }]}>
-                  {entry.type === 'event' ? 'Evento' : 'Reunión'}
-                </Text>
-                <TouchableOpacity onPress={() => openEdit(entry)}>
-                  <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
-                </TouchableOpacity>
+                <View style={styles.entryLeftMeta}>
+                  <Text style={[styles.entryType, { color: typeLabelColor(entry) }]}>
+                    {typeLabel(entry)}
+                  </Text>
+                  {/* Priority dot + label for tasks */}
+                  {entry.type === 'task' && entry.priority && (
+                    <View style={styles.priorityBadge}>
+                      <View style={[styles.priorityDot, { backgroundColor: PRIORITY_COLORS[entry.priority] }]} />
+                      <Text style={[styles.priorityText, { color: c.onSurfaceMuted }]}>
+                        {PRIORITY_LABEL[entry.priority]}
+                      </Text>
+                    </View>
+                  )}
+                  {/* Done badge */}
+                  {entry.status === 'done' && (
+                    <View style={[styles.doneBadge, { backgroundColor: '#4CAF5020' }]}>
+                      <Text style={styles.doneBadgeText}>Completada</Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.entryActions}>
+                  {/* Complete button — only for pending/in_progress tasks */}
+                  {entry.type === 'task' && entry.status !== 'done' && (
+                    <TouchableOpacity
+                      onPress={() => markComplete(entry)}
+                      disabled={completing === entry.id}
+                      style={{ opacity: completing === entry.id ? 0.5 : 1 }}
+                    >
+                      <Text style={[styles.completeLink, { color: '#4CAF50' }]}>
+                        {completing === entry.id ? '...' : 'Completar ✓'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity onPress={() => openEdit(entry)}>
+                    <Text style={[styles.editLink, { color: c.onSurfaceMuted }]}>Editar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <Text style={[styles.entryTitle, { color: c.onSurface }]}>{entry.title}</Text>
-              {entry.time ? <Text style={[styles.entryTime, { color: c.onSurfaceMuted }]}>{entry.time}</Text> : null}
+
+              {/* Title */}
+              <Text style={[
+                styles.entryTitle,
+                { color: c.onSurface },
+                entry.status === 'done' && styles.strikethrough,
+              ]}>
+                {entry.title}
+              </Text>
+
+              {/* Time */}
+              {entry.time ? (
+                <Text style={[styles.entryTime, { color: c.onSurfaceMuted }]}>{entry.time}</Text>
+              ) : null}
             </View>
           </View>
         ))
@@ -225,7 +409,6 @@ export function CalendarScreen() {
       <Modal visible={pickerVisible} transparent animationType="fade">
         <Pressable style={styles.overlay} onPress={() => setPickerVisible(false)}>
           <Pressable style={[styles.pickerCard, { backgroundColor: c.surface }]} onPress={() => {}}>
-            {/* Year row */}
             <View style={styles.pickerYearRow}>
               <TouchableOpacity onPress={() => setPickerYear(y => y - 1)} style={styles.pickerArrowBtn}>
                 <Text style={[styles.pickerArrow, { color: c.primary }]}>‹</Text>
@@ -235,18 +418,13 @@ export function CalendarScreen() {
                 <Text style={[styles.pickerArrow, { color: c.primary }]}>›</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Month grid 4×3 */}
             <View style={styles.pickerMonthGrid}>
               {MONTH_SHORT.map((label, mi) => {
                 const isActive = mi === month && pickerYear === year;
                 return (
                   <TouchableOpacity
                     key={label}
-                    style={[
-                      styles.pickerMonthCell,
-                      isActive && { backgroundColor: c.primaryMuted },
-                    ]}
+                    style={[styles.pickerMonthCell, isActive && { backgroundColor: c.primaryMuted }]}
                     onPress={() => selectPickerMonth(mi)}
                   >
                     <Text style={[
@@ -264,34 +442,91 @@ export function CalendarScreen() {
         </Pressable>
       </Modal>
 
-      {/* ── Edit modal ────────────────────────────── */}
+      {/* ── Edit / Delete modal ────────────────────────────── */}
       <Modal visible={editTarget !== null} transparent animationType="slide">
         <View style={styles.overlay}>
           <View style={[styles.modalCard, { backgroundColor: c.surface }]}>
-            <Text style={[styles.modalTitle, { color: c.onSurface }]}>Editar</Text>
-            {([
-              { label: 'Título', value: editTitle, set: setEditTitle },
-              { label: 'Fecha (yyyy-MM-dd)', value: editDate, set: setEditDate },
-              { label: 'Hora (HH:mm:ss)', value: editTime, set: setEditTime },
-            ] as const).map(f => (
-              <View key={f.label} style={{ gap: 5 }}>
-                <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>{f.label}</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-                  value={f.value}
-                  onChangeText={f.set}
-                  placeholderTextColor={c.onSurfaceMuted}
-                />
-              </View>
-            ))}
+            <Text style={[styles.modalTitle, { color: c.onSurface }]}>
+              Editar{' '}
+              <Text style={[styles.modalTitleType, { color: c.onSurfaceMuted }]}>
+                — {editTarget ? typeLabel(editTarget) : ''}
+              </Text>
+            </Text>
+
+            {/* Título */}
+            <View style={{ gap: 5 }}>
+              <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>Título</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
+                value={editTitle}
+                onChangeText={setEditTitle}
+                placeholderTextColor={c.onSurfaceMuted}
+                editable={!saving && !deleting}
+              />
+            </View>
+
+            {/* Date field — labelled "Fecha de vencimiento" for tasks */}
+            <View style={{ gap: 5 }}>
+              <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>
+                {editTarget?.type === 'task' ? 'Fecha de vencimiento (yyyy-MM-dd)' : 'Fecha (yyyy-MM-dd)'}
+              </Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
+                value={editDate}
+                onChangeText={setEditDate}
+                placeholder="2026-05-20"
+                placeholderTextColor={c.onSurfaceMuted}
+                editable={!saving && !deleting}
+              />
+            </View>
+
+            {/* Time */}
+            <View style={{ gap: 5 }}>
+              <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>Hora (HH:mm:ss)</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
+                value={editTime}
+                onChangeText={setEditTime}
+                placeholder="09:00:00"
+                placeholderTextColor={c.onSurfaceMuted}
+                editable={!saving && !deleting}
+              />
+            </View>
+
+            {saveError ? (
+              <Text style={[styles.saveError, { color: c.error }]}>{saveError}</Text>
+            ) : null}
+
+            {/* Save / Cancel row */}
             <View style={styles.modalActions}>
-              <TouchableOpacity style={[styles.modalBtn, { borderColor: c.outline, borderWidth: 1 }]} onPress={() => setEditTarget(null)} disabled={saving}>
+              <TouchableOpacity
+                style={[styles.modalBtn, { borderColor: c.outline, borderWidth: 1 }]}
+                onPress={() => setEditTarget(null)}
+                disabled={saving || deleting}
+              >
                 <Text style={[styles.cancelText, { color: c.onSurface }]}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: c.primary }, saving && { opacity: 0.6 }]} onPress={saveEdit} disabled={saving}>
-                {saving ? <ActivityIndicator color={c.onPrimary} /> : <Text style={[styles.saveText, { color: c.onPrimary }]}>Guardar</Text>}
+              <TouchableOpacity
+                style={[styles.modalBtn, { backgroundColor: c.primary }, (saving || deleting) && { opacity: 0.6 }]}
+                onPress={saveEdit}
+                disabled={saving || deleting}
+              >
+                {saving
+                  ? <ActivityIndicator color={c.onPrimary} />
+                  : <Text style={[styles.saveText, { color: c.onPrimary }]}>Guardar</Text>}
               </TouchableOpacity>
             </View>
+
+            {/* Delete — destructive, separate row */}
+            <TouchableOpacity
+              style={[styles.deleteBtn, { borderColor: c.error ?? '#F44336' }, (saving || deleting) && { opacity: 0.5 }]}
+              onPress={() => editTarget && deleteEntry(editTarget)}
+              disabled={saving || deleting}
+            >
+              {deleting
+                ? <ActivityIndicator color={c.error ?? '#F44336'} />
+                : <Text style={[styles.deleteText, { color: c.error ?? '#F44336' }]}>Eliminar</Text>}
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -327,18 +562,28 @@ const styles = StyleSheet.create({
   entryCard: { flexDirection: 'row', borderRadius: 14, overflow: 'hidden' },
   entryAccent: { width: 4 },
   entryBody: { flex: 1, padding: 14, gap: 4 },
-  entryTopRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  entryTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  entryLeftMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', flex: 1 },
   entryType: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  priorityBadge: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  priorityDot: { width: 6, height: 6, borderRadius: 3 },
+  priorityText: { fontSize: 10 },
+  doneBadge: { borderRadius: 10, paddingHorizontal: 7, paddingVertical: 2 },
+  doneBadgeText: { fontSize: 10, fontWeight: '700', color: '#4CAF50' },
+  entryActions: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 0 },
+  completeLink: { fontSize: 12, fontWeight: '600' },
   editLink: { fontSize: 12 },
   entryTitle: { fontSize: 15, fontWeight: '600' },
+  strikethrough: { textDecorationLine: 'line-through', opacity: 0.5 },
   entryTime: { fontSize: 12 },
   error: { fontSize: 13 },
+  saveError: { fontSize: 13 },
 
   // Overlay (shared)
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', alignItems: 'center' },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
 
   // Month/year picker
-  pickerCard: { width: 300, borderRadius: 20, padding: 20, gap: 16, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
+  pickerCard: { alignSelf: 'center', marginBottom: 80, width: 300, borderRadius: 20, padding: 20, gap: 16, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
   pickerYearRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pickerArrowBtn: { padding: 8 },
   pickerArrow: { fontSize: 24, lineHeight: 28 },
@@ -348,12 +593,15 @@ const styles = StyleSheet.create({
   pickerMonthText: { fontSize: 14, fontWeight: '500' },
 
   // Edit modal
-  modalCard: { position: 'absolute', bottom: 0, left: 0, right: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 14 },
+  modalCard: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 14 },
   modalTitle: { fontSize: 18, fontWeight: '700' },
+  modalTitleType: { fontSize: 16, fontWeight: '400' },
   fieldLabel: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
   input: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, borderWidth: 1 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
   modalBtn: { flex: 1, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   cancelText: { fontWeight: '600', fontSize: 15 },
   saveText: { fontWeight: '700', fontSize: 15 },
+  deleteBtn: { borderRadius: 12, borderWidth: 1, paddingVertical: 14, alignItems: 'center' },
+  deleteText: { fontWeight: '700', fontSize: 15 },
 });
