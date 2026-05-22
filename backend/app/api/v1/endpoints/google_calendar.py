@@ -8,12 +8,16 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import jwt as _jwt
-from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import RedirectResponse, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from app.api.v1.endpoints.auth import get_authenticated_user_id
-from app.db.postgresql.user_repository import update_google_tokens
+from app.db.postgresql.user_repository import (
+    update_google_tokens,
+    update_gcal_watch,
+    get_user_by_channel_id,
+)
 from app.services import google_calendar_service as gcal
 
 router = APIRouter(prefix="/google-calendar", tags=["google-calendar"])
@@ -120,11 +124,51 @@ def google_calendar_callback(
         google_email=google_email,
     )
 
+    # Register a GCal push-notification watch for real-time bidirectional sync
+    try:
+        import uuid
+        channel_id = str(uuid.uuid4())
+        watch_result = gcal.register_watch(user_id, channel_id)
+        expiry_ms = watch_result.get("expiration")
+        expiry_iso = (
+            datetime.fromtimestamp(int(expiry_ms) / 1000, tz=timezone.utc).isoformat()
+            if expiry_ms else None
+        )
+        update_gcal_watch(user_id=user_id, channel_id=channel_id, expiry=expiry_iso)
+    except Exception:
+        pass  # watch is optional; sync still works on-demand
+
     if platform == "web":
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=ok", status_code=302)
 
     email_param = f"&email={urllib.parse.quote(google_email)}" if google_email else ""
     return RedirectResponse(f"https://delvo.gromber05.dev/oauth-done?status=ok{email_param}", status_code=302)
+
+
+@router.post("/webhook", status_code=200)
+async def google_calendar_webhook(request: Request) -> dict[str, str]:
+    """
+    Receives Google Calendar push notifications.
+    Google sends a POST with channel info in headers whenever events change.
+    We look up the user by channel ID and trigger a sync.
+    """
+    channel_id = request.headers.get("X-Goog-Channel-Id", "")
+    resource_state = request.headers.get("X-Goog-Resource-State", "")
+
+    # 'sync' is the initial handshake ping — no action needed
+    if resource_state == "sync" or not channel_id:
+        return {"status": "ok"}
+
+    user = get_user_by_channel_id(channel_id)
+    if not user:
+        return {"status": "unknown_channel"}
+
+    try:
+        gcal.sync_events(int(user["id"]))
+    except Exception:
+        pass  # best-effort; don't fail the webhook response
+
+    return {"status": "synced"}
 
 
 @router.post("/sync")

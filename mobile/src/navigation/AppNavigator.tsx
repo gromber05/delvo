@@ -82,7 +82,7 @@ export function AppNavigator() {
         <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario' }} />
         <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
         <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
-        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: false, tabBarHideOnKeyboard: true, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }, tabBarStyle: { display: 'none' } }} />
+        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: true, tabBarHideOnKeyboard: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
       </Tab.Navigator>
     </NavigationContainer>
   );

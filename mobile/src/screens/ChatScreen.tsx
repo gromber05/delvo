@@ -1,3 +1,4 @@
+import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,7 +13,7 @@ import {
 } from 'react-native';
 import { api, AssistantChatTurn } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
-import { IconSend } from '@tabler/icons-react-native';
+import { IconMicrophone, IconPlayerStop, IconSend } from '@tabler/icons-react-native';
 
 interface Message {
   id: string;
@@ -21,12 +22,16 @@ interface Message {
   contextUsed?: string[];
 }
 
+type RecordState = 'idle' | 'recording' | 'transcribing';
+
 export function ChatScreen({ navigation }: { navigation: { setOptions: (options: { headerShown: boolean }) => void; goBack: () => void } }) {
   const c = useColors();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recordState, setRecordState] = useState<RecordState>('idle');
+  const recordingRef = useRef<Audio.Recording | null>(null);
   const listRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -36,34 +41,25 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => {
-      navigation.setOptions({
-        headerShown: false,
-      });
+      navigation.setOptions({ headerShown: false });
     });
-
     const hideSub = Keyboard.addListener('keyboardDidHide', () => {
-      navigation.setOptions({
-        headerShown: true,
-      });
+      navigation.setOptions({ headerShown: true });
     });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
+    return () => { showSub.remove(); hideSub.remove(); };
   }, [navigation]);
 
-  async function send() {
-    const text = input.trim();
-    if (!text || sending) return;
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text };
+  async function send(text?: string) {
+    const content = (text ?? input).trim();
+    if (!content || sending) return;
+    const userMsg: Message = { id: Date.now().toString(), role: 'user', content };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setSending(true);
     setError(null);
     const history: AssistantChatTurn[] = messages.map(m => ({ role: m.role, content: m.content }));
     try {
-      const res = await api.chat(text, history);
+      const res = await api.chat(content, history);
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -77,7 +73,45 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
     }
   }
 
-  const IconComp = IconSend
+  async function startRecording() {
+    try {
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+      );
+      recordingRef.current = recording;
+      setRecordState('recording');
+      setError(null);
+    } catch {
+      setError('No se pudo acceder al micrófono.');
+    }
+  }
+
+  async function stopRecording() {
+    const recording = recordingRef.current;
+    if (!recording) return;
+    setRecordState('transcribing');
+    try {
+      await recording.stopAndUnloadAsync();
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+      const uri = recording.getURI();
+      recordingRef.current = null;
+      if (!uri) throw new Error('No se pudo obtener el audio.');
+      const text = await api.transcribeAudio(uri);
+      if (text) {
+        setInput(text);
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al transcribir.');
+    } finally {
+      setRecordState('idle');
+    }
+  }
+
+  const showMic = !input.trim() && !sending;
+  const isRecording = recordState === 'recording';
+  const isTranscribing = recordState === 'transcribing';
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior="padding" keyboardVerticalOffset={0}>
@@ -109,24 +143,44 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
       <View style={[styles.inputRow, { backgroundColor: c.surface, borderTopColor: c.outline }]}>
         <TextInput
           style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-          placeholder="Escribe un mensaje…"
-          placeholderTextColor={c.onSurfaceMuted}
+          placeholder={isRecording ? '● Grabando…' : isTranscribing ? 'Transcribiendo…' : 'Escribe un mensaje…'}
+          placeholderTextColor={isRecording ? '#EF4444' : c.onSurfaceMuted}
           value={input}
           onChangeText={setInput}
-          onSubmitEditing={send}
+          onSubmitEditing={() => send()}
           returnKeyType="send"
-          editable={!sending}
+          editable={!sending && !isRecording && !isTranscribing}
           multiline
         />
-        <TouchableOpacity
-          style={[styles.sendBtn, { backgroundColor: input.trim() && !sending ? c.primary : c.surfaceVariant }]}
-          onPress={send}
-          disabled={!input.trim() || sending}
-        >
-          {sending
-            ? <ActivityIndicator size="small" color={c.primary} />
-            : <IconComp width={20} height={20} strokeWidth={1.5} color={input.trim() ? c.onPrimary : c.onSurfaceMuted} /> }
-        </TouchableOpacity>
+
+        {showMic ? (
+          <TouchableOpacity
+            style={[
+              styles.actionBtn,
+              { backgroundColor: isRecording ? '#EF4444' : isTranscribing ? c.surfaceVariant : c.primary },
+            ]}
+            onPress={isRecording ? stopRecording : startRecording}
+            disabled={isTranscribing}
+          >
+            {isTranscribing
+              ? <ActivityIndicator size="small" color={c.primary} />
+              : isRecording
+                ? <IconPlayerStop width={20} height={20} strokeWidth={1.5} color="#fff" />
+                : <IconMicrophone width={20} height={20} strokeWidth={1.5} color={c.onPrimary} />
+            }
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: input.trim() && !sending ? c.primary : c.surfaceVariant }]}
+            onPress={() => send()}
+            disabled={!input.trim() || sending}
+          >
+            {sending
+              ? <ActivityIndicator size="small" color={c.primary} />
+              : <IconSend width={20} height={20} strokeWidth={1.5} color={input.trim() ? c.onPrimary : c.onSurfaceMuted} />
+            }
+          </TouchableOpacity>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -138,9 +192,7 @@ function Bubble({ msg, c }: { msg: Message; c: ReturnType<typeof useColors> }) {
     <View style={[styles.bubbleWrap, isUser && styles.bubbleWrapUser]}>
       <View style={[
         styles.bubble,
-        isUser
-          ? { backgroundColor: c.primary }
-          : { backgroundColor: c.surface },
+        isUser ? { backgroundColor: c.primary } : { backgroundColor: c.surface },
       ]}>
         <Text style={[styles.bubbleText, { color: isUser ? c.onPrimary : c.onSurface }]}>
           {msg.content}
@@ -196,8 +248,7 @@ const styles = StyleSheet.create({
   error: { fontSize: 13, marginHorizontal: 16, marginBottom: 4 },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, padding: 12, borderTopWidth: 1 },
   input: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, maxHeight: 110, borderWidth: 1 },
-  sendBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
-  sendIcon: { fontSize: 18, fontWeight: '700' },
+  actionBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 32, gap: 14 },
   emptyAvatar: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center' },
   emptyAvatarText: { fontSize: 32, fontWeight: '700' },

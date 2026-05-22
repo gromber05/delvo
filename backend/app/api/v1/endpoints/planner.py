@@ -317,11 +317,51 @@ def api_update_event(
     )
     if not item:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
+
+    gcal_id: str | None = item.get("gcal_event_id")
+    if gcal_id:
+        try:
+            from app.services import google_calendar_service as gcal
+            from datetime import datetime, timedelta, timezone
+
+            if payload.event_time:
+                start_dt = datetime.fromisoformat(f"{payload.event_date}T{payload.event_time}").replace(tzinfo=timezone.utc)
+                end_dt = start_dt + timedelta(hours=1)
+                gcal_start = {"dateTime": start_dt.isoformat(), "timeZone": "UTC"}
+                gcal_end = {"dateTime": end_dt.isoformat(), "timeZone": "UTC"}
+            else:
+                from datetime import date, timedelta as td
+                next_day = (date.fromisoformat(payload.event_date) + td(days=1)).isoformat()
+                gcal_start = {"date": payload.event_date}
+                gcal_end = {"date": next_day}
+
+            patch_body: Dict[str, Any] = {"summary": payload.title.strip(), "start": gcal_start, "end": gcal_end}
+            if payload.description is not None:
+                patch_body["description"] = payload.description
+            if payload.location is not None:
+                patch_body["location"] = payload.location
+
+            gcal.patch_event(user_id, gcal_id, patch_body)
+        except Exception:
+            pass
+
     return {"item": item}
 
 
 @router.delete("/events/{event_id}")
 def api_delete_event(event_id: int, user_id: int = Depends(get_authenticated_user_id)) -> Dict[str, bool]:
+    event = get_event(event_id=event_id, user_id=user_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+
+    gcal_id: str | None = event.get("gcal_event_id")
+    if gcal_id:
+        try:
+            from app.services import google_calendar_service as gcal
+            gcal.delete_event(user_id, gcal_id)
+        except Exception:
+            pass
+
     deleted = delete_event(event_id=event_id, user_id=user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Evento no encontrado")

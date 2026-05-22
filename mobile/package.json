@@ -2,7 +2,7 @@
   "name": "delvo-mobile",
   "version": "1.0.0",
   "main": "index.js",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -17,7 +17,9 @@
     "eas-cli": "^19.0.5",
     "expo": "~53.0.0",
     "expo-auth-session": "~6.1.5",
+    "expo-av": "~15.1.4",
     "expo-crypto": "~14.1.4",
+    "expo-notifications": "~0.30.0",
     "expo-status-bar": "~2.2.0",
     "expo-web-browser": "~14.1.0",
     "react": "19.0.0",

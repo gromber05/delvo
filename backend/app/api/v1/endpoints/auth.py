@@ -21,6 +21,7 @@ from app.db.postgresql.user_repository import (
     get_user_by_email,
     get_user_by_id,
     update_google_tokens,
+    update_push_token,
     update_user_profile,
 )
 
@@ -204,3 +205,16 @@ def save_google_calendar_tokens(
     if not updated:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"ok": True, "google_email": payload.google_email}
+
+
+class PushTokenRequest(BaseModel):
+    token: str = Field(..., min_length=1)
+
+
+@router.post("/me/push-token")
+def register_push_token(
+    payload: PushTokenRequest,
+    user_id: int = Depends(get_authenticated_user_id),
+) -> dict[str, Any]:
+    update_push_token(user_id=user_id, token=payload.token)
+    return {"ok": True}

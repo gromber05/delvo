@@ -15,6 +15,11 @@ import { useAuth } from '../auth/AuthContext';
 import { useColors, useTheme } from '../theme/ThemeContext';
 import { api } from '../api/client';
 import { IconBrandGoogle } from '@tabler/icons-react-native';
+import {
+  MINUTES_OPTIONS,
+  loadNotificationSettings,
+  saveNotificationSettings,
+} from '../notifications/NotificationSettings';
 
 export function SettingsScreen() {
   const { user, logout } = useAuth();
@@ -23,6 +28,16 @@ export function SettingsScreen() {
 
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
+  const [minutesBefore, setMinutesBefore] = useState(30);
+
+  useEffect(() => {
+    loadNotificationSettings().then(s => setMinutesBefore(s.minutesBefore));
+  }, []);
+
+  async function handleMinutesChange(m: number) {
+    setMinutesBefore(m);
+    await saveNotificationSettings({ minutesBefore: m });
+  }
 
   const refreshGoogleEmail = useCallback(async () => {
     try {
@@ -99,6 +114,40 @@ export function SettingsScreen() {
           onChange={toggle}
           c={c}
         />
+      </View>
+
+      {}
+      <Label text="Notificaciones" c={c} />
+      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <View style={styles.settingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.settingTitle, { color: c.onSurface }]}>Aviso previo</Text>
+            <Text style={[styles.settingSub, { color: c.onSurfaceMuted }]}>Tiempo antes de recibir la notificación</Text>
+          </View>
+        </View>
+        <View style={styles.minutesRow}>
+          {MINUTES_OPTIONS.map(m => {
+            const selected = m === minutesBefore;
+            const label = m >= 60 ? `${m / 60}h` : `${m}m`;
+            return (
+              <TouchableOpacity
+                key={m}
+                onPress={() => handleMinutesChange(m)}
+                style={[
+                  styles.minuteChip,
+                  {
+                    backgroundColor: selected ? c.primary : c.surfaceVariant,
+                    borderColor: selected ? c.primary : c.outline,
+                  },
+                ]}
+              >
+                <Text style={[styles.minuteChipText, { color: selected ? c.onPrimary : c.onSurfaceMuted }]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       {}
@@ -180,6 +229,9 @@ const styles = StyleSheet.create({
   settingSub: { fontSize: 12, marginTop: 2 },
   connectBtn: { borderRadius: 10, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 7 },
   connectBtnText: { fontSize: 13, fontWeight: '700' },
+  minutesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 14 },
+  minuteChip: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 6 },
+  minuteChipText: { fontSize: 13, fontWeight: '600' },
   logoutBtn: { borderRadius: 14, borderWidth: 1, paddingVertical: 16, alignItems: 'center' },
   logoutText: { fontSize: 15, fontWeight: '700' },
   version: { textAlign: 'center', fontSize: 12, marginTop: 8 },

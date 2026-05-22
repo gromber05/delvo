@@ -1,6 +1,10 @@
 ﻿from contextlib import asynccontextmanager
+import asyncio
+import logging
 import os
 import secrets
+import uuid
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.openapi.docs import get_swagger_ui_html
@@ -11,15 +15,70 @@ from app.api.api_router import api_router
 from app.db.postgresql.planner_repository import ensure_planner_tables
 from app.db.postgresql.user_repository import ensure_users_table
 
+logger = logging.getLogger(__name__)
+
+_RENEW_INTERVAL_SECONDS = 6 * 24 * 3600  # 6 days
+_RENEW_THRESHOLD_HOURS = 24              # renew if expiry is within 24 h
+
+
+def _renew_all_watches() -> None:
+    from app.db.postgresql.user_repository import get_all_users_with_google, update_gcal_watch
+    from app.services import google_calendar_service as gcal
+
+    users = get_all_users_with_google()
+    now = datetime.now(timezone.utc)
+
+    for user in users:
+        uid = int(user["id"])
+        expiry_raw: str | None = user.get("gcal_watch_expiry")
+
+        if expiry_raw:
+            try:
+                expiry_dt = datetime.fromisoformat(expiry_raw)
+                if expiry_dt.tzinfo is None:
+                    expiry_dt = expiry_dt.replace(tzinfo=timezone.utc)
+                if expiry_dt - now > timedelta(hours=_RENEW_THRESHOLD_HOURS):
+                    continue
+            except ValueError:
+                pass
+
+        try:
+            channel_id = str(uuid.uuid4())
+            result = gcal.register_watch(uid, channel_id)
+            expiry_ms = result.get("expiration")
+            expiry_iso = (
+                datetime.fromtimestamp(int(expiry_ms) / 1000, tz=timezone.utc).isoformat()
+                if expiry_ms else None
+            )
+            update_gcal_watch(user_id=uid, channel_id=channel_id, expiry=expiry_iso)
+            logger.info("GCal watch renovado para usuario %s, expira %s", uid, expiry_iso)
+        except Exception:
+            logger.exception("Error renovando GCal watch para usuario %s", uid)
+
+
+async def _gcal_watch_renewal_loop() -> None:
+    await asyncio.sleep(30)
+    while True:
+        try:
+            await asyncio.get_event_loop().run_in_executor(None, _renew_all_watches)
+        except Exception:
+            logger.exception("Error en el loop de renovación de GCal watches")
+        await asyncio.sleep(_RENEW_INTERVAL_SECONDS)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import google.auth._helpers as _helpers
-    from datetime import datetime, timezone as _tz
-    _helpers.utcnow = lambda: datetime.now(_tz.utc)
+    _helpers.utcnow = lambda: datetime.now(timezone.utc)
     ensure_users_table()
     ensure_planner_tables()
+    renewal_task = asyncio.create_task(_gcal_watch_renewal_loop())
     yield
+    renewal_task.cancel()
+    try:
+        await renewal_task
+    except asyncio.CancelledError:
+        pass
 
 
 app = FastAPI(

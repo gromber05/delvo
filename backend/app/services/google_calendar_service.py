@@ -7,8 +7,12 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from app.db.postgresql.user_repository import get_user_google_tokens, update_google_tokens
-from app.db.postgresql.event_repository import create_event as db_create_event
-from app.db.postgresql.connector import get_db_cursor
+from app.db.postgresql.event_repository import (
+    create_event as db_create_event,
+    list_synced_events,
+    update_event_from_gcal,
+    delete_event as db_delete_event,
+)
 
 _CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 _CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
@@ -105,53 +109,92 @@ def delete_event(user_id: int, event_id: str) -> None:
     service.events().delete(calendarId="primary", eventId=event_id).execute()
 
 
-def _already_synced(user_id: int, gcal_id: str) -> bool:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            "SELECT 1 FROM events WHERE user_id = %s AND gcal_event_id = %s LIMIT 1",
-            (user_id, gcal_id),
-        )
-        return cursor.fetchone() is not None
+def _parse_gcal_item(item: dict[str, Any], now: datetime) -> tuple[str, str, str | None, str | None, str | None]:
+    """Returns (title, event_date, event_time, description, location)."""
+    title: str = (item.get("summary") or "(sin título)")[:190]
+    description: str | None = item.get("description")
+    location: str | None = item.get("location")
+    start = item.get("start", {})
+    if start.get("dateTime"):
+        dt = datetime.fromisoformat(start["dateTime"])
+        event_date = dt.date().isoformat()
+        event_time = dt.strftime("%H:%M:%S")
+    else:
+        event_date = start.get("date", now.date().isoformat())
+        event_time = None
+    return title, event_date, event_time, description, location
 
 
 def sync_events(user_id: int) -> dict[str, int]:
+    """
+    Bidirectional sync:
+    - New GCal events → create in Delvo
+    - Changed GCal events (title/date) → update local copy
+    - GCal events deleted → delete local copy
+    """
     now = datetime.now(timezone.utc)
     time_min = (now - timedelta(days=30)).isoformat()
     time_max = (now + timedelta(days=180)).isoformat()
 
-    items = list_events(user_id, time_min=time_min, time_max=time_max, max_results=250)
+    gcal_items = list_events(user_id, time_min=time_min, time_max=time_max, max_results=250)
+    gcal_map: dict[str, Any] = {item["id"]: item for item in gcal_items if item.get("id")}
 
-    imported = 0
-    skipped = 0
-    for item in items:
-        gcal_id: str = item.get("id", "")
-        if not gcal_id or _already_synced(user_id, gcal_id):
-            skipped += 1
-            continue
+    local_synced = list_synced_events(user_id=user_id)
+    local_map: dict[str, Any] = {e["gcal_event_id"]: e for e in local_synced if e.get("gcal_event_id")}
 
-        title: str = item.get("summary") or "(sin título)"
-        description: str | None = item.get("description")
-        location: str | None = item.get("location")
+    imported = updated = deleted = skipped = 0
 
-        start = item.get("start", {})
-        if start.get("dateTime"):
-            dt = datetime.fromisoformat(start["dateTime"])
-            event_date = dt.date().isoformat()
-            event_time = dt.strftime("%H:%M:%S")
+    for gcal_id, item in gcal_map.items():
+        title, event_date, event_time, description, location = _parse_gcal_item(item, now)
+
+        if gcal_id in local_map:
+            local = local_map[gcal_id]
+            if local["title"] != title or local["event_date"].isoformat()[:10] != event_date:
+                update_event_from_gcal(
+                    event_id=int(local["id"]),
+                    user_id=user_id,
+                    title=title,
+                    event_date=event_date,
+                    event_time=event_time,
+                    description=description,
+                    location=location,
+                )
+                updated += 1
+            else:
+                skipped += 1
         else:
-            event_date = start.get("date", now.date().isoformat())
-            event_time = None
+            db_create_event(
+                user_id=user_id,
+                title=title,
+                description=description,
+                event_date=event_date,
+                event_time=event_time,
+                location=location,
+                event_type="google_calendar",
+                gcal_event_id=gcal_id,
+            )
+            imported += 1
 
-        db_create_event(
-            user_id=user_id,
-            title=title[:190],
-            description=description,
-            event_date=event_date,
-            event_time=event_time,
-            location=location,
-            event_type="google_calendar",
-            gcal_event_id=gcal_id,
-        )
-        imported += 1
+    for gcal_id, local in local_map.items():
+        if gcal_id not in gcal_map:
+            db_delete_event(event_id=int(local["id"]), user_id=user_id)
+            deleted += 1
 
-    return {"imported": imported, "skipped": skipped}
+    return {"imported": imported, "updated": updated, "deleted": deleted, "skipped": skipped}
+
+
+def register_watch(user_id: int, channel_id: str) -> dict[str, Any]:
+    """Register a Google Calendar push notification watch. Returns {resourceId, expiration}."""
+    import os
+    creds = _build_credentials(user_id)
+    service = build("calendar", "v3", credentials=creds, cache_discovery=False)
+    webhook_url = os.environ.get(
+        "GCAL_WEBHOOK_URL",
+        "https://apidelvo.gromber05.dev/api/v1/google-calendar/webhook",
+    )
+    body = {
+        "id": channel_id,
+        "type": "web_hook",
+        "address": webhook_url,
+    }
+    return service.events().watch(calendarId="primary", body=body).execute()

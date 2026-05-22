@@ -8,6 +8,7 @@ import {
   setOnAuthExpired,
   UserDto,
 } from '../api/client';
+import { requestPermissionsAndRegisterToken } from '../notifications/NotificationService';
 
 const TOKEN_KEY = 'delvo_token';
 const REFRESH_TOKEN_KEY = 'delvo_refresh_token';
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       [USER_KEY, JSON.stringify(user)],
     ]);
     setState({ token, user, loading: false });
+    requestPermissionsAndRegisterToken().catch(() => {});
   }, []);
 
   

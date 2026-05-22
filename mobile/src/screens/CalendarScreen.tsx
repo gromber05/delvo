@@ -16,6 +16,7 @@ import { IconPlus } from '@tabler/icons-react-native';
 import { api, EventDto, GoogleCalendarEvent, MeetingDto, TaskDto } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
 import { StellaFAB } from '../components/StellaFAB';
+import { scheduleEventReminders } from '../notifications/NotificationService';
 
 const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const MONTH_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -117,6 +118,7 @@ export function CalendarScreen() {
       setEvents(ev.items);
       setMeetings(mt.items);
       setTasks(tk.items);
+      scheduleEventReminders(ev.items, tk.items).catch(() => {});
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al cargar.');
     } finally {
@@ -263,8 +265,10 @@ export function CalendarScreen() {
           status: editTarget.taskData?.status ?? 'pending',
         });
       }
+      const wasGcal = editTarget.type === 'gcal';
       setEditTarget(null);
       load();
+      if (wasGcal) loadGcal(year, month);
     } catch (e: unknown) {
       setSaveError(e instanceof Error ? e.message : 'Error al guardar.');
     } finally {
@@ -575,15 +579,17 @@ export function CalendarScreen() {
             </View>
 
             {}
-            <TouchableOpacity
-              style={[styles.deleteBtn, { borderColor: c.error ?? '#F44336' }, (saving || deleting) && { opacity: 0.5 }]}
-              onPress={() => editTarget && deleteEntry(editTarget)}
-              disabled={saving || deleting}
-            >
-              {deleting
-                ? <ActivityIndicator color={c.error ?? '#F44336'} />
-                : <Text style={[styles.deleteText, { color: c.error ?? '#F44336' }]}>Eliminar</Text>}
-            </TouchableOpacity>
+            {editTarget?.type !== 'gcal' && (
+              <TouchableOpacity
+                style={[styles.deleteBtn, { borderColor: c.error ?? '#F44336' }, (saving || deleting) && { opacity: 0.5 }]}
+                onPress={() => editTarget && deleteEntry(editTarget)}
+                disabled={saving || deleting}
+              >
+                {deleting
+                  ? <ActivityIndicator color={c.error ?? '#F44336'} />
+                  : <Text style={[styles.deleteText, { color: c.error ?? '#F44336' }]}>Eliminar</Text>}
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Modal>

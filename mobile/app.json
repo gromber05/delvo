@@ -5,14 +5,28 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "icon": "./assets/icon.png",
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/icon.png",
+      "backgroundColor": "#07162A"
+    },
     "android": {
-      "package": "com.gromber05.delvo"
+      "package": "com.gromber05.delvo",
+      "permissions": ["SCHEDULE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "VIBRATE"]
     },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.gromber05.delvo"
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#6C63FF",
+          "sounds": []
+        }
+      ]
+    ],
     "scheme": "delvo",
     "newArchEnabled": true,
     "extra": {

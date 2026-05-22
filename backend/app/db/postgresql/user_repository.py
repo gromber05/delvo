@@ -38,6 +38,15 @@ def ensure_users_table() -> None:
         cursor.execute(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_email VARCHAR(190) NULL;"
         )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS expo_push_token TEXT NULL;"
+        )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS gcal_channel_id TEXT NULL;"
+        )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS gcal_watch_expiry TEXT NULL;"
+        )
         connection.commit()
 
 
@@ -129,6 +138,43 @@ def get_user_google_tokens(user_id: int) -> dict[str, Any] | None:
         )
         row = cursor.fetchone()
         return dict(row) if row else None
+
+
+def update_push_token(*, user_id: int, token: str | None) -> None:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            "UPDATE users SET expo_push_token = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+            (token, user_id),
+        )
+        connection.commit()
+
+
+def update_gcal_watch(*, user_id: int, channel_id: str | None, expiry: str | None) -> None:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            "UPDATE users SET gcal_channel_id = %s, gcal_watch_expiry = %s WHERE id = %s",
+            (channel_id, expiry, user_id),
+        )
+        connection.commit()
+
+
+def get_user_by_channel_id(channel_id: str) -> dict[str, Any] | None:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            "SELECT id, name, email, google_email, expo_push_token FROM users WHERE gcal_channel_id = %s LIMIT 1",
+            (channel_id,),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
+def get_all_users_with_google() -> list[dict[str, Any]]:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            "SELECT id, gcal_channel_id, gcal_watch_expiry FROM users WHERE google_access_token IS NOT NULL"
+        )
+        rows = cursor.fetchall() or []
+        return [dict(r) for r in rows]
 
 
 def update_google_tokens(

@@ -364,6 +364,29 @@ export const api = {
       body: JSON.stringify(tokens),
     }),
 
+  registerPushToken: (token: string) =>
+    request<{ ok: boolean }>('/api/v1/auth/me/push-token', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+
+  transcribeAudio: async (uri: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', { uri, name: 'audio.m4a', type: 'audio/m4a' } as unknown as Blob);
+    const res = await fetch(`${BASE_URL}/api/v1/assistant/transcribe`, {
+      method: 'POST',
+      headers: _token ? { Authorization: `Bearer ${_token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      let message = `HTTP ${res.status}`;
+      try { const b = await res.json(); message = b?.detail ?? message; } catch { }
+      throw new Error(message);
+    }
+    const data = await res.json() as { text: string };
+    return data.text;
+  },
+
   listGoogleCalendarEvents: (params?: {
     time_min?: string;
     time_max?: string;
