@@ -146,7 +146,7 @@ Con el desarrollo de Delvo se esperan obtener diferentes beneficios tanto a nive
 * Ofrecer una experiencia multiplataforma compatible con dispositivos web y móviles.
 * Permitir una futura integración de funciones inteligentes basadas en IA para asistencia y automatización.
 * Aplicar conocimientos reales de desarrollo multiplataforma, arquitectura de software, bases de datos y desarrollo moderno.
-* Obtener experiencia práctica en tecnologías actuales como Next.js, FastAPI, MariaDB y Jetpack Compose.
+* Obtener experiencia práctica en tecnologías actuales como Next.js (Aplicación Web), FastAPI, PostgreSQL y React Native (Aplicación Móvil).
 * Desarrollar un proyecto escalable y adaptable que pueda evolucionar en el futuro hacia una aplicación de uso real.
 
 En conjunto, Delvo representa no solo una solución tecnológica para la organización personal y profesional, sino también una oportunidad de crecimiento técnico y aprendizaje práctico dentro del desarrollo de software moderno.
@@ -162,9 +162,9 @@ Delvo es una aplicación multiplataforma de productividad y organización desarr
 Se trata de una solución basada en arquitectura cliente-servidor, formada por:
 
 * Una aplicación web desarrollada con Next.js y React.
-* Una aplicación móvil desarrollada para Android con Kotlin y Jetpack Compose.
+* Una aplicación móvil desarrollada con React Native y TypeScript.
 * Un backend basado en FastAPI encargado de la lógica de negocio, autenticación y gestión de datos.
-* Una base de datos MariaDB para el almacenamiento persistente de información.
+* Una base de datos PostgreSQL para el almacenamiento persistente de información.
 
 Además, este proyecto presenta la mejora de herramientas de inteligencia artificial para automatización, asistencia y recomendaciones inteligentes al usuario.
 
@@ -221,7 +221,19 @@ Estos objetivos permiten que Delvo no sea solo una demostración académica, sin
 
 ## a. Límites
 
+El alcance de Delvo se centra en el desarrollo de una aplicación multiplataforma de productividad personal y organización, formada por una aplicación web, una aplicación móvil, un backend y una base de datos. En su versión actual, el proyecto permite a los usuarios registrarse, iniciar sesión y gestionar información relacionada con tareas, reuniones, eventos y notas. También incorpora un asistente inteligente capaz de interpretar mensajes en lenguaje natural y ayudar al usuario a realizar acciones dentro del planificador.
+
+Además, Delvo incluye integración con Google Calendar mediante OAuth 2.0, permitiendo conectar una cuenta de Google, sincronizar eventos y consultar información del calendario desde la propia aplicación. La aplicación web ofrece una experiencia de usuario rica desde navegador, mientras que la aplicación móvil permite acceder a las funciones principales desde un dispositivo Android mediante React Native y su correspondiente `.apk` compilada haciendo uso de la herramienta Expo.
+
+No obstante, esta primera versión no contempla funcionalidades colaborativas avanzadas, como espacios compartidos entre usuarios, permisos por roles o edición simultánea. Tampoco incluye todavía publicación oficial en tiendas de aplicaciones. Estas funcionalidades se consideran ampliaciones futuras, ya que el objetivo principal del proyecto es construir una base funcional, estable y escalable.
+
 ## b. Restricciones
+
+El desarrollo del proyecto ha estado condicionado por varias restricciones. La primera ha sido el tiempo disponible, ya que el proyecto se ha realizado dentro del periodo correspondiente al Trabajo de Fin de Grado. Esto ha obligado a priorizar las funcionalidades principales frente a otras mejoras que podrían incorporarse en versiones posteriores.
+
+También ha existido una restricción de recursos, al tratarse de un proyecto desarrollado principalmente por una sola persona. Por este motivo, se ha optado por una arquitectura modular y por tecnologías conocidas que facilitan el desarrollo, mantenimiento y despliegue. Otra restricción importante es la dependencia de servicios externos como Google Calendar y Ollama, que requieren configuración específica para poder funcionar de manera establef.
+
+Por último, el proyecto depende de una configuración del entorno específica, requiriendo variables de entorno, archivos Docker y credenciales externas. Esto implica que la instalación debe seguir unos pasos concretos para que todos los servicios funcionen de manera adecuada.
 
 ---
 
@@ -229,9 +241,31 @@ Estos objetivos permiten que Delvo no sea solo una demostración académica, sin
 
 ## a. Requisitos funcionales
 
+Delvo debe permitir que un usuario pueda crear una cuenta, iniciar sesión y mantener una sesión activa de forma segura haciendo uso de credenciales. Una vez autenticado, el usuario debe poder gestionar sus tareas, reuniones, eventos y notas, realizando operaciones básicas como crear, consultar, modificar y eliminar información.
+
+El sistema también debe permitir que cada usuario acceda únicamente a sus propios datos, evitando que la información personal pueda ser consultada por otros usuarios. Para ello, los endpoints protegidos requieren autenticación mediante tokens JWT.
+
+Otra funcionalidad importante es la integración del asistente inteligente. El usuario debe poder escribir peticiones en lenguaje natural, como solicitar la creación de una tarea o consultar sus eventos, y el sistema debe interpretar la intención y responder de forma útil. Además, Delvo debe permitir conectar una cuenta de Google Calendar, sincronizar eventos y editar determinados eventos desde la aplicación.
+
+En la parte web, el sistema debe ofrecer navegación por las distintas secciones de productividad y soporte multilenguaje.
+En la parte móvil, la aplicación debe permitir mantener la sesión del usuario y refrescar automáticamente el token cuando sea necesario.
+
 ## b. Requisitos técnicos
 
+El backend del proyecto está desarrollado con Python y FastAPI, utilizando Uvicorn como entorno de ejecución. La base de datos utilizada es una base de datos PostgreSQL autoalojada en nuestro servidor, donde se almacenan usuarios, tareas, reuniones, eventos, notas y datos relacionados con la integración de Google Calendar.
+
+La aplicación web está desarrollada con Next.js, React, TypeScript y Tailwind CSS. Esta parte actúa como cliente principal en navegador y también como capa intermedia para algunas peticiones autenticadas. La aplicación móvil está desarrollada con Expo, React Native y TypeScript, permitiendo una experiencia adaptada a dispositivos móviles.
+
+Para la inteligencia artificial se utiliza Ollama, lo que permite ejecutar modelos de lenguaje de forma local. El proyecto también incluye una base de conocimiento para RAG, de forma que el asistente pueda apoyarse en información local. El despliegue se organiza mediante Docker Compose, lo que facilita levantar el backend, la base de datos y la aplicación web de forma conjunta.
+
+
 ## c. Requisitos legales o normativos
+
+Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa española de protección de datos.
+
+La aplicación debe almacenar únicamente la información necesaria para su funcionamiento y proteger las credenciales mediante técnicas de seguridad adecuadas, como el hash de contraseñas y el uso de tokens de acceso. Además, las credenciales sensibles, como claves JWT o credenciales de Google, deben mantenerse fuera del código fuente y gestionarse mediante variables de entorno.
+
+La integración con Google Calendar debe respetar las condiciones de uso de las APIs de Google, solicitando únicamente los permisos necesarios para el funcionamiento previsto. También se incluye una política de privacidad en la aplicación web para informar al usuario sobre el tratamiento de sus datos.
 
 ---
 
