@@ -15,3 +15,10 @@ class ChatResponse(BaseModel):
     data: Dict[str, Any]
     message: str
     context_used: List[str]
+
+
+class TranscriptionResponse(BaseModel):
+    text: str
+    language: str | None = None
+    language_probability: float | None = None
+    duration: float | None = None
