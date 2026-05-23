@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "adaptiveIcon": {
-      "foregroundImage": "./assets/icon.png",
-      "backgroundColor": "#07162A"
-    },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#07162A"
+      },
       "package": "com.gromber05.delvo",
       "permissions": ["SCHEDULE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "VIBRATE"]
     },
@@ -28,7 +28,7 @@
       ]
     ],
     "scheme": "delvo",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
       "eas": {
         "projectId": "df10e9a8-a6fd-427b-9d1b-39e56a0c7cb6"

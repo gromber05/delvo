@@ -1,4 +1,4 @@
+packages:
+  - "."
 allowBuilds:
   dtrace-provider: true
-onlyBuiltDependencies:
-  - dtrace-provider
