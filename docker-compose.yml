@@ -28,6 +28,9 @@ services:
       - "30667:8000"
     env_file:
       - .env
+    environment:
+      - STT_DEVICE=${STT_DEVICE:-cpu}
+      - STT_COMPUTE_TYPE=${STT_COMPUTE_TYPE:-int8}
     volumes:
       - ./:/app
     depends_on:

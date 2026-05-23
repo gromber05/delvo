@@ -100,7 +100,7 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
       if (!uri) throw new Error('No se pudo obtener el audio.');
       const text = await api.transcribeAudio(uri);
       if (text) {
-        setInput(text);
+        await send(text);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al transcribir.');

@@ -48,11 +48,19 @@ class STTService:
 
     def _get_model(self) -> WhisperModel:
         if self._model is None:
-            self._model = WhisperModel(
-                self.config.model,
-                device=self.config.device,
-                compute_type=self.config.compute_type,
-            )
+            try:
+                self._model = WhisperModel(
+                    self.config.model,
+                    device=self.config.device,
+                    compute_type=self.config.compute_type,
+                )
+            except Exception:
+                # Fall back to CPU when CUDA is unavailable (e.g. dev/docker without GPU)
+                self._model = WhisperModel(
+                    self.config.model,
+                    device="cpu",
+                    compute_type="int8",
+                )
         return self._model
 
     def _transcribe_sync(self, path: str, language: str | None) -> dict[str, Any]:
