@@ -84,12 +84,12 @@ export function AppNavigator() {
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
         <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario' }} />
-        <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
         {isAdmin && (
           <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', headerShown: true }} />
         )}
+        <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
         <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
-        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: true, tabBarHideOnKeyboard: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
+        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
       </Tab.Navigator>
     </NavigationContainer>
   );

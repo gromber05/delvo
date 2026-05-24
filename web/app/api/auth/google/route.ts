@@ -2,12 +2,6 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { randomBytes } from "crypto"
 
-
-
-
-
-
-
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? ""
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "")
 const SCOPES = ["email", "https://www.googleapis.com/auth/calendar"].join(" ")
@@ -19,7 +13,7 @@ export async function GET(request: Request) {
 
   
   const referer = request.headers.get("referer") ?? ""
-  const langMatch = referer.match(/\/(es|en)\
+  const langMatch = referer.match(/\/(es|en)\//)
   const lang = langMatch ? langMatch[1] : "es"
 
   const state = randomBytes(16).toString("hex") + `:${lang}`

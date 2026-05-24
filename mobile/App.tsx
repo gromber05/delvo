@@ -6,10 +6,14 @@ import { AuthProvider } from './src/auth/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 
 function Root() {
-  const { isDark } = useTheme();
+  const { isDark, colors: c } = useTheme();
   return (
     <>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={c.background}
+        translucent={false}
+      />
       <AppNavigator />
     </>
   );

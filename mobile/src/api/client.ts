@@ -1,7 +1,5 @@
 const BASE_URL = 'https://apidelvo.gromber05.dev';
 
-
-
 export interface UserDto {
   id: number;
   name: string;
@@ -330,7 +328,6 @@ export const api = {
   deleteMeeting: (id: number) =>
     request<{ ok: boolean }>(`/api/v1/planner/meetings/${id}`, { method: 'DELETE' }),
 
-  
   listNotes: () => request<ListResponse<NoteDto>>('/api/v1/planner/notes'),
   createNote: (body: { title: string; content?: string; status?: string }) =>
     request<ItemResponse<NoteDto>>('/api/v1/planner/notes', {
@@ -348,7 +345,6 @@ export const api = {
   
   me: () => request<{ user: UserDto }>('/api/v1/auth/me'),
 
-  
   googleCalendarConnectUrl: () =>
     request<{ url: string }>('/api/v1/google-calendar/connect?platform=mobile'),
 
@@ -381,7 +377,6 @@ export const api = {
       body: JSON.stringify({ token }),
     }),
 
-  // Admin
   adminStats: () => request<AdminStatsDto>('/api/v1/admin/stats'),
   adminUsers: () => request<{ items: { id: number; name: string; email: string; role: string; created_at: string }[] }>('/api/v1/admin/users'),
   adminUpdateRole: (userId: number, role: string) =>

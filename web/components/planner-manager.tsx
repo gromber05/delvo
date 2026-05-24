@@ -38,6 +38,7 @@ type Event = {
   event_time?: string | null
   location?: string | null
   event_type: string
+  gcal_event_id?: string | null
 }
 
 type Note = {
@@ -72,6 +73,11 @@ export function PlannerManager({ className }: Props) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+
+  // Edit modal state
+  const [editTarget, setEditTarget] = useState<{ tab: Tab; item: Task | Meeting | Event | Note } | null>(null)
+  const [editForm, setEditForm] = useState<Record<string, string>>({})
+  const [editSaving, setEditSaving] = useState(false)
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
@@ -200,6 +206,7 @@ export function PlannerManager({ className }: Props) {
               event_time: normalizeTime(item.event_time) || null,
               location: typeof item.location === "string" ? item.location : null,
               event_type: typeof item.event_type === "string" ? item.event_type : "general",
+              gcal_event_id: typeof item.gcal_event_id === "string" ? item.gcal_event_id : null,
             }
           })
           .filter((item): item is Event => item !== null)
@@ -386,118 +393,115 @@ export function PlannerManager({ className }: Props) {
     }
   }
 
-  async function handleQuickEdit(tab: Tab, item: Task | Meeting | Event | Note) {
+  function openEdit(tab: Tab, item: Task | Meeting | Event | Note) {
+    const form: Record<string, string> = {}
+    if (tab === "tasks") {
+      const t = item as Task
+      form.title = t.title
+      form.description = t.description ?? ""
+      form.due_date = t.due_date ?? ""
+      form.due_time = t.due_time ?? ""
+      form.priority = t.priority
+      form.status = t.status
+    } else if (tab === "meetings") {
+      const m = item as Meeting
+      form.title = m.title
+      form.description = m.description ?? ""
+      form.meeting_date = m.meeting_date
+      form.meeting_time = m.meeting_time
+      form.duration_minutes = m.duration_minutes != null ? String(m.duration_minutes) : ""
+      form.location = m.location ?? ""
+      form.participants = m.participants.join(", ")
+      form.status = m.status
+    } else if (tab === "events") {
+      const e = item as Event
+      form.title = e.title
+      form.description = e.description ?? ""
+      form.event_date = e.event_date
+      form.event_time = e.event_time ?? ""
+      form.location = e.location ?? ""
+      form.event_type = e.event_type
+    } else {
+      const n = item as Note
+      form.title = n.title
+      form.content = n.content ?? ""
+      form.status = n.status
+    }
+    setEditForm(form)
+    setEditTarget({ tab, item })
+  }
+
+  async function saveEdit() {
+    if (!editTarget) return
+    setEditSaving(true)
     try {
+      const { tab, item } = editTarget
       if (tab === "tasks") {
         const task = item as Task
-        const title = window.prompt("Titulo", task.title)
-        if (title === null || !title.trim()) return
-        const description = window.prompt("Descripcion", task.description ?? "")
-        if (description === null) return
-        const dueDate = window.prompt("Fecha (YYYY-MM-DD)", task.due_date ?? "")
-        if (dueDate === null) return
-        const dueTime = window.prompt("Hora (HH:MM)", task.due_time ?? "")
-        if (dueTime === null) return
-        const priority = window.prompt("Prioridad (low|medium|high)", task.priority)
-        if (priority === null) return
-        const status = window.prompt("Estado (pending|in_progress|done)", task.status)
-        if (status === null) return
+        if (!editForm.title?.trim()) throw new Error("El título es obligatorio")
         await requestJson(`/api/planner/tasks/${task.id}`, {
           method: "PUT",
           body: JSON.stringify({
-            ...task,
-            title: title.trim(),
-            description: description.trim() || null,
-            due_date: dueDate.trim() || null,
-            due_time: dueTime.trim() || null,
-            priority: priority.trim() || task.priority,
-            status: status.trim() || task.status,
+            title: editForm.title.trim(),
+            description: editForm.description?.trim() || null,
+            due_date: editForm.due_date?.trim() || null,
+            due_time: editForm.due_time?.trim() || null,
+            priority: editForm.priority || task.priority,
+            status: editForm.status || task.status,
           }),
         })
         window.dispatchEvent(new CustomEvent("planner:tasks-updated"))
-      }
-      if (tab === "meetings") {
+      } else if (tab === "meetings") {
         const meeting = item as Meeting
-        const title = window.prompt("Titulo", meeting.title)
-        if (title === null || !title.trim()) return
-        const description = window.prompt("Descripcion", meeting.description ?? "")
-        if (description === null) return
-        const meetingDate = window.prompt("Fecha (YYYY-MM-DD)", meeting.meeting_date)
-        if (meetingDate === null || !meetingDate.trim()) return
-        const meetingTime = window.prompt("Hora (HH:MM)", meeting.meeting_time)
-        if (meetingTime === null || !meetingTime.trim()) return
-        const location = window.prompt("Ubicacion", meeting.location ?? "")
-        if (location === null) return
-        const participants = window.prompt(
-          "Participantes separados por coma",
-          meeting.participants.join(", ")
-        )
-        if (participants === null) return
-        const status = window.prompt("Estado (scheduled|completed|cancelled)", meeting.status)
-        if (status === null) return
+        if (!editForm.title?.trim() || !editForm.meeting_date || !editForm.meeting_time) {
+          throw new Error("Título, fecha y hora son obligatorios")
+        }
         await requestJson(`/api/planner/meetings/${meeting.id}`, {
           method: "PUT",
           body: JSON.stringify({
-            ...meeting,
-            title: title.trim(),
-            description: description.trim() || null,
-            meeting_date: meetingDate.trim(),
-            meeting_time: meetingTime.trim(),
-            location: location.trim() || null,
-            participants: parseParticipants(participants),
-            status: status.trim() || meeting.status,
+            title: editForm.title.trim(),
+            description: editForm.description?.trim() || null,
+            meeting_date: editForm.meeting_date.trim(),
+            meeting_time: editForm.meeting_time.trim(),
+            duration_minutes: editForm.duration_minutes ? Number(editForm.duration_minutes) : null,
+            location: editForm.location?.trim() || null,
+            participants: parseParticipants(editForm.participants ?? ""),
+            status: editForm.status || meeting.status,
           }),
         })
-      }
-      if (tab === "events") {
+      } else if (tab === "events") {
         const event = item as Event
-        const title = window.prompt("Titulo", event.title)
-        if (title === null || !title.trim()) return
-        const description = window.prompt("Descripcion", event.description ?? "")
-        if (description === null) return
-        const eventDate = window.prompt("Fecha (YYYY-MM-DD)", event.event_date)
-        if (eventDate === null || !eventDate.trim()) return
-        const eventTime = window.prompt("Hora (HH:MM)", event.event_time ?? "")
-        if (eventTime === null) return
-        const location = window.prompt("Ubicacion", event.location ?? "")
-        if (location === null) return
-        const eventType = window.prompt("Tipo", event.event_type)
-        if (eventType === null) return
+        if (!editForm.title?.trim() || !editForm.event_date) throw new Error("Título y fecha son obligatorios")
         await requestJson(`/api/planner/events/${event.id}`, {
           method: "PUT",
           body: JSON.stringify({
-            ...event,
-            title: title.trim(),
-            description: description.trim() || null,
-            event_date: eventDate.trim(),
-            event_time: eventTime.trim() || null,
-            location: location.trim() || null,
-            event_type: eventType.trim() || event.event_type,
+            title: editForm.title.trim(),
+            description: editForm.description?.trim() || null,
+            event_date: editForm.event_date.trim(),
+            event_time: editForm.event_time?.trim() || null,
+            location: editForm.location?.trim() || null,
+            event_type: editForm.event_type?.trim() || event.event_type,
           }),
         })
-      }
-      if (tab === "notes") {
+      } else {
         const note = item as Note
-        const title = window.prompt("Titulo", note.title)
-        if (title === null || !title.trim()) return
-        const content = window.prompt("Contenido", note.content ?? "")
-        if (content === null) return
-        const status = window.prompt("Estado (active|archived)", note.status)
-        if (status === null) return
+        if (!editForm.title?.trim()) throw new Error("El título es obligatorio")
         await requestJson(`/api/planner/notes/${note.id}`, {
           method: "PUT",
           body: JSON.stringify({
-            ...note,
-            title: title.trim(),
-            content: content.trim() || null,
-            status: status.trim() || note.status,
+            title: editForm.title.trim(),
+            content: editForm.content?.trim() || null,
+            status: editForm.status || note.status,
           }),
         })
       }
       await loadAll()
+      setEditTarget(null)
       toast.success("Elemento actualizado")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo actualizar")
+    } finally {
+      setEditSaving(false)
     }
   }
 
@@ -657,7 +661,7 @@ export function PlannerManager({ className }: Props) {
                       {item.due_date || "Sin fecha"} {item.due_time ? `· ${item.due_time}` : ""} · {item.status}
                     </p>
                     <div className="mt-2 flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("tasks", item)}>Editar</Button>
+                      <Button size="sm" variant="outline" onClick={() => openEdit("tasks", item)}>Editar</Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete("tasks", item.id)} disabled={saving}>Borrar</Button>
                     </div>
                   </div>
@@ -677,7 +681,7 @@ export function PlannerManager({ className }: Props) {
                       {item.meeting_date} · {item.meeting_time} {item.location ? `· ${item.location}` : ""}
                     </p>
                     <div className="mt-2 flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("meetings", item)}>Editar</Button>
+                      <Button size="sm" variant="outline" onClick={() => openEdit("meetings", item)}>Editar</Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete("meetings", item.id)} disabled={saving}>Borrar</Button>
                     </div>
                   </div>
@@ -687,17 +691,21 @@ export function PlannerManager({ className }: Props) {
           {activeTab === "events"
             ? visibleEvents.map((item) => (
                 <div key={item.id} className="flex overflow-hidden rounded-xl border border-border/70 bg-card">
-                  <div className="w-1 shrink-0 bg-amber-400" />
+                  <div className={cn("w-1 shrink-0", item.event_type === "google_calendar" ? "bg-[#4285F4]" : "bg-amber-400")} />
                   <div className="flex-1 px-3 py-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-semibold">{item.title}</p>
-                      <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">Evento</span>
+                      {item.event_type === "google_calendar" ? (
+                        <span className="shrink-0 rounded-full bg-[#4285F4]/10 px-2 py-0.5 text-[10px] font-bold text-[#4285F4]">Google</span>
+                      ) : (
+                        <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">Evento</span>
+                      )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {item.event_date} {item.event_time ? `· ${item.event_time}` : ""} {item.location ? `· ${item.location}` : ""}
                     </p>
                     <div className="mt-2 flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("events", item)}>Editar</Button>
+                      <Button size="sm" variant="outline" onClick={() => openEdit("events", item)}>Editar</Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete("events", item.id)} disabled={saving}>Borrar</Button>
                     </div>
                   </div>
@@ -712,7 +720,7 @@ export function PlannerManager({ className }: Props) {
                     <p className="text-sm font-semibold">{item.title}</p>
                     {item.content && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{item.content}</p>}
                     <div className="mt-2 flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleQuickEdit("notes", item)}>Editar</Button>
+                      <Button size="sm" variant="outline" onClick={() => openEdit("notes", item)}>Editar</Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete("notes", item.id)} disabled={saving}>Borrar</Button>
                     </div>
                   </div>
@@ -721,6 +729,191 @@ export function PlannerManager({ className }: Props) {
             : null}
         </article>
       </div>
+
+      {/* Edit modal */}
+      {editTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+          onClick={() => !editSaving && setEditTarget(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-t-3xl border border-border bg-card p-6 shadow-2xl sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-5 text-lg font-bold capitalize">
+              Editar{" "}
+              <span className="font-normal text-muted-foreground">
+                — {editTarget.tab === "tasks" ? "Tarea" : editTarget.tab === "meetings" ? "Reunión" : editTarget.tab === "events" ? "Evento" : "Nota"}
+              </span>
+            </h3>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {/* Title — all types */}
+              <div>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Título</label>
+                <input
+                  className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={editForm.title ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                  disabled={editSaving}
+                />
+              </div>
+
+              {/* Description — tasks, meetings, events */}
+              {editTarget.tab !== "notes" && (
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Descripción</label>
+                  <input
+                    className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    value={editForm.description ?? ""}
+                    onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                    disabled={editSaving}
+                  />
+                </div>
+              )}
+
+              {/* Task-specific */}
+              {editTarget.tab === "tasks" && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Fecha</label>
+                      <input type="date" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.due_date ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, due_date: e.target.value }))} disabled={editSaving} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Hora</label>
+                      <input type="time" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.due_time ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, due_time: e.target.value }))} disabled={editSaving} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Prioridad</label>
+                      <select className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.priority ?? "medium"} onChange={(e) => setEditForm((f) => ({ ...f, priority: e.target.value }))} disabled={editSaving}>
+                        <option value="low">Baja</option>
+                        <option value="medium">Media</option>
+                        <option value="high">Alta</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Estado</label>
+                      <select className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.status ?? "pending"} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))} disabled={editSaving}>
+                        <option value="pending">Pendiente</option>
+                        <option value="in_progress">En progreso</option>
+                        <option value="done">Completada</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Meeting-specific */}
+              {editTarget.tab === "meetings" && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Fecha</label>
+                      <input type="date" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.meeting_date ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, meeting_date: e.target.value }))} disabled={editSaving} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Hora</label>
+                      <input type="time" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.meeting_time ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, meeting_time: e.target.value }))} disabled={editSaving} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Duración (min)</label>
+                      <input type="number" min={0} className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.duration_minutes ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, duration_minutes: e.target.value }))} disabled={editSaving} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Ubicación</label>
+                      <input className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.location ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, location: e.target.value }))} disabled={editSaving} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Participantes (coma separados)</label>
+                    <input className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.participants ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, participants: e.target.value }))} disabled={editSaving} />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Estado</label>
+                    <select className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.status ?? "scheduled"} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))} disabled={editSaving}>
+                      <option value="scheduled">Programada</option>
+                      <option value="completed">Completada</option>
+                      <option value="cancelled">Cancelada</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Event-specific */}
+              {editTarget.tab === "events" && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Fecha</label>
+                      <input type="date" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.event_date ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, event_date: e.target.value }))} disabled={editSaving} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Hora</label>
+                      <input type="time" className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.event_time ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, event_time: e.target.value }))} disabled={editSaving} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Ubicación</label>
+                      <input className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.location ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, location: e.target.value }))} disabled={editSaving} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Tipo</label>
+                      <input className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.event_type ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, event_type: e.target.value }))} disabled={editSaving} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Note-specific */}
+              {editTarget.tab === "notes" && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Contenido</label>
+                    <textarea
+                      className="min-h-24 w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      value={editForm.content ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, content: e.target.value }))}
+                      disabled={editSaving}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Estado</label>
+                    <select className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" value={editForm.status ?? "active"} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))} disabled={editSaving}>
+                      <option value="active">Activa</option>
+                      <option value="archived">Archivada</option>
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                disabled={editSaving}
+                className="flex-1 rounded-xl border border-border py-3 text-sm font-semibold hover:bg-accent disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={saveEdit}
+                disabled={editSaving}
+                className="flex-1 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+              >
+                {editSaving ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

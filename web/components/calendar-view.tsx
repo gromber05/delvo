@@ -75,7 +75,7 @@ export function CalendarView() {
 
   const now = new Date()
 
-  const [events, setEvents] = useState<Array<{ id: number; title: string; event_date: string; event_time?: string | null }>>([])
+  const [events, setEvents] = useState<Array<{ id: number; title: string; event_date: string; event_time?: string | null; event_type?: string; gcal_event_id?: string | null }>>([])
   const [meetings, setMeetings] = useState<Array<{ id: number; title: string; meeting_date: string; meeting_time: string }>>([])
   const [tasks, setTasks] = useState<TaskData[]>([])
   const [gcalEvents, setGcalEvents] = useState<GcalEvent[]>([])
@@ -134,44 +134,54 @@ export function CalendarView() {
       .catch(() => undefined)
   }, [year, month])
 
-  const entries: CalendarEntry[] = useMemo(() => [
-    ...events.map((e) => ({
-      id: `ev-${e.id}`,
-      type: "event" as const,
-      rawId: e.id,
-      title: e.title,
-      date: e.event_date,
-      time: e.event_time ?? "",
-    })),
-    ...meetings.map((m) => ({
-      id: `mt-${m.id}`,
-      type: "meeting" as const,
-      rawId: m.id,
-      title: m.title,
-      date: m.meeting_date,
-      time: m.meeting_time,
-    })),
-    ...tasks
-      .filter((t) => t.due_date)
-      .map((t) => ({
-        id: `tk-${t.id}`,
-        type: "task" as const,
-        rawId: t.id,
-        title: t.title,
-        date: t.due_date!,
-        time: t.due_time ?? "",
-        priority: t.priority,
-        status: t.status,
-        taskData: t,
+  const entries: CalendarEntry[] = useMemo(() => {
+    // IDs of local events already linked to Google Calendar (avoid duplicates)
+    const localGcalIds = new Set(events.filter((e) => e.gcal_event_id != null).map((e) => e.gcal_event_id as string))
+    return [
+      // Exclude events that were imported from Google Calendar (they appear via gcalEvents)
+      ...events
+        .filter((e) => e.event_type !== "google_calendar")
+        .map((e) => ({
+          id: `ev-${e.id}`,
+          type: "event" as const,
+          rawId: e.id,
+          title: e.title,
+          date: e.event_date,
+          time: e.event_time ?? "",
+        })),
+      ...meetings.map((m) => ({
+        id: `mt-${m.id}`,
+        type: "meeting" as const,
+        rawId: m.id,
+        title: m.title,
+        date: m.meeting_date,
+        time: m.meeting_time,
       })),
-    ...gcalEvents.map((g) => {
-      const dateStr = g.start.dateTime ? g.start.dateTime.split("T")[0] : (g.start.date ?? "")
-      const timeStr = g.start.dateTime
-        ? new Date(g.start.dateTime).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
-        : ""
-      return { id: `gc-${g.id}`, type: "gcal" as const, rawId: 0, title: g.summary ?? "(sin título)", date: dateStr, time: timeStr }
-    }),
-  ], [events, meetings, tasks, gcalEvents])
+      ...tasks
+        .filter((t) => t.due_date)
+        .map((t) => ({
+          id: `tk-${t.id}`,
+          type: "task" as const,
+          rawId: t.id,
+          title: t.title,
+          date: t.due_date!,
+          time: t.due_time ?? "",
+          priority: t.priority,
+          status: t.status,
+          taskData: t,
+        })),
+      // Exclude Google Calendar events already represented as local Delvo events
+      ...gcalEvents
+        .filter((g) => !localGcalIds.has(g.id))
+        .map((g) => {
+          const dateStr = g.start.dateTime ? g.start.dateTime.split("T")[0] : (g.start.date ?? "")
+          const timeStr = g.start.dateTime
+            ? new Date(g.start.dateTime).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+            : ""
+          return { id: `gc-${g.id}`, type: "gcal" as const, rawId: 0, title: g.summary ?? "(sin título)", date: dateStr, time: timeStr }
+        }),
+    ]
+  }, [events, meetings, tasks, gcalEvents])
 
   const countsByDate = useMemo(() => {
     const map: Record<string, number> = {}
@@ -361,7 +371,7 @@ export function CalendarView() {
                   type="button"
                   onClick={() => setSelected(iso)}
                   className={[
-                    "relative flex aspect-square flex-col items-center justify-center rounded-xl m-0.5 transition-colors",
+                    "relative flex h-10 flex-col items-center justify-center rounded-xl m-0.5 transition-colors",
                     isSelected ? "bg-primary/15" : isToday ? "border border-primary" : "hover:bg-accent",
                     !inMonth ? "opacity-30" : "",
                   ].join(" ")}

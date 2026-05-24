@@ -56,6 +56,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (savedToken) setApiToken(savedToken);
         if (savedRefresh) setApiRefreshToken(savedRefresh);
         setState({ token: savedToken ?? null, user: savedUser, loading: false });
+
+        if (savedToken) {
+          try {
+            const { user: freshUser } = await api.me();
+            await AsyncStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+            setState((s) => ({ ...s, user: freshUser }));
+          } catch {
+          }
+        }
       } catch {
         setState((s) => ({ ...s, loading: false }));
       }

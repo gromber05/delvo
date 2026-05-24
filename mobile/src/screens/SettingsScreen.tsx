@@ -56,8 +56,11 @@ export function SettingsScreen() {
     setConnecting(true);
     try {
       const { url } = await api.googleCalendarConnectUrl();
-      const result = await WebBrowser.openAuthSessionAsync(url, 'https://delvo.gromber05.dev/oauth-done');
+      const result = await WebBrowser.openAuthSessionAsync(url, 'delvo://oauth-done');
 
+      // Parsea la URL de retorno si está disponible (deep link funciona correctamente)
+      let statusOk = false;
+      let emailFromUrl: string | null = null;
       if (result.type === 'success') {
         const query = result.url.split('?')[1] ?? '';
         const params: Record<string, string> = {};
@@ -65,24 +68,27 @@ export function SettingsScreen() {
           const [k, ...rest] = part.split('=');
           if (k) params[k] = decodeURIComponent(rest.join('='));
         }
-        if (params.status === 'ok') {
-          await refreshGoogleEmail();
-          const email = params.email ?? null;
-          try {
-            const sync = await api.syncGoogleCalendar();
-            Alert.alert(
-              'Google Calendar',
-              `${email ? `Conectado como ${email}\n` : ''}${sync.imported} eventos importados.`,
-            );
-          } catch {
-            Alert.alert('Google Calendar', email ? `Conectado como ${email}` : 'Cuenta vinculada');
-          }
-        } else {
-          Alert.alert('Error', 'No se pudo vincular Google Calendar');
+        statusOk = params.status === 'ok';
+        emailFromUrl = params.email ?? null;
+      }
+
+      // Siempre refrescamos el email desde el servidor — cubre el caso en que
+      // el navegador cerró antes de que openAuthSessionAsync detectara el deep link.
+      await refreshGoogleEmail();
+      const linkedEmail = emailFromUrl ?? googleEmail;
+
+      if (statusOk || linkedEmail) {
+        try {
+          const sync = await api.syncGoogleCalendar();
+          Alert.alert(
+            'Google Calendar',
+            `${linkedEmail ? `Conectado como ${linkedEmail}\n` : ''}${sync.imported} eventos importados.`,
+          );
+        } catch {
+          Alert.alert('Google Calendar', linkedEmail ? `Conectado como ${linkedEmail}` : 'Cuenta vinculada');
         }
-      } else {
-        
-        await refreshGoogleEmail();
+      } else if (result.type !== 'cancel' && result.type !== 'dismiss') {
+        Alert.alert('Error', 'No se pudo vincular Google Calendar');
       }
     } catch (e) {
       Alert.alert('Error', e instanceof Error ? e.message : 'Error desconocido');

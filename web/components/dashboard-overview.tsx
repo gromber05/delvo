@@ -189,9 +189,17 @@ export function DashboardOverview() {
 
       {}
       <section>
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-          {isSpanish ? "Pendientes" : "Pending"}
-        </p>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            {isSpanish ? "Pendientes" : "Pending"}
+          </p>
+          <a
+            href={`/${language}/planner`}
+            className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+          >
+            + {isSpanish ? "Crear" : "Create"}
+          </a>
+        </div>
         <div className="space-y-2">
           {pendingTasks.length === 0 && !loading ? (
             <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
@@ -242,7 +250,7 @@ export function DashboardOverview() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className={`text-xs font-semibold ${item.type === "meeting" ? "text-primary" : "text-amber-500"}`}>
                     {item.type === "meeting"
                       ? isSpanish ? "Reunión" : "Meeting"
                       : isSpanish ? "Evento" : "Event"}
@@ -255,7 +263,7 @@ export function DashboardOverview() {
       </section>
 
       {}
-      <section className="grid min-h-0 gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <section className="grid shrink-0 gap-4 xl:grid-cols-[1.45fr_1fr]">
         <DashboardCalendar />
         <div className="flex min-h-0 min-h-72 flex-col overflow-hidden rounded-xl border bg-card">
           <ProductChat compact className="h-full min-h-0 flex-1 border-0" />

@@ -37,7 +37,7 @@ _SCOPES = "email https://www.googleapis.com/auth/calendar"
 def _fail_redirect(platform: str) -> RedirectResponse:
     if platform == "web":
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=error", status_code=302)
-    return RedirectResponse("https://delvo.gromber05.dev/oauth-done?status=error", status_code=302)
+    return RedirectResponse("delvo://oauth-done?status=error", status_code=302)
 
 
 @router.get("/connect")
@@ -142,7 +142,7 @@ def google_calendar_callback(
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=ok", status_code=302)
 
     email_param = f"&email={urllib.parse.quote(google_email)}" if google_email else ""
-    return RedirectResponse(f"https://delvo.gromber05.dev/oauth-done?status=ok{email_param}", status_code=302)
+    return RedirectResponse(f"delvo://oauth-done?status=ok{email_param}", status_code=302)
 
 
 @router.post("/webhook", status_code=200)

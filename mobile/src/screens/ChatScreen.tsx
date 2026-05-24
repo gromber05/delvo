@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
   Text,
@@ -11,9 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, AssistantChatTurn } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
-import { IconMicrophone, IconPlayerStop, IconSend } from '@tabler/icons-react-native';
+import { IconArrowLeft, IconMicrophone, IconPlayerStop, IconSend } from '@tabler/icons-react-native';
 
 interface Message {
   id: string;
@@ -24,8 +24,9 @@ interface Message {
 
 type RecordState = 'idle' | 'recording' | 'transcribing';
 
-export function ChatScreen({ navigation }: { navigation: { setOptions: (options: { headerShown: boolean }) => void; goBack: () => void } }) {
+export function ChatScreen({ navigation }: { navigation: { goBack: () => void } }) {
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -38,16 +39,6 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
     if (messages.length > 0)
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 80);
   }, [messages]);
-
-  useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', () => {
-      navigation.setOptions({ headerShown: false });
-    });
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
-      navigation.setOptions({ headerShown: true });
-    });
-    return () => { showSub.remove(); hideSub.remove(); };
-  }, [navigation]);
 
   async function send(text?: string) {
     const content = (text ?? input).trim();
@@ -116,7 +107,10 @@ export function ChatScreen({ navigation }: { navigation: { setOptions: (options:
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior="padding" keyboardVerticalOffset={0}>
       {}
-      <View style={[styles.header, { backgroundColor: c.background, borderBottomColor: c.outline }]}>
+      <View style={[styles.header, { backgroundColor: c.background, borderBottomColor: c.outline, paddingTop: insets.top + 12 }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
+          <IconArrowLeft width={24} height={24} strokeWidth={1.8} color={c.onSurface} />
+        </TouchableOpacity>
         <View style={[styles.stellaAvatar, { backgroundColor: c.primaryMuted }]}>
           <Text style={[styles.stellaLetter, { color: c.primary }]}>S</Text>
         </View>
@@ -235,6 +229,7 @@ function EmptyState({ c }: { c: ReturnType<typeof useColors> }) {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1 },
+  backBtn: { padding: 2 },
   stellaAvatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   stellaLetter: { fontSize: 18, fontWeight: '700' },
   stellaName: { fontSize: 15, fontWeight: '700' },

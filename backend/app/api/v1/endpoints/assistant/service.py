@@ -16,6 +16,13 @@ from app.db.postgresql.meeting_repository import (
     update_meeting,
     update_meeting_participants,
 )
+from app.db.postgresql.notes_repository import (
+    create_note,
+    delete_note,
+    get_note,
+    list_notes,
+    update_note,
+)
 from app.db.postgresql.task_repository import create_task, get_task, list_tasks, update_task
 from app.services.ai_service import ai_service
 from app.services.rag_service import rag_service
@@ -67,6 +74,28 @@ def build_tasks_context(user_id: int | None) -> str:
         )
 
     return "Contexto de tareas del usuario:\n" + "\n".join(rows)
+
+
+def build_notes_context(user_id: int | None) -> str:
+    if user_id is None:
+        return "Contexto de notas del usuario: no autenticado."
+
+    notes = list_notes(user_id=user_id)
+    if not notes:
+        return "Contexto de notas del usuario: no hay notas registradas."
+
+    rows: List[str] = []
+    for note in notes[:20]:
+        content_preview = str(note.get("content") or "")[:80]
+        rows.append(
+            "- "
+            f"id={note.get('id')}; "
+            f"titulo={note.get('title')}; "
+            f"estado={note.get('status') or 'active'}; "
+            f"contenido={content_preview}"
+        )
+
+    return "Contexto de notas del usuario:\n" + "\n".join(rows)
 
 
 def build_meetings_context(user_id: int | None) -> str:
@@ -171,6 +200,20 @@ def _build_serialized_tasks(user_id: int) -> List[Dict[str, Any]]:
                 "time": task.get("due_time") or "sin hora",
                 "priority": task.get("priority") or "medium",
                 "status": task.get("status") or "pending",
+            }
+        )
+    return serialized
+
+
+def _build_serialized_notes(user_id: int) -> List[Dict[str, Any]]:
+    serialized: List[Dict[str, Any]] = []
+    for note in list_notes(user_id=user_id):
+        serialized.append(
+            {
+                "id": note.get("id"),
+                "title": note.get("title"),
+                "content": note.get("content") or "",
+                "status": note.get("status") or "active",
             }
         )
     return serialized
@@ -1372,6 +1415,158 @@ def _apply_intent_side_effects(
             "message": message or "Listo, he guardado el evento.",
         }
 
+    if intent == "create_note":
+        if user_id is None:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Para guardar notas necesito que inicies sesion.",
+            }
+
+        title = _coerce_non_empty_text(safe_data.get("title"))
+        if not title:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Necesito el titulo de la nota para poder guardarla.",
+            }
+
+        content = _coerce_non_empty_text(safe_data.get("content"))
+        status = _normalize_choice(safe_data.get("status"), {"active", "archived"}, "active")
+        item = create_note(user_id=user_id, title=title, content=content, status=status)
+
+        next_data = dict(safe_data)
+        next_data["note"] = item
+        if item.get("id") is not None:
+            next_data["note_id"] = item.get("id")
+
+        return {
+            "intent": intent,
+            "data": next_data,
+            "message": message or "Listo, he guardado la nota.",
+        }
+
+    if intent == "update_note":
+        if user_id is None:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Para actualizar notas necesito que inicies sesion.",
+            }
+
+        raw_note_id = safe_data.get("note_id", safe_data.get("id"))
+        try:
+            note_id = int(raw_note_id)
+        except (TypeError, ValueError):
+            note_id = 0
+
+        if note_id <= 0:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Indica el ID de la nota que quieres actualizar.",
+            }
+
+        current = get_note(note_id=note_id, user_id=user_id)
+        if not current:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": f"No encuentro la nota con ID {note_id}.",
+            }
+
+        new_title = _coerce_non_empty_text(safe_data.get("title")) or str(current.get("title") or "")
+        if not new_title:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Necesito un titulo valido para actualizar la nota.",
+            }
+
+        new_content = (
+            _coerce_non_empty_text(safe_data.get("content"))
+            if "content" in safe_data
+            else current.get("content")
+        )
+        new_status = (
+            _normalize_choice(safe_data.get("status"), {"active", "archived"}, str(current.get("status") or "active"))
+            if "status" in safe_data
+            else str(current.get("status") or "active")
+        )
+
+        item = update_note(note_id=note_id, user_id=user_id, title=new_title, content=new_content, status=new_status)
+        if not item:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": f"No pude actualizar la nota con ID {note_id}.",
+            }
+
+        next_data = dict(safe_data)
+        next_data["note"] = item
+        next_data["note_id"] = note_id
+        return {
+            "intent": intent,
+            "data": next_data,
+            "message": message or "Listo, he actualizado la nota.",
+        }
+
+    if intent == "delete_note":
+        if user_id is None:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Para eliminar notas necesito que inicies sesion.",
+            }
+
+        raw_note_id = safe_data.get("note_id", safe_data.get("id"))
+        try:
+            note_id = int(raw_note_id)
+        except (TypeError, ValueError):
+            note_id = 0
+
+        if note_id <= 0:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Indica el ID de la nota que quieres eliminar.",
+            }
+
+        deleted = delete_note(note_id=note_id, user_id=user_id)
+        if not deleted:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": f"No encontre la nota con ID {note_id} para eliminar.",
+            }
+
+        return {
+            "intent": intent,
+            "data": {"deleted_note_id": note_id, "remaining_notes": _build_serialized_notes(user_id)},
+            "message": message or f"Listo. He eliminado la nota con ID {note_id}.",
+        }
+
+    if intent == "list_notes":
+        if user_id is None:
+            return {
+                "intent": "query",
+                "data": {},
+                "message": "Para ver tus notas necesito que inicies sesion.",
+            }
+
+        notes = _build_serialized_notes(user_id)
+        if not notes:
+            default_msg = "No tienes notas guardadas."
+        else:
+            lines = [f"- {n['title']} (id={n['id']}, estado={n['status']})" for n in notes[:10]]
+            default_msg = "Estas son tus notas:\n" + "\n".join(lines)
+
+        return {
+            "intent": intent,
+            "data": {"notes": notes},
+            "message": message or default_msg,
+        }
+
     return {
         "intent": intent,
         "data": safe_data,
@@ -1398,9 +1593,10 @@ def assistant_chat(
 
         tasks_context = build_tasks_context(user_id)
         meetings_context = build_meetings_context(user_id)
+        notes_context = build_notes_context(user_id)
         chunks = rag_service.retrieve(payload.message) if payload.use_rag else []
         rag_context = "\n\n".join(f"Fuente: {c.source}\nContenido: {c.text}" for c in chunks)
-        context = f"{temporal_context}\n\n{tasks_context}\n\n{meetings_context}"
+        context = f"{temporal_context}\n\n{tasks_context}\n\n{meetings_context}\n\n{notes_context}"
         if rag_context:
             context = f"{context}\n\n{rag_context}"
         request_language = _resolve_request_language(payload.language)
