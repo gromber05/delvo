@@ -17,7 +17,6 @@ from app.core.security import (
 )
 from app.db.postgresql.user_repository import (
     create_user,
-    ensure_users_table,
     get_user_by_email,
     get_user_by_id,
     update_google_tokens,
@@ -104,7 +103,6 @@ def get_authenticated_user_id(
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterRequest) -> AuthResponse:
-    ensure_users_table()
     email = _normalize_email(payload.email)
     name = (payload.name or "").strip()
 
@@ -125,7 +123,6 @@ def register(payload: RegisterRequest) -> AuthResponse:
 
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest) -> AuthResponse:
-    ensure_users_table()
     email = _normalize_email(payload.email)
     user = get_user_by_email(email)
 
@@ -178,7 +175,6 @@ def update_me(
     payload: UpdateProfileRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
-    ensure_users_table()
     next_name = payload.name.strip() if isinstance(payload.name, str) else None
     updated = update_user_profile(
         user_id=user_id,
@@ -195,7 +191,6 @@ def save_google_calendar_tokens(
     payload: SaveGoogleTokensRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
-    ensure_users_table()
     updated = update_google_tokens(
         user_id=user_id,
         google_access_token=payload.google_access_token,

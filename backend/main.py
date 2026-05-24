@@ -12,9 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.api.api_router import api_router
-from app.db.postgresql.conversation_repository import ensure_conversations_tables
-from app.db.postgresql.planner_repository import ensure_planner_tables
-from app.db.postgresql.user_repository import ensure_users_table
+from app.db.postgresql.init_db import init_db
 
 logger = logging.getLogger(__name__)
 
@@ -71,9 +69,7 @@ async def _gcal_watch_renewal_loop() -> None:
 async def lifespan(app: FastAPI):
     import google.auth._helpers as _helpers
     _helpers.utcnow = lambda: datetime.now(timezone.utc)
-    ensure_users_table()
-    ensure_planner_tables()
-    ensure_conversations_tables()
+    init_db()
     renewal_task = asyncio.create_task(_gcal_watch_renewal_loop())
     yield
     renewal_task.cancel()
