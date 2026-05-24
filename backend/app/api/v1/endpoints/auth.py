@@ -73,6 +73,7 @@ def _build_safe_user(user: dict[str, Any]) -> dict[str, Any]:
         "id": int(user["id"]),
         "name": str(user.get("name") or ""),
         "email": str(user["email"]),
+        "role": str(user.get("role") or "user"),
         "profile_photo_base64": user.get("profile_photo_base64"),
         "google_email": user.get("google_email"),
         "created_at": user.get("created_at"),

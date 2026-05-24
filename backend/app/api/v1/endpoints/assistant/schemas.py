@@ -8,6 +8,7 @@ class ChatRequest(BaseModel):
     use_rag: bool = True
     history: List[Dict[str, str]] = Field(default_factory=list)
     language: str | None = None
+    conversation_id: int | None = None
 
 
 class ChatResponse(BaseModel):
@@ -15,6 +16,7 @@ class ChatResponse(BaseModel):
     data: Dict[str, Any]
     message: str
     context_used: List[str]
+    conversation_id: int | None = None
 
 
 class TranscriptionResponse(BaseModel):

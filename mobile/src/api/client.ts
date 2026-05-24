@@ -6,7 +6,18 @@ export interface UserDto {
   id: number;
   name: string;
   email: string;
+  role: 'user' | 'admin';
   google_email?: string | null;
+}
+
+export interface AdminStatsDto {
+  total_users: number;
+  total_conversations: number;
+  total_messages: number;
+  intent_distribution: { intent: string; count: number }[];
+  sentiment_distribution: { sentiment: string; count: number }[];
+  daily_activity: { day: string; messages: number }[];
+  top_users: { name: string; email: string; conversations: number }[];
 }
 
 export interface GoogleCalendarEvent {
@@ -369,6 +380,17 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ token }),
     }),
+
+  // Admin
+  adminStats: () => request<AdminStatsDto>('/api/v1/admin/stats'),
+  adminUsers: () => request<{ items: { id: number; name: string; email: string; role: string; created_at: string }[] }>('/api/v1/admin/users'),
+  adminUpdateRole: (userId: number, role: string) =>
+    request<{ ok: boolean }>(`/api/v1/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    }),
+  adminConversations: () =>
+    request<{ items: { id: number; title: string; user_name: string; user_email: string; message_count: number; updated_at: string }[] }>('/api/v1/admin/conversations'),
 
   transcribeAudio: async (uri: string): Promise<string> => {
     const formData = new FormData();

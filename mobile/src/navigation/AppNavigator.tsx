@@ -7,6 +7,7 @@ import {
   IconPlus,
   IconMessage,
   IconSettings,
+  IconShieldLock,
   type IconProps,
 } from '@tabler/icons-react-native';
 import { useAuth } from '../auth/AuthContext';
@@ -17,6 +18,7 @@ import { CalendarScreen } from '../screens/CalendarScreen';
 import { ChatScreen } from '../screens/ChatScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { AdminScreen } from '../screens/AdminScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,11 +28,13 @@ const TAB_ICONS: Record<string, React.FC<IconProps>> = {
   Create: IconPlus,
   Chat: IconMessage,
   Settings: IconSettings,
+  Admin: IconShieldLock,
 };
 
 export function AppNavigator() {
-  const { token, loading } = useAuth();
+  const { token, loading, user } = useAuth();
   const { isDark, colors: c } = useTheme();
+  const isAdmin = user?.role === 'admin';
 
   if (loading) return null;
 
@@ -81,6 +85,9 @@ export function AppNavigator() {
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
         <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario' }} />
         <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
+        {isAdmin && (
+          <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', headerShown: true }} />
+        )}
         <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
         <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: true, tabBarHideOnKeyboard: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
       </Tab.Navigator>

@@ -47,6 +47,9 @@ def ensure_users_table() -> None:
         cursor.execute(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS gcal_watch_expiry TEXT NULL;"
         )
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';"
+        )
         connection.commit()
 
 
@@ -70,7 +73,7 @@ def get_user_by_id(user_id: int) -> dict[str, Any] | None:
         cursor.execute(
             """
             SELECT id, name, email, profile_photo_base64,
-                   google_email, created_at, updated_at
+                   google_email, role, created_at, updated_at
             FROM users
             WHERE id = %s
             LIMIT 1
@@ -79,6 +82,25 @@ def get_user_by_id(user_id: int) -> dict[str, Any] | None:
         )
         row = cursor.fetchone()
         return dict(row) if row else None
+
+
+def update_user_role(*, user_id: int, role: str) -> bool:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            "UPDATE users SET role = %s WHERE id = %s",
+            (role, user_id),
+        )
+        affected = cursor.rowcount
+        connection.commit()
+        return affected > 0
+
+
+def get_all_users() -> list[dict[str, Any]]:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            "SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC"
+        )
+        return [dict(r) for r in cursor.fetchall()]
 
 
 def create_user(*, name: str | None, email: str, password_hash: str) -> dict[str, Any]:
