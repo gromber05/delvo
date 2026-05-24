@@ -28,7 +28,7 @@
       ]
     ],
     "scheme": "delvo",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "extra": {
       "eas": {
         "projectId": "df10e9a8-a6fd-427b-9d1b-39e56a0c7cb6"
