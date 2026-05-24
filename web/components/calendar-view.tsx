@@ -135,10 +135,12 @@ export function CalendarView() {
   }, [year, month])
 
   const entries: CalendarEntry[] = useMemo(() => {
-    // IDs of local events already linked to Google Calendar (avoid duplicates)
-    const localGcalIds = new Set(events.filter((e) => e.gcal_event_id != null).map((e) => e.gcal_event_id as string))
+    const userEvents = events.filter((e) => e.event_type !== "google_calendar")
+    const localGcalIds = new Set(userEvents.filter((e) => e.gcal_event_id != null).map((e) => e.gcal_event_id as string))
+    const localEventSignatures = new Set(
+      userEvents.map((e) => `${e.title.trim().toLowerCase()}|${e.event_date}`)
+    )
     return [
-      // Exclude events that were imported from Google Calendar (they appear via gcalEvents)
       ...events
         .filter((e) => e.event_type !== "google_calendar")
         .map((e) => ({
@@ -170,9 +172,13 @@ export function CalendarView() {
           status: t.status,
           taskData: t,
         })),
-      // Exclude Google Calendar events already represented as local Delvo events
+      // Elimina los eventos de Google Calendar que ya han sido respondidos
       ...gcalEvents
-        .filter((g) => !localGcalIds.has(g.id))
+        .filter((g) => {
+          if (localGcalIds.has(g.id)) return false
+          const dateStr = g.start.dateTime ? g.start.dateTime.split("T")[0] : (g.start.date ?? "")
+          return !localEventSignatures.has(`${(g.summary ?? "").trim().toLowerCase()}|${dateStr}`)
+        })
         .map((g) => {
           const dateStr = g.start.dateTime ? g.start.dateTime.split("T")[0] : (g.start.date ?? "")
           const timeStr = g.start.dateTime

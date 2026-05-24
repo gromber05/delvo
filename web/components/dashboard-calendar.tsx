@@ -158,7 +158,7 @@ export function DashboardCalendar() {
   }, [noTimeLabel])
 
   return (
-    <article className="min-h-0 overflow-auto rounded-xl border bg-card p-4">
+    <article className="min-h-130 rounded-xl border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold">{dictionary.dashboard.calendar}</h3>
@@ -228,7 +228,7 @@ export function DashboardCalendar() {
       {isDayModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setIsDayModalOpen(false)}>
           <div className="w-full max-w-xl rounded-2xl border border-border/70 bg-card p-0 shadow-xl" onClick={(event) => event.stopPropagation()}>
-            <div className="border-b border-border/70 bg-gradient-to-r from-primary/8 via-accent/20 to-transparent px-5 py-4">
+            <div className="border-b border-border/70 bg-linear-to-r from-primary/8 via-accent/20 to-transparent px-5 py-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold leading-tight">
                   {dictionary.dashboard.dayTasksTitle} {selectedDayLabel}

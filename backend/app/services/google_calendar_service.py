@@ -9,7 +9,9 @@ from googleapiclient.discovery import build
 from app.db.postgresql.user_repository import get_user_google_tokens, update_google_tokens
 from app.db.postgresql.event_repository import (
     create_event as db_create_event,
+    find_unlinked_event,
     list_synced_events,
+    set_gcal_event_id,
     update_event_from_gcal,
     delete_event as db_delete_event,
 )
@@ -163,17 +165,22 @@ def sync_events(user_id: int) -> dict[str, int]:
             else:
                 skipped += 1
         else:
-            db_create_event(
-                user_id=user_id,
-                title=title,
-                description=description,
-                event_date=event_date,
-                event_time=event_time,
-                location=location,
-                event_type="google_calendar",
-                gcal_event_id=gcal_id,
-            )
-            imported += 1
+            existing = find_unlinked_event(user_id=user_id, title=title, event_date=event_date)
+            if existing:
+                set_gcal_event_id(event_id=int(existing["id"]), user_id=user_id, gcal_event_id=gcal_id)
+                updated += 1
+            else:
+                db_create_event(
+                    user_id=user_id,
+                    title=title,
+                    description=description,
+                    event_date=event_date,
+                    event_time=event_time,
+                    location=location,
+                    event_type="google_calendar",
+                    gcal_event_id=gcal_id,
+                )
+                imported += 1
 
     for gcal_id, local in local_map.items():
         if gcal_id not in gcal_map:

@@ -82,13 +82,13 @@ export function AppNavigator() {
           tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
-        <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario' }} />
+        <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', headerShown: false }} />
+        <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario', headerShown: false }} />
         {isAdmin && (
-          <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', headerShown: true }} />
+          <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', headerShown: false }} />
         )}
         <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
-        <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
+        <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', headerShown: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
         <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
       </Tab.Navigator>
     </NavigationContainer>

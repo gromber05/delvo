@@ -74,7 +74,6 @@ export function PlannerManager({ className }: Props) {
   const [saving, setSaving] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
-  // Edit modal state
   const [editTarget, setEditTarget] = useState<{ tab: Tab; item: Task | Meeting | Event | Note } | null>(null)
   const [editForm, setEditForm] = useState<Record<string, string>>({})
   const [editSaving, setEditSaving] = useState(false)

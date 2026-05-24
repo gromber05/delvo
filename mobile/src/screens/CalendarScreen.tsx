@@ -145,54 +145,79 @@ export function CalendarScreen() {
   
   React.useEffect(() => { loadGcal(year, month); }, [year, month, loadGcal]);
 
-  const entries: CalendarEntry[] = useMemo(() => [
-    ...events.map(e => ({
-      id: `ev-${e.id}`,
-      type: 'event' as const,
-      rawId: e.id,
-      title: e.title,
-      date: e.event_date,
-      time: e.event_time ?? '',
-    })),
-    ...meetings.map(m => ({
-      id: `mt-${m.id}`,
-      type: 'meeting' as const,
-      rawId: m.id,
-      title: m.title,
-      date: m.meeting_date,
-      time: m.meeting_time,
-    })),
-    ...tasks
-      .filter(t => !!t.due_date)
-      .map(t => ({
-        id: `tk-${t.id}`,
-        type: 'task' as const,
-        rawId: t.id,
-        title: t.title,
-        date: t.due_date!,
-        time: t.due_time ?? '',
-        priority: (t.priority as Priority) ?? 'medium',
-        status: (t.status as TaskStatus) ?? 'pending',
-        taskData: t,
+  const entries: CalendarEntry[] = useMemo(() => {
+    // Eventos creados por el usuario en Delvo (no los importados de Google).
+    // Solo estos deben suprimir la versión "en vivo" de Google, para que los
+    // eventos puramente de Google se sigan viendo (vía gcalEvents).
+    const userEvents = events.filter(e => e.event_type !== 'google_calendar');
+    const linkedGcalIds = new Set(
+      userEvents.map(e => e.gcal_event_id).filter((x): x is string => !!x),
+    );
+    // firma (título|fecha) para descartar duplicados cuando el enlace
+    // gcal_event_id no se llegó a guardar (condición de carrera al crear)
+    const localEventSignatures = new Set(
+      userEvents.map(e => `${e.title.trim().toLowerCase()}|${e.event_date}`),
+    );
+
+    return [
+      ...events
+        // los importados de Google se muestran vía gcalEvents (evita el doble "EVENTO")
+        .filter(e => e.event_type !== 'google_calendar')
+        .map(e => ({
+          id: `ev-${e.id}`,
+          type: 'event' as const,
+          rawId: e.id,
+          title: e.title,
+          date: e.event_date,
+          time: e.event_time ?? '',
+        })),
+      ...meetings.map(m => ({
+        id: `mt-${m.id}`,
+        type: 'meeting' as const,
+        rawId: m.id,
+        title: m.title,
+        date: m.meeting_date,
+        time: m.meeting_time,
       })),
-    ...gcalEvents.map(g => {
-      const dateStr = g.start.dateTime
-        ? g.start.dateTime.split('T')[0]
-        : (g.start.date ?? '');
-      const timeStr = g.start.dateTime
-        ? new Date(g.start.dateTime).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-        : '';
-      return {
-        id: `gc-${g.id}`,
-        type: 'gcal' as const,
-        rawId: 0,
-        gcalId: g.id,
-        title: g.summary ?? '(sin título)',
-        date: dateStr,
-        time: timeStr,
-      };
-    }),
-  ], [events, meetings, tasks, gcalEvents]);
+      ...tasks
+        .filter(t => !!t.due_date)
+        .map(t => ({
+          id: `tk-${t.id}`,
+          type: 'task' as const,
+          rawId: t.id,
+          title: t.title,
+          date: t.due_date!,
+          time: t.due_time ?? '',
+          priority: (t.priority as Priority) ?? 'medium',
+          status: (t.status as TaskStatus) ?? 'pending',
+          taskData: t,
+        })),
+      ...gcalEvents
+        .filter(g => {
+          if (linkedGcalIds.has(g.id)) return false;
+          const dateStr = g.start.dateTime ? g.start.dateTime.split('T')[0] : (g.start.date ?? '');
+          const sig = `${(g.summary ?? '').trim().toLowerCase()}|${dateStr}`;
+          return !localEventSignatures.has(sig);
+        })
+        .map(g => {
+          const dateStr = g.start.dateTime
+            ? g.start.dateTime.split('T')[0]
+            : (g.start.date ?? '');
+          const timeStr = g.start.dateTime
+            ? new Date(g.start.dateTime).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+            : '';
+          return {
+            id: `gc-${g.id}`,
+            type: 'gcal' as const,
+            rawId: 0,
+            gcalId: g.id,
+            title: g.summary ?? '(sin título)',
+            date: dateStr,
+            time: timeStr,
+          };
+        }),
+    ];
+  }, [events, meetings, tasks, gcalEvents]);
 
   const countsByDate = useMemo(() => {
     const map: Record<string, number> = {};

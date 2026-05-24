@@ -63,6 +63,7 @@ export interface EventDto {
   event_time?: string;
   location?: string;
   event_type: string;
+  gcal_event_id?: string | null;
   created_at: string;
   updated_at: string;
 }

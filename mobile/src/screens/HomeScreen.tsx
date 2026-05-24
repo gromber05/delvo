@@ -40,6 +40,18 @@ function todayLabel(): string {
   });
 }
 
+function dedupEvents(events: EventDto[]): EventDto[] {
+// Eliminar eventos duplicados (mismo título+fecha): un evento de Delvo y su copia
+// sincronizada de Google pueden coexistir localmente. 
+  const seen = new Set<string>();
+  return events.filter((e) => {
+    const sig = `${e.title.trim().toLowerCase()}|${(e.event_date ?? '').slice(0, 10)}`;
+    if (seen.has(sig)) return false;
+    seen.add(sig);
+    return true;
+  });
+}
+
 function buildAgenda(meetings: MeetingDto[], events: EventDto[]): AgendaItem[] {
   const today = new Date().toISOString().split('T')[0];
   const items: AgendaItem[] = [];
@@ -82,14 +94,15 @@ export function HomeScreen() {
         api.listEvents(),
         api.listNotes(),
       ]);
+      const dedupedEvents = dedupEvents(events.items);
       setSummary({
         tasks: tasks.items.length,
         meetings: meetings.items.length,
-        events: events.items.length,
+        events: dedupedEvents.length,
         notes: (notes as { items: NoteDto[] }).items.length,
       });
       setPendingTasks(tasks.items.filter((t) => t.status === 'pending'));
-      setAgenda(buildAgenda(meetings.items, events.items));
+      setAgenda(buildAgenda(meetings.items, dedupedEvents));
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al cargar datos.');
     } finally {

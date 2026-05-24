@@ -112,6 +112,25 @@ def list_synced_events(*, user_id: int) -> list[dict[str, Any]]:
         return [dict(row) for row in rows]
 
 
+def find_unlinked_event(*, user_id: int, title: str, event_date: str) -> dict[str, Any] | None:
+    """Finds a local event with the same title+date that is NOT yet linked to a
+    Google Calendar event. Used to link (instead of duplicating) when a locally
+    created event reaches GCal before its gcal_event_id was persisted."""
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT id, user_id, title, description, event_date, event_time, location, event_type, gcal_event_id
+            FROM events
+            WHERE user_id = %s AND title = %s AND event_date = %s AND gcal_event_id IS NULL
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (user_id, title, event_date),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
 def update_event_from_gcal(
     *,
     event_id: int,

@@ -109,7 +109,16 @@ export function DashboardOverview() {
 
       const tasks: Record<string, unknown>[] = Array.isArray(tasksData?.items) ? tasksData.items : []
       const meetings: Record<string, unknown>[] = Array.isArray(meetingsData?.items) ? meetingsData.items : []
-      const events: Record<string, unknown>[] = Array.isArray(eventsData?.items) ? eventsData.items : []
+      const rawEvents: Record<string, unknown>[] = Array.isArray(eventsData?.items) ? eventsData.items : []
+      // Eliminar eventos duplicados (mismo título+fecha): un evento de Delvo y su copia
+      // sincronizada de Google pueden coexistir localmente.
+      const seenEventSig = new Set<string>()
+      const events = rawEvents.filter((e) => {
+        const sig = `${String(e.title ?? "").trim().toLowerCase()}|${String(e.event_date ?? "").slice(0, 10)}`
+        if (seenEventSig.has(sig)) return false
+        seenEventSig.add(sig)
+        return true
+      })
       const notes: Record<string, unknown>[] = Array.isArray(notesData?.items) ? notesData.items : []
 
       setSummary({ tasks: tasks.length, meetings: meetings.length, events: events.length, notes: notes.length })
@@ -265,7 +274,7 @@ export function DashboardOverview() {
       {}
       <section className="grid shrink-0 gap-4 xl:grid-cols-[1.45fr_1fr]">
         <DashboardCalendar />
-        <div className="flex min-h-0 min-h-72 flex-col overflow-hidden rounded-xl border bg-card">
+        <div className="flex min-h-130 flex-col overflow-hidden rounded-xl border bg-card">
           <ProductChat compact className="h-full min-h-0 flex-1 border-0" />
         </div>
       </section>

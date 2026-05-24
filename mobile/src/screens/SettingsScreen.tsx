@@ -58,7 +58,6 @@ export function SettingsScreen() {
       const { url } = await api.googleCalendarConnectUrl();
       const result = await WebBrowser.openAuthSessionAsync(url, 'delvo://oauth-done');
 
-      // Parsea la URL de retorno si está disponible (deep link funciona correctamente)
       let statusOk = false;
       let emailFromUrl: string | null = null;
       if (result.type === 'success') {
@@ -72,8 +71,6 @@ export function SettingsScreen() {
         emailFromUrl = params.email ?? null;
       }
 
-      // Siempre refrescamos el email desde el servidor — cubre el caso en que
-      // el navegador cerró antes de que openAuthSessionAsync detectara el deep link.
       await refreshGoogleEmail();
       const linkedEmail = emailFromUrl ?? googleEmail;
 
