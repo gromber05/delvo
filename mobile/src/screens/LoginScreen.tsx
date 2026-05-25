@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { IconMail, IconLock, IconBrandGoogle } from '@tabler/icons-react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
 
@@ -28,137 +29,246 @@ export function LoginScreen() {
 
   async function submit() {
     clearError();
-    if (!email.trim() || !password) { setError('Completa los campos requeridos.'); return; }
+    if (!email.trim() || !password) { setError('Por favor, completa todos los campos requeridos.'); return; }
     if (registerMode && !name.trim()) { setError('El nombre es obligatorio.'); return; }
     setLoading(true);
     try {
       if (registerMode) await register(name.trim(), email.trim(), password);
       else await login(email.trim(), password);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'No se pudo autenticar.');
+      setError(e instanceof Error ? e.message : 'Error de autenticación.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: '#0D1117' }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={[StyleSheet.absoluteFill, styles.gridBg]} pointerEvents="none">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <View key={`h${i}`} style={[styles.gridLine, styles.gridHLine, { top: i * 42 }]} />
+        ))}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <View key={`v${i}`} style={[styles.gridLine, styles.gridVLine, { left: i * 42 }]} />
+        ))}
+      </View>
+
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {}
         <View style={styles.logoArea}>
-          <View style={[styles.logoCircle, { backgroundColor: c.primaryMuted }]}>
-            <Text style={[styles.logoLetter, { color: c.primary }]}>D</Text>
+          <View style={[styles.logoCircle, { backgroundColor: c.surface, borderColor: c.outline }]}>
+            <View style={[styles.logoInner, { backgroundColor: c.primaryMuted }]}>
+              <View style={[styles.logoDot, { backgroundColor: c.primary }]} />
+            </View>
           </View>
-          <Text style={[styles.logoName, { color: c.onSurface }]}>Delvo</Text>
-          <Text style={[styles.logoSub, { color: c.onSurfaceMuted }]}>Tu asistente inteligente</Text>
         </View>
 
-        {}
-        <View style={[styles.card, { backgroundColor: c.surface }]}>
-          <Text style={[styles.cardTitle, { color: c.onSurface }]}>
-            {registerMode ? 'Crear cuenta' : 'Iniciar sesión'}
-          </Text>
+        <Text style={styles.heroTitle}>
+          {registerMode ? 'Crear cuenta' : 'Bienvenido de nuevo'}
+        </Text>
+        <Text style={styles.heroSub}>
+          {registerMode
+            ? 'Únete a tu espacio de trabajo en Delvo.'
+            : 'Inicia sesión en tu espacio de trabajo en Delvo.'}
+        </Text>
 
+        <View style={[styles.card, { backgroundColor: c.surface }]}>
           {registerMode && (
-            <Field label="Nombre" c={c}>
-              <TextInput
-                style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-                placeholder="Tu nombre"
-                placeholderTextColor={c.onSurfaceMuted}
-                value={name}
-                onChangeText={(v) => { setName(v); clearError(); }}
-                autoCapitalize="words"
-                editable={!loading}
-              />
-            </Field>
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>NOMBRE COMPLETO</Text>
+              <View style={[styles.inputWrap, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
+                <TextInput
+                  style={[styles.input, { color: c.onSurface }]}
+                  placeholder="Tu nombre"
+                  placeholderTextColor={c.onSurfaceMuted}
+                  value={name}
+                  onChangeText={(v) => { setName(v); clearError(); }}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
+              </View>
+            </View>
           )}
 
-          <Field label="Email" c={c}>
-            <TextInput
-              style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-              placeholder="correo@ejemplo.com"
-              placeholderTextColor={c.onSurfaceMuted}
-              value={email}
-              onChangeText={(v) => { setEmail(v); clearError(); }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loading}
-            />
-          </Field>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>CORREO ELECTRÓNICO</Text>
+            <View style={[styles.inputWrap, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
+              <IconMail size={18} color={c.onSurfaceMuted} style={{ marginLeft: 14 }} />
+              <TextInput
+                style={[styles.input, { color: c.onSurface }]}
+                placeholder="alex@example.com"
+                placeholderTextColor={c.onSurfaceMuted}
+                value={email}
+                onChangeText={(v) => { setEmail(v); clearError(); }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!loading}
+              />
+            </View>
+          </View>
 
-          <Field label="Contraseña" c={c}>
-            <TextInput
-              style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-              placeholder="••••••••"
-              placeholderTextColor={c.onSurfaceMuted}
-              value={password}
-              onChangeText={(v) => { setPassword(v); clearError(); }}
-              secureTextEntry
-              editable={!loading}
-            />
-          </Field>
+          <View style={styles.fieldGroup}>
+            <View style={styles.passwordLabelRow}>
+              <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>CONTRASEÑA</Text>
+              {!registerMode && (
+                <TouchableOpacity>
+                  <Text style={[styles.forgotText, { color: c.primary }]}>¿Olvidaste?</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={[styles.inputWrap, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
+              <IconLock size={18} color={c.onSurfaceMuted} style={{ marginLeft: 14 }} />
+              <TextInput
+                style={[styles.input, { color: c.onSurface }]}
+                placeholder="••••••••"
+                placeholderTextColor={c.onSurfaceMuted}
+                value={password}
+                onChangeText={(v) => { setPassword(v); clearError(); }}
+                secureTextEntry
+                editable={!loading}
+              />
+            </View>
+          </View>
 
           {error ? <Text style={[styles.error, { color: c.error }]}>{error}</Text> : null}
 
           <TouchableOpacity
-            style={[styles.btn, { backgroundColor: c.primary }, loading && styles.btnDisabled]}
+            style={[styles.primaryBtn, { backgroundColor: c.primary }, loading && styles.btnDisabled]}
             onPress={submit}
             disabled={loading}
           >
             {loading
-              ? <ActivityIndicator color={c.onPrimary} />
-              : <Text style={[styles.btnText, { color: c.onPrimary }]}>{registerMode ? 'Crear cuenta' : 'Entrar'}</Text>}
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.primaryBtnText}>
+                  {registerMode ? 'CREAR CUENTA' : 'INICIAR SESIÓN'}
+                </Text>
+            }
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.switchBtn, { borderColor: c.outline }]}
-            onPress={() => { setRegisterMode((m) => !m); clearError(); }}
-            disabled={loading}
-          >
-            <Text style={[styles.switchText, { color: c.onSurfaceMuted }]}>
-              {registerMode ? '¿Ya tienes cuenta? ' : '¿Sin cuenta? '}
-              <Text style={{ color: c.primary, fontWeight: '700' }}>
-                {registerMode ? 'Inicia sesión' : 'Regístrate'}
-              </Text>
-            </Text>
+          <View style={styles.dividerRow}>
+            <View style={[styles.dividerLine, { backgroundColor: c.outline }]} />
+            <Text style={[styles.dividerText, { color: c.onSurfaceMuted }]}>O CONTINUAR CON</Text>
+            <View style={[styles.dividerLine, { backgroundColor: c.outline }]} />
+          </View>
+
+          <TouchableOpacity style={[styles.googleBtn, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
+            <IconBrandGoogle size={20} color="#4285F4" />
+            <Text style={[styles.googleBtnText, { color: c.onSurface }]}>Google</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={styles.switchRow}
+          onPress={() => { setRegisterMode((m) => !m); clearError(); }}
+          disabled={loading}
+        >
+          <Text style={[styles.switchText, { color: c.onSurfaceMuted }]}>
+            {registerMode ? "¿Ya tienes cuenta? " : "¿No tienes cuenta? "}
+            <Text style={[styles.switchLink, { color: c.primary }]}>
+              {registerMode ? 'Iniciar sesión' : 'Registrarse'}
+            </Text>
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-function Field({ label, children, c }: { label: string; children: React.ReactNode; c: ReturnType<typeof useColors> }) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={[styles.fieldLabel, { color: c.onSurfaceMuted }]}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 24 },
-  logoArea: { alignItems: 'center', gap: 8 },
-  logoCircle: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center' },
-  logoLetter: { fontSize: 36, fontWeight: '800' },
-  logoName: { fontSize: 32, fontWeight: '800', letterSpacing: 0.5 },
-  logoSub: { fontSize: 14 },
-  card: { borderRadius: 20, padding: 24, gap: 14 },
-  cardTitle: { fontSize: 20, fontWeight: '700', marginBottom: 2 },
-  fieldLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: {
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+  gridBg: { opacity: 0.06 },
+  gridLine: { position: 'absolute', backgroundColor: '#fff' },
+  gridHLine: { left: 0, right: 0, height: 1 },
+  gridVLine: { top: 0, bottom: 0, width: 1 },
+
+  container: { flexGrow: 1, padding: 24, gap: 16, alignItems: 'center' },
+
+  logoArea: { marginTop: 32, marginBottom: 8 },
+  logoCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInner: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoDot: { width: 16, height: 16, borderRadius: 8 },
+
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#F9FAFB',
+    textAlign: 'center',
+    letterSpacing: -0.5,
+  },
+  heroSub: {
     fontSize: 15,
+    color: 'rgba(249,250,251,0.55)',
+    textAlign: 'center',
+    marginTop: -4,
+  },
+
+  card: {
+    width: '100%',
+    borderRadius: 20,
+    padding: 20,
+    gap: 16,
+  },
+  fieldGroup: { gap: 6 },
+  fieldLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+  passwordLabelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  forgotText: { fontSize: 13, fontWeight: '600' },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 15,
+  },
+  error: { fontSize: 13, textAlign: 'center' },
+  primaryBtn: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  btnDisabled: { opacity: 0.6 },
+  primaryBtnText: {
+    fontWeight: '800',
+    fontSize: 15,
+    color: '#fff',
+    letterSpacing: 1,
+  },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: 1 },
+  dividerText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.5 },
+  googleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 12,
+    paddingVertical: 14,
     borderWidth: 1,
   },
-  error: { fontSize: 13 },
-  btn: { borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 2 },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { fontWeight: '700', fontSize: 15 },
-  switchBtn: { alignItems: 'center', paddingVertical: 4 },
-  switchText: { fontSize: 14 },
+  googleBtnText: { fontSize: 15, fontWeight: '600' },
+
+  switchRow: { marginTop: 4 },
+  switchText: { fontSize: 14, textAlign: 'center' },
+  switchLink: { fontWeight: '700' },
 });

@@ -11,6 +11,8 @@ type Task = {
   title: string
   priority: "low" | "medium" | "high"
   status: "pending" | "in_progress" | "done"
+  due_date?: string
+  due_time?: string
 }
 
 type AgendaItem = {
@@ -33,11 +35,7 @@ function greeting(isSpanish: boolean): string {
 }
 
 function todayLabel(locale: string): string {
-  return new Date().toLocaleDateString(locale, {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  })
+  return new Date().toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })
 }
 
 function buildAgenda(
@@ -57,24 +55,36 @@ function buildAgenda(
   return items.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5)
 }
 
-const PRIORITY_DOT: Record<string, string> = {
-  high: "bg-destructive",
-  medium: "bg-amber-500",
-  low: "bg-emerald-500",
+function formatDue(dateStr: string, timeStr?: string, isSpanish?: boolean): string {
+  const today = new Date().toISOString().split("T")[0]
+  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().split("T")[0]
+  let label = dateStr
+  if (dateStr === today) label = isSpanish ? "Hoy" : "Today"
+  else if (dateStr === tomorrow) label = isSpanish ? "Mañana" : "Tomorrow"
+  else {
+    const parts = dateStr.split("-")
+    const mm = parseInt(parts[1] ?? "1", 10)
+    const dd = parseInt(parts[2] ?? "1", 10)
+    const months = isSpanish
+      ? ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
+      : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    label = `${dd} ${months[mm - 1] ?? ""}`
+  }
+  if (timeStr) label += `, ${timeStr.slice(0, 5)}`
+  return label
 }
 
-const METRIC_ACCENT = [
-  "bg-primary",
-  "bg-emerald-400",
-  "bg-amber-400",
-  "bg-muted-foreground/40",
-]
+const PRIORITY_BADGE: Record<string, { bg: string; text: string; label: string }> = {
+  high:   { bg: "bg-red-500/15",    text: "text-red-400",    label: "ALTA" },
+  medium: { bg: "bg-amber-500/15",  text: "text-amber-400",  label: "MEDIA" },
+  low:    { bg: "bg-emerald-500/15",text: "text-emerald-400",label: "BAJA" },
+}
 
 export function DashboardOverview() {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const isSpanish = language === "es"
-  const locale = isSpanish ? "es-ES" : "en-US"
+  const isSpanish = true
+  const locale = "es-ES"
 
   const [userName, setUserName] = useState<string | null>(null)
   const [summary, setSummary] = useState({ tasks: 0, meetings: 0, events: 0, notes: 0 })
@@ -93,12 +103,10 @@ export function DashboardOverview() {
         fetch("/api/planner/events", { cache: "no-store" }),
         fetch("/api/planner/notes", { cache: "no-store" }),
       ])
-
       if (meRes.ok) {
         const me = await meRes.json().catch(() => null)
         if (me?.user?.name) setUserName((me.user.name as string).split(" ")[0])
       }
-
       type ApiResponse = { items?: Record<string, unknown>[] }
       const [tasksData, meetingsData, eventsData, notesData] = await Promise.all([
         tasksRes.ok ? tasksRes.json().catch(() => ({} as ApiResponse)) : ({} as ApiResponse),
@@ -107,19 +115,17 @@ export function DashboardOverview() {
         notesRes.ok ? notesRes.json().catch(() => ({} as ApiResponse)) : ({} as ApiResponse),
       ]) as [ApiResponse, ApiResponse, ApiResponse, ApiResponse]
 
-      const tasks: Record<string, unknown>[] = Array.isArray(tasksData?.items) ? tasksData.items : []
-      const meetings: Record<string, unknown>[] = Array.isArray(meetingsData?.items) ? meetingsData.items : []
-      const rawEvents: Record<string, unknown>[] = Array.isArray(eventsData?.items) ? eventsData.items : []
-      // Eliminar eventos duplicados (mismo título+fecha): un evento de Delvo y su copia
-      // sincronizada de Google pueden coexistir localmente.
-      const seenEventSig = new Set<string>()
+      const tasks = Array.isArray(tasksData?.items) ? tasksData.items : []
+      const meetings = Array.isArray(meetingsData?.items) ? meetingsData.items : []
+      const rawEvents = Array.isArray(eventsData?.items) ? eventsData.items : []
+      const seenSig = new Set<string>()
       const events = rawEvents.filter((e) => {
         const sig = `${String(e.title ?? "").trim().toLowerCase()}|${String(e.event_date ?? "").slice(0, 10)}`
-        if (seenEventSig.has(sig)) return false
-        seenEventSig.add(sig)
+        if (seenSig.has(sig)) return false
+        seenSig.add(sig)
         return true
       })
-      const notes: Record<string, unknown>[] = Array.isArray(notesData?.items) ? notesData.items : []
+      const notes = Array.isArray(notesData?.items) ? notesData.items : []
 
       setSummary({ tasks: tasks.length, meetings: meetings.length, events: events.length, notes: notes.length })
       setPendingTasks(
@@ -130,19 +136,16 @@ export function DashboardOverview() {
             title: String(t.title ?? ""),
             priority: (t.priority === "high" || t.priority === "low" ? t.priority : "medium") as Task["priority"],
             status: "pending" as const,
+            due_date: typeof t.due_date === "string" ? t.due_date : undefined,
+            due_time: typeof t.due_time === "string" ? t.due_time : undefined,
           }))
       )
-      setAgenda(
-        buildAgenda(
-          meetings as Array<{ id: number; title: string; meeting_date: string }>,
-          events as Array<{ id: number; title: string; event_date: string }>
-        )
-      )
-    } catch {
-      
-    } finally {
-      setLoading(false)
-    }
+      setAgenda(buildAgenda(
+        meetings as Array<{ id: number; title: string; meeting_date: string }>,
+        events as Array<{ id: number; title: string; event_date: string }>
+      ))
+    } catch {}
+    finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -154,130 +157,144 @@ export function DashboardOverview() {
 
   const visibleTasks = showAllTasks ? pendingTasks : pendingTasks.slice(0, 4)
 
-  const priorityLabel = useMemo(
-    () =>
-      isSpanish
-        ? { high: "Alta", medium: "Media", low: "Baja" }
-        : { high: "High", medium: "Medium", low: "Low" },
-    [isSpanish]
-  )
-
-  const metricCards = useMemo(
-    () => [
-      { label: isSpanish ? "Tareas" : "Tasks", value: summary.tasks, accent: METRIC_ACCENT[0] },
-      { label: isSpanish ? "Reuniones" : "Meetings", value: summary.meetings, accent: METRIC_ACCENT[1] },
-      { label: isSpanish ? "Eventos" : "Events", value: summary.events, accent: METRIC_ACCENT[2] },
-      { label: isSpanish ? "Notas" : "Notes", value: summary.notes, accent: METRIC_ACCENT[3] },
-    ],
-    [isSpanish, summary]
-  )
+  const metricCards = useMemo(() => [
+    {
+      label: isSpanish ? "Tareas pendientes" : "Pending Tasks",
+      value: summary.tasks,
+      timeLabel: isSpanish ? "Hoy" : "Today",
+      icon: (
+        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      iconBg: "bg-[#6c5ce7]/15 text-[#6c5ce7]",
+    },
+    {
+      label: isSpanish ? "Reuniones" : "Meetings",
+      value: summary.meetings,
+      timeLabel: isSpanish ? "Hoy" : "Today",
+      icon: (
+        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+        </svg>
+      ),
+      iconBg: "bg-blue-500/15 text-blue-400",
+    },
+    {
+      label: isSpanish ? "Eventos" : "Events",
+      value: summary.events,
+      timeLabel: isSpanish ? "Esta semana" : "This Week",
+      icon: (
+        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+      ),
+      iconBg: "bg-emerald-500/15 text-emerald-400",
+    },
+    {
+      label: isSpanish ? "Notas" : "Notes Drafted",
+      value: summary.notes,
+      timeLabel: isSpanish ? "Recientes" : "Recent",
+      icon: (
+        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+      ),
+      iconBg: "bg-amber-500/15 text-amber-400",
+    },
+  ], [isSpanish, summary])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4 pt-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6 pt-4">
 
-      {}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          {greeting(isSpanish)}{userName ? `, ${userName}` : ""}
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          {isSpanish ? "Vista general" : "Overview"}
+        </p>
+        <h1 className="text-3xl font-black tracking-tight">
+          {greeting(isSpanish)}{userName ? `, ${userName}.` : "."}
         </h1>
-        <p className="mt-1 text-sm capitalize text-muted-foreground">{todayLabel(locale)}</p>
+        <p className="mt-1 text-sm text-muted-foreground capitalize">{todayLabel(locale)}</p>
       </div>
 
-      {}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {metricCards.map((card) => (
-          <div key={card.label} className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-            <div className={`absolute inset-x-0 top-0 h-1 ${card.accent}`} />
-            <div className="p-4 pt-5">
-              <p className="text-3xl font-extrabold">{loading ? "—" : card.value}</p>
-              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{card.label}</p>
+          <div key={card.label} className="relative rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <div className={`flex size-9 items-center justify-center rounded-xl ${card.iconBg}`}>
+                {card.icon}
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {card.timeLabel}
+              </span>
             </div>
+            <p className="text-4xl font-black">{loading ? "—" : card.value}</p>
+            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">{card.label}</p>
           </div>
         ))}
       </div>
 
-      {}
-      <section>
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-            {isSpanish ? "Pendientes" : "Pending"}
-          </p>
-          <a
-            href={`/${language}/planner`}
-            className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
-          >
-            + {isSpanish ? "Crear" : "Create"}
-          </a>
-        </div>
-        <div className="space-y-2">
-          {pendingTasks.length === 0 && !loading ? (
-            <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
-              <p className="text-sm text-muted-foreground">{isSpanish ? "Sin tareas pendientes" : "No pending tasks"}</p>
-            </div>
-          ) : (
-            <>
-              {visibleTasks.map((task) => (
-                <div key={task.id} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3">
-                  <div className={`size-2 shrink-0 rounded-full ${PRIORITY_DOT[task.priority]}`} />
-                  <span className="flex-1 truncate text-sm font-medium">{task.title}</span>
-                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-bold text-primary">
-                    {priorityLabel[task.priority]}
-                  </span>
-                </div>
-              ))}
-              {pendingTasks.length > 4 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllTasks((v) => !v)}
-                  className="w-full py-1.5 text-center text-sm font-semibold text-primary hover:underline"
-                >
-                  {showAllTasks
-                    ? isSpanish ? "Ver menos" : "Show less"
-                    : `${isSpanish ? "Ver" : "Show"} ${pendingTasks.length - 4} ${isSpanish ? "más" : "more"}`}
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      </section>
-
-      {}
-      <section>
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-          {isSpanish ? "Agenda próxima" : "Upcoming"}
-        </p>
-        <div className="space-y-2">
-          {agenda.length === 0 && !loading ? (
-            <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
-              <p className="text-sm text-muted-foreground">{isSpanish ? "Sin eventos próximos" : "No upcoming events"}</p>
-            </div>
-          ) : (
-            agenda.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3">
-                <div className="shrink-0 rounded-lg bg-primary/10 px-2.5 py-1.5">
-                  <span className="text-xs font-bold text-primary">{item.date.slice(5).replace("-", "/")}</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{item.title}</p>
-                  <p className={`text-xs font-semibold ${item.type === "meeting" ? "text-primary" : "text-amber-500"}`}>
-                    {item.type === "meeting"
-                      ? isSpanish ? "Reunión" : "Meeting"
-                      : isSpanish ? "Evento" : "Event"}
-                  </p>
-                </div>
+      <div className="grid gap-4 xl:grid-cols-[1fr_420px]">
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-base font-bold">{isSpanish ? "Tareas pendientes" : "Pending Tasks"}</p>
+            <a
+              href={`/${language}/planner`}
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              {isSpanish ? "Ver todas →" : "View All →"}
+            </a>
+          </div>
+          <div className="space-y-1.5">
+            {pendingTasks.length === 0 && !loading ? (
+              <div className="rounded-xl border border-border/70 bg-card px-4 py-4">
+                <p className="text-sm text-muted-foreground">{isSpanish ? "Sin tareas pendientes" : "No pending tasks"}</p>
               </div>
-            ))
-          )}
-        </div>
-      </section>
+            ) : (
+              <>
+                {visibleTasks.map((task) => {
+                  const badge = PRIORITY_BADGE[task.priority]
+                  return (
+                    <div key={task.id} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3">
+                      <div className="size-5 shrink-0 rounded-full border-2 border-border/60" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{task.title}</p>
+                        {task.due_date && (
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                            <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <circle cx="12" cy="12" r="10" /><path strokeLinecap="round" d="M12 6v6l4 2" />
+                            </svg>
+                            {isSpanish ? "Vence" : "Due"} {formatDue(task.due_date, task.due_time, isSpanish)}
+                          </p>
+                        )}
+                      </div>
+                      <span className={`shrink-0 rounded-md px-2.5 py-1 text-[10px] font-black tracking-wide ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
+                    </div>
+                  )
+                })}
+                {pendingTasks.length > 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllTasks((v) => !v)}
+                    className="w-full py-1.5 text-center text-sm font-semibold text-primary hover:underline"
+                  >
+                    {showAllTasks
+                      ? isSpanish ? "Ver menos" : "Show less"
+                      : `${isSpanish ? "Ver" : "Show"} ${pendingTasks.length - 4} ${isSpanish ? "más" : "more"}`}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </section>
 
-      {}
-      <section className="grid shrink-0 gap-4 xl:grid-cols-[1.45fr_1fr]">
-        <DashboardCalendar />
-        <div className="flex min-h-130 flex-col overflow-hidden rounded-xl border bg-card">
-          <ProductChat compact className="h-full min-h-0 flex-1 border-0" />
-        </div>
-      </section>
+        <section className="flex flex-col gap-4">
+          <DashboardCalendar />
+        </section>
+      </div>
     </div>
   )
 }

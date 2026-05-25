@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { IconMessage } from '@tabler/icons-react-native';
+import { IconSparkles } from '@tabler/icons-react-native';
 import { useColors } from '../theme/ThemeContext';
 
 export function StellaFAB() {
@@ -9,11 +9,11 @@ export function StellaFAB() {
   const c = useColors();
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Chat' as never)}
+      onPress={() => navigation.navigate('Stella' as never)}
       style={[styles.fab, { backgroundColor: c.primary }]}
       activeOpacity={0.85}
     >
-      <IconMessage size={26} color={c.onPrimary} />
+      <IconSparkles size={26} color="#fff" />
     </TouchableOpacity>
   );
 }
@@ -29,9 +29,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowColor: '#8B5CF6',
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
   },
 });

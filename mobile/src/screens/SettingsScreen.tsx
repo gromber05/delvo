@@ -14,12 +14,14 @@ import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '../auth/AuthContext';
 import { useColors, useTheme } from '../theme/ThemeContext';
 import { api } from '../api/client';
-import { IconBrandGoogle } from '@tabler/icons-react-native';
+import { IconBrandGoogle, IconChevronRight, IconLogout } from '@tabler/icons-react-native';
 import {
   MINUTES_OPTIONS,
   loadNotificationSettings,
   saveNotificationSettings,
 } from '../notifications/NotificationSettings';
+
+type ThemeMode = 'Light' | 'Dark' | 'System';
 
 export function SettingsScreen() {
   const { user, logout } = useAuth();
@@ -29,6 +31,13 @@ export function SettingsScreen() {
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [minutesBefore, setMinutesBefore] = useState(30);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(isDark ? 'Dark' : 'Light');
+
+  // Notification toggles
+  const [emailUpdates, setEmailUpdates] = useState(true);
+  const [pushNotifs, setPushNotifs] = useState(true);
+  const [taskReminders, setTaskReminders] = useState(false);
+  const [stellaAlerts, setStellaAlerts] = useState(true);
 
   useEffect(() => {
     loadNotificationSettings().then(s => setMinutesBefore(s.minutesBefore));
@@ -44,13 +53,18 @@ export function SettingsScreen() {
       const data = await api.me();
       setGoogleEmail(data.user.google_email ?? null);
     } catch {
-      
+      // silent
     }
   }, []);
 
   useEffect(() => { refreshGoogleEmail(); }, [refreshGoogleEmail]);
-
   useFocusEffect(useCallback(() => { refreshGoogleEmail(); }, [refreshGoogleEmail]));
+
+  function handleThemeChange(mode: ThemeMode) {
+    setThemeMode(mode);
+    if (mode === 'Dark' && !isDark) toggle();
+    if (mode === 'Light' && isDark) toggle();
+  }
 
   async function connectGoogleCalendar() {
     setConnecting(true);
@@ -94,119 +108,225 @@ export function SettingsScreen() {
     }
   }
 
+  const initials = user?.name
+    ? user.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+    : '?';
+
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: c.background }} contentContainerStyle={styles.content}>
-      {}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: c.background }}
+      contentContainerStyle={[styles.content, { paddingTop: 56 }]}
+    >
       <View style={[styles.profileHero, { backgroundColor: c.surface }]}>
         <View style={[styles.avatar, { backgroundColor: c.primaryMuted }]}>
-          <Text style={[styles.avatarText, { color: c.primary }]}>
-            {user?.name?.charAt(0)?.toUpperCase() ?? '?'}
-          </Text>
+          <Text style={[styles.avatarText, { color: c.primary }]}>{initials}</Text>
         </View>
         <Text style={[styles.profileName, { color: c.onSurface }]}>{user?.name ?? 'Usuario'}</Text>
-        <Text style={[styles.profileEmail, { color: c.onSurfaceMuted }]}>{user?.email ?? ''}</Text>
+        <View style={[styles.planBadge, { backgroundColor: '#B45309' }]}>
+          <Text style={styles.planBadgeText}>PLAN PRO</Text>
+        </View>
       </View>
 
-      {}
-      <Label text="Apariencia" c={c} />
+      <SectionLabel text="CUENTA" c={c} />
       <View style={[styles.card, { backgroundColor: c.surface }]}>
-        <SettingRow
-          title="Modo oscuro"
-          subtitle="Cambia el tema de la app"
-          value={isDark}
-          onChange={toggle}
-          c={c}
-        />
+        <AccountRow label="Información personal" c={c} />
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <AccountRow label="Seguridad y contraseña" c={c} />
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <AccountRow label="Facturación" c={c} isLast />
       </View>
 
-      {}
-      <Label text="Notificaciones" c={c} />
+      <SectionLabel text="INTEGRACIONES" c={c} />
       <View style={[styles.card, { backgroundColor: c.surface }]}>
-        <View style={styles.settingRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.settingTitle, { color: c.onSurface }]}>Aviso previo</Text>
-            <Text style={[styles.settingSub, { color: c.onSurfaceMuted }]}>Tiempo antes de recibir la notificación</Text>
+        <View style={styles.integrationHero}>
+          <View style={styles.integrationHeaderRow}>
+            <IconBrandGoogle size={20} color="#4285F4" />
+            <Text style={[styles.integrationTitle, { color: c.onSurface }]}>Integraciones</Text>
           </View>
+          <Text style={[styles.integrationSub, { color: c.onSurfaceMuted }]}>
+            Conecta tus herramientas externas para un flujo de trabajo sin interrupciones.
+          </Text>
         </View>
-        <View style={styles.minutesRow}>
-          {MINUTES_OPTIONS.map(m => {
-            const selected = m === minutesBefore;
-            const label = m >= 60 ? `${m / 60}h` : `${m}m`;
-            return (
-              <TouchableOpacity
-                key={m}
-                onPress={() => handleMinutesChange(m)}
-                style={[
-                  styles.minuteChip,
-                  {
-                    backgroundColor: selected ? c.primary : c.surfaceVariant,
-                    borderColor: selected ? c.primary : c.outline,
-                  },
-                ]}
-              >
-                <Text style={[styles.minuteChipText, { color: selected ? c.onPrimary : c.onSurfaceMuted }]}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      {}
-      <Label text="Integraciones" c={c} />
-      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
         <View style={styles.integrationRow}>
           <IconBrandGoogle size={22} color="#4285F4" />
           <View style={{ flex: 1 }}>
-            <Text style={[styles.settingTitle, { color: c.onSurface }]}>Google Calendar</Text>
-            <Text style={[styles.settingSub, { color: googleEmail ? '#4285F4' : c.onSurfaceMuted }]}>
-              {googleEmail ? `● ${googleEmail}` : 'Sin vincular'}
+            <Text style={[styles.integrationItemTitle, { color: c.onSurface }]}>Calendario de Google</Text>
+            <Text style={[styles.integrationItemSub, { color: c.onSurfaceMuted }]}>
+              Sincroniza tus tareas y reuniones automáticamente.
             </Text>
           </View>
           {connecting ? (
             <ActivityIndicator size="small" color="#4285F4" />
-          ) : (
+          ) : googleEmail ? (
             <TouchableOpacity
-              style={[styles.connectBtn, { borderColor: googleEmail ? c.outline : '#4285F4' }]}
+              style={[styles.syncedDot, { backgroundColor: '#4285F420' }]}
               onPress={connectGoogleCalendar}
             >
-              <Text style={[styles.connectBtnText, { color: googleEmail ? c.onSurfaceMuted : '#4285F4' }]}>
-                {googleEmail ? 'Reconectar' : 'Conectar'}
-              </Text>
+              <View style={[styles.syncedCheck, { backgroundColor: '#4285F4' }]}>
+                <Text style={styles.syncedCheckText}>✓</Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.connectBtn, { borderColor: '#4285F4' }]}
+              onPress={connectGoogleCalendar}
+            >
+              <Text style={[styles.connectBtnText, { color: '#4285F4' }]}>Conectar</Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      {}
-      <Label text="Sesión" c={c} />
+      <SectionLabel text="NOTIFICACIONES" c={c} />
+      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <NotifRow
+          label="Actualizaciones por correo"
+          value={emailUpdates}
+          onChange={setEmailUpdates}
+          c={c}
+        />
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <NotifRow
+          label="Notificaciones push"
+          value={pushNotifs}
+          onChange={setPushNotifs}
+          c={c}
+        />
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <NotifRow
+          label="Recordatorios de tareas"
+          value={taskReminders}
+          onChange={setTaskReminders}
+          c={c}
+        />
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <NotifRow
+          label="Alertas de Stella IA"
+          value={stellaAlerts}
+          onChange={setStellaAlerts}
+          c={c}
+          isLast
+        />
+      </View>
+
+      <SectionLabel text="RECORDATORIOS" c={c} />
+      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <View style={styles.reminderRow}>
+          <Text style={[styles.reminderLabel, { color: c.onSurface }]}>Avisar antes de</Text>
+          <View style={styles.minutesRow}>
+            {MINUTES_OPTIONS.map(m => {
+              const selected = m === minutesBefore;
+              const label = m >= 60 ? `${m / 60}h` : `${m}m`;
+              return (
+                <TouchableOpacity
+                  key={m}
+                  onPress={() => handleMinutesChange(m)}
+                  style={[
+                    styles.minuteChip,
+                    {
+                      backgroundColor: selected ? c.primary : c.surfaceVariant,
+                      borderColor: selected ? c.primary : c.outline,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.minuteChipText, { color: selected ? '#fff' : c.onSurfaceMuted }]}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+
+      <SectionLabel text="PREFERENCIAS" c={c} />
+      <View style={[styles.card, { backgroundColor: c.surface }]}>
+        <View style={styles.prefRow}>
+          <Text style={[styles.prefLabel, { color: c.onSurface }]}>Tema</Text>
+          <View style={[styles.themeSelector, { backgroundColor: c.surfaceVariant }]}>
+            {(['Light', 'Dark', 'System'] as ThemeMode[]).map(mode => (
+              <TouchableOpacity
+                key={mode}
+                onPress={() => handleThemeChange(mode)}
+                style={[
+                  styles.themeOption,
+                  themeMode === mode && { backgroundColor: c.surface },
+                ]}
+              >
+                <Text style={[
+                  styles.themeOptionText,
+                  { color: themeMode === mode ? c.onSurface : c.onSurfaceMuted },
+                  themeMode === mode && { fontWeight: '700' },
+                ]}>
+                  {mode === 'Light' ? 'Claro' : mode === 'Dark' ? 'Oscuro' : 'Sistema'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        <View style={[styles.divider, { backgroundColor: c.outline }]} />
+        <View style={styles.prefRow}>
+          <Text style={[styles.prefLabel, { color: c.onSurface }]}>Zona horaria</Text>
+          <View style={[styles.timezoneSelector, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
+            <Text style={[styles.timezoneText, { color: c.onSurface }]}>
+              {Intl.DateTimeFormat().resolvedOptions().timeZone}
+            </Text>
+            <IconChevronRight size={14} color={c.onSurfaceMuted} />
+          </View>
+        </View>
+      </View>
+
       <TouchableOpacity
-        style={[styles.logoutBtn, { borderColor: c.error + '55', backgroundColor: c.surface }]}
+        style={[styles.logoutBtn, { backgroundColor: c.surface }]}
         onPress={logout}
       >
+        <IconLogout size={18} color={c.error} />
         <Text style={[styles.logoutText, { color: c.error }]}>Cerrar sesión</Text>
       </TouchableOpacity>
 
-      <Text style={[styles.version, { color: c.onSurfaceMuted }]}>Delvo v1.0</Text>
+      <View style={{ height: 32 }} />
     </ScrollView>
   );
 }
 
-function Label({ text, c }: { text: string; c: ReturnType<typeof useColors> }) {
-  return <Text style={[styles.label, { color: c.onSurfaceMuted }]}>{text.toUpperCase()}</Text>;
+function SectionLabel({ text, c }: { text: string; c: ReturnType<typeof useColors> }) {
+  return <Text style={[styles.sectionLabel, { color: c.onSurfaceMuted }]}>{text}</Text>;
 }
 
-function SettingRow({ title, subtitle, value, onChange, c }: {
-  title: string; subtitle: string; value: boolean; onChange: (v: boolean) => void;
+function AccountRow({
+  label,
+  c,
+  isLast = false,
+}: {
+  label: string;
   c: ReturnType<typeof useColors>;
+  isLast?: boolean;
 }) {
   return (
-    <View style={styles.settingRow}>
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.settingTitle, { color: c.onSurface }]}>{title}</Text>
-        <Text style={[styles.settingSub, { color: c.onSurfaceMuted }]}>{subtitle}</Text>
-      </View>
+    <TouchableOpacity style={[styles.accountRow, isLast && { borderBottomWidth: 0 }]}>
+      <Text style={[styles.accountRowLabel, { color: c.onSurface }]}>{label}</Text>
+      <IconChevronRight size={18} color={c.onSurfaceMuted} />
+    </TouchableOpacity>
+  );
+}
+
+function NotifRow({
+  label,
+  value,
+  onChange,
+  c,
+  isLast = false,
+}: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  c: ReturnType<typeof useColors>;
+  isLast?: boolean;
+}) {
+  return (
+    <View style={[styles.notifRow, isLast && { borderBottomWidth: 0 }]}>
+      <Text style={[styles.notifLabel, { color: c.onSurface }]}>{label}</Text>
       <Switch
         value={value}
         onValueChange={onChange}
@@ -218,24 +338,128 @@ function SettingRow({ title, subtitle, value, onChange, c }: {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 16, gap: 10, paddingBottom: 40 },
-  profileHero: { borderRadius: 20, padding: 24, alignItems: 'center', gap: 8 },
-  avatar: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  avatarText: { fontSize: 30, fontWeight: '800' },
-  profileName: { fontSize: 20, fontWeight: '700' },
-  profileEmail: { fontSize: 14 },
-  label: { fontSize: 10, fontWeight: '700', letterSpacing: 1, marginTop: 6, marginLeft: 4 },
-  card: { borderRadius: 16, overflow: 'hidden' },
-  settingRow: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
-  integrationRow: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
-  settingTitle: { fontSize: 15, fontWeight: '600' },
-  settingSub: { fontSize: 12, marginTop: 2 },
+  content: { padding: 16, gap: 10, paddingBottom: 24 },
+
+  profileHero: {
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  avatarText: { fontSize: 28, fontWeight: '800' },
+  profileName: { fontSize: 22, fontWeight: '700' },
+  planBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginTop: 2,
+  },
+  planBadgeText: { fontSize: 12, fontWeight: '800', color: '#FEF3C7', letterSpacing: 0.5 },
+
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginTop: 8,
+    marginLeft: 4,
+    marginBottom: -2,
+  },
+  card: { borderRadius: 18, overflow: 'hidden' },
+  divider: { height: 1, marginHorizontal: 16 },
+
+  accountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+  },
+  accountRowLabel: { fontSize: 15, fontWeight: '500' },
+
+  integrationHero: { padding: 16, paddingBottom: 12 },
+  integrationHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  integrationTitle: { fontSize: 16, fontWeight: '700' },
+  integrationSub: { fontSize: 13 },
+  integrationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  integrationItemTitle: { fontSize: 14, fontWeight: '600' },
+  integrationItemSub: { fontSize: 12, marginTop: 2 },
+  syncedDot: { padding: 2, borderRadius: 20 },
+  syncedCheck: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  syncedCheckText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   connectBtn: { borderRadius: 10, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 7 },
   connectBtnText: { fontSize: 13, fontWeight: '700' },
-  minutesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 14 },
+
+  notifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  notifLabel: { fontSize: 15, fontWeight: '500' },
+
+  reminderRow: { padding: 16, gap: 10 },
+  reminderLabel: { fontSize: 15, fontWeight: '600' },
+  minutesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   minuteChip: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 6 },
   minuteChipText: { fontSize: 13, fontWeight: '600' },
-  logoutBtn: { borderRadius: 14, borderWidth: 1, paddingVertical: 16, alignItems: 'center' },
+
+  prefRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
+  },
+  prefLabel: { fontSize: 15, fontWeight: '500', flex: 1 },
+  themeSelector: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    padding: 3,
+    gap: 2,
+  },
+  themeOption: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9 },
+  themeOptionText: { fontSize: 13 },
+  timezoneSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    maxWidth: 200,
+  },
+  timezoneText: { fontSize: 13, flex: 1 },
+
+  logoutBtn: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
   logoutText: { fontSize: 15, fontWeight: '700' },
-  version: { textAlign: 'center', fontSize: 12, marginTop: 8 },
 });

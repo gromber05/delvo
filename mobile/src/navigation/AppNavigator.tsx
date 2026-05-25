@@ -3,10 +3,9 @@ import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   IconHome,
-  IconCalendar,
-  IconPlus,
-  IconMessage,
-  IconSettings,
+  IconClipboardList,
+  IconRobot,
+  IconUser,
   IconShieldLock,
   type IconProps,
 } from '@tabler/icons-react-native';
@@ -14,7 +13,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { LoginScreen } from '../screens/LoginScreen';
 import { HomeScreen } from '../screens/HomeScreen';
-import { CalendarScreen } from '../screens/CalendarScreen';
+import { PlannerScreen } from '../screens/PlannerScreen';
 import { ChatScreen } from '../screens/ChatScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -24,10 +23,9 @@ const Tab = createBottomTabNavigator();
 
 const TAB_ICONS: Record<string, React.FC<IconProps>> = {
   Home: IconHome,
-  Calendar: IconCalendar,
-  Create: IconPlus,
-  Chat: IconMessage,
-  Settings: IconSettings,
+  Tasks: IconClipboardList,
+  Stella: IconRobot,
+  Settings: IconUser,
   Admin: IconShieldLock,
 };
 
@@ -63,9 +61,8 @@ export function AppNavigator() {
     <NavigationContainer theme={navTheme}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          headerStyle: { backgroundColor: c.surface, height: 44 },
-          headerTitle: () => null,
-          headerShadowVisible: false,
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
           tabBarStyle: {
             backgroundColor: c.surface,
             borderTopColor: c.outline,
@@ -77,19 +74,27 @@ export function AppNavigator() {
           tabBarInactiveTintColor: c.onSurfaceMuted,
           tabBarIcon: ({ color }) => {
             const Icon = TAB_ICONS[route.name];
-            return <Icon size={24} color={color} />;
+            return Icon ? <Icon size={24} color={color} /> : null;
           },
           tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', headerShown: false }} />
-        <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Calendario', headerShown: false }} />
+        <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', tabBarLabel: 'Inicio' }} />
+        <Tab.Screen name="Tasks" component={PlannerScreen} options={{ title: 'Tareas', tabBarLabel: 'Tareas' }} />
+        <Tab.Screen name="Stella" component={ChatScreen} options={{ title: 'Stella', tabBarLabel: 'Stella' }} />
         {isAdmin && (
-          <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', headerShown: false }} />
+          <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', tabBarLabel: 'Admin' }} />
         )}
-        <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes' }} />
-        <Tab.Screen name="Create" component={CreateScreen} options={{ title: 'Crear', headerShown: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
-        <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Stella', headerShown: false, tabBarButton: () => null, tabBarItemStyle: { display: 'none' }}} />
+        <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes', tabBarLabel: 'Ajustes' }} />
+        <Tab.Screen
+          name="Create"
+          component={CreateScreen}
+          options={{
+            title: 'Crear',
+            tabBarButton: () => null,
+            tabBarItemStyle: { display: 'none' },
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

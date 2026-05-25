@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,7 +14,17 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, AssistantChatTurn } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
-import { IconArrowLeft, IconMicrophone, IconPlayerStop, IconSend } from '@tabler/icons-react-native';
+import {
+  IconCalendarPlus,
+  IconClipboardCheck,
+  IconClipboardText,
+  IconDotsVertical,
+  IconMicrophone,
+  IconPlayerStop,
+  IconRobot,
+  IconSearch,
+  IconSend,
+} from '@tabler/icons-react-native';
 
 interface Message {
   id: string;
@@ -24,7 +35,13 @@ interface Message {
 
 type RecordState = 'idle' | 'recording' | 'transcribing';
 
-export function ChatScreen({ navigation }: { navigation: { goBack: () => void } }) {
+const QUICK_ACTIONS = [
+  { label: 'CREAR EVENTO', prompt: 'Crea un nuevo evento para mí' },
+  { label: 'NUEVA TAREA', prompt: 'Ayúdame a crear una nueva tarea' },
+  { label: 'RESUMEN', prompt: 'Resume mi agenda de hoy' },
+];
+
+export function ChatScreen() {
   const c = useColors();
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -90,11 +107,9 @@ export function ChatScreen({ navigation }: { navigation: { goBack: () => void } 
       recordingRef.current = null;
       if (!uri) throw new Error('No se pudo obtener el audio.');
       const text = await api.transcribeAudio(uri);
-      if (text) {
-        await send(text);
-      }
+      if (text) await send(text);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al transcribir.');
+      setError(e instanceof Error ? e.message : 'Error de transcripción.');
     } finally {
       setRecordState('idle');
     }
@@ -105,22 +120,30 @@ export function ChatScreen({ navigation }: { navigation: { goBack: () => void } 
   const isTranscribing = recordState === 'transcribing';
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.background }} behavior="padding" keyboardVerticalOffset={0}>
-      {}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: c.background }}
+      behavior="padding"
+      keyboardVerticalOffset={0}
+    >
       <View style={[styles.header, { backgroundColor: c.background, borderBottomColor: c.outline, paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
-          <IconArrowLeft width={24} height={24} strokeWidth={1.8} color={c.onSurface} />
+        <View style={[styles.stellaAvatar, { backgroundColor: c.surface }]}>
+          <IconRobot size={24} color={c.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.stellaName, { color: c.onSurface }]}>Stella IA</Text>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusDot, { backgroundColor: c.secondary }]} />
+            <Text style={[styles.statusText, { color: c.secondary }]}>En línea</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.headerIcon} hitSlop={8}>
+          <IconSearch size={22} color={c.onSurfaceMuted} />
         </TouchableOpacity>
-        <View style={[styles.stellaAvatar, { backgroundColor: c.primaryMuted }]}>
-          <Text style={[styles.stellaLetter, { color: c.primary }]}>S</Text>
-        </View>
-        <View>
-          <Text style={[styles.stellaName, { color: c.onSurface }]}>Stella</Text>
-          <Text style={[styles.stellaStatus, { color: c.secondary }]}>● En línea</Text>
-        </View>
+        <TouchableOpacity style={styles.headerIcon} hitSlop={8}>
+          <IconDotsVertical size={22} color={c.onSurfaceMuted} />
+        </TouchableOpacity>
       </View>
 
-      {}
       <FlatList
         ref={listRef}
         data={messages}
@@ -133,48 +156,75 @@ export function ChatScreen({ navigation }: { navigation: { goBack: () => void } 
 
       {error ? <Text style={[styles.error, { color: c.error }]}>{error}</Text> : null}
 
-      {}
-      <View style={[styles.inputRow, { backgroundColor: c.surface, borderTopColor: c.outline }]}>
-        <TextInput
-          style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
-          placeholder={isRecording ? '● Grabando…' : isTranscribing ? 'Transcribiendo…' : 'Escribe un mensaje…'}
-          placeholderTextColor={isRecording ? '#EF4444' : c.onSurfaceMuted}
-          value={input}
-          onChangeText={setInput}
-          onSubmitEditing={() => send()}
-          returnKeyType="send"
-          editable={!sending && !isRecording && !isTranscribing}
-          multiline
-        />
-
-        {showMic ? (
-          <TouchableOpacity
-            style={[
-              styles.actionBtn,
-              { backgroundColor: isRecording ? '#EF4444' : isTranscribing ? c.surfaceVariant : c.primary },
-            ]}
-            onPress={isRecording ? stopRecording : startRecording}
-            disabled={isTranscribing}
+      <View style={[styles.composerDock, { backgroundColor: c.surface, borderTopColor: c.outline }]}>
+        {messages.length === 0 && !sending && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.quickActionsScroll}
+            contentContainerStyle={styles.quickActionsRow}
           >
-            {isTranscribing
-              ? <ActivityIndicator size="small" color={c.primary} />
-              : isRecording
-                ? <IconPlayerStop width={20} height={20} strokeWidth={1.5} color="#fff" />
-                : <IconMicrophone width={20} height={20} strokeWidth={1.5} color={c.onPrimary} />
-            }
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: input.trim() && !sending ? c.primary : c.surfaceVariant }]}
-            onPress={() => send()}
-            disabled={!input.trim() || sending}
-          >
-            {sending
-              ? <ActivityIndicator size="small" color={c.primary} />
-              : <IconSend width={20} height={20} strokeWidth={1.5} color={input.trim() ? c.onPrimary : c.onSurfaceMuted} />
-            }
-          </TouchableOpacity>
+            {QUICK_ACTIONS.map(action => (
+              <TouchableOpacity
+                key={action.label}
+                style={[styles.quickChip, { backgroundColor: c.surface, borderColor: c.outline }]}
+                onPress={() => send(action.prompt)}
+              >
+                {action.label === 'CREAR EVENTO' && <IconCalendarPlus size={16} color={c.onSurface} />}
+                {action.label === 'NUEVA TAREA' && <IconClipboardCheck size={16} color={c.onSurface} />}
+                {action.label === 'RESUMEN' && <IconClipboardText size={16} color={c.onSurface} />}
+                <Text style={[styles.quickChipText, { color: c.onSurface }]}>{action.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         )}
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, { backgroundColor: c.surfaceVariant, color: c.onSurface, borderColor: c.outline }]}
+            placeholder={
+              isRecording ? '● Grabando…' :
+              isTranscribing ? 'Transcribiendo…' :
+              'Pregunta algo a Stella…'
+            }
+            placeholderTextColor={isRecording ? '#EF4444' : c.onSurfaceMuted}
+            value={input}
+            onChangeText={setInput}
+            onSubmitEditing={() => send()}
+            returnKeyType="send"
+            editable={!sending && !isRecording && !isTranscribing}
+            multiline
+          />
+
+          {showMic ? (
+            <TouchableOpacity
+              style={[
+                styles.sendBtn,
+                { backgroundColor: isRecording ? '#EF4444' : isTranscribing ? c.surfaceVariant : c.primary },
+              ]}
+              onPress={isRecording ? stopRecording : startRecording}
+              disabled={isTranscribing}
+            >
+              {isTranscribing
+                ? <ActivityIndicator size="small" color={c.primary} />
+                : isRecording
+                  ? <IconPlayerStop width={20} height={20} strokeWidth={1.5} color="#fff" />
+                  : <IconMicrophone width={20} height={20} strokeWidth={1.5} color="#fff" />
+              }
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.sendBtn, { backgroundColor: input.trim() && !sending ? c.primary : c.surfaceVariant }]}
+              onPress={() => send()}
+              disabled={!input.trim() || sending}
+            >
+              {sending
+                ? <ActivityIndicator size="small" color={c.primary} />
+                : <IconSend width={20} height={20} strokeWidth={1.5} color={input.trim() ? '#fff' : c.onSurfaceMuted} />
+              }
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -188,7 +238,7 @@ function Bubble({ msg, c }: { msg: Message; c: ReturnType<typeof useColors> }) {
         styles.bubble,
         isUser ? { backgroundColor: c.primary } : { backgroundColor: c.surface },
       ]}>
-        <Text style={[styles.bubbleText, { color: isUser ? c.onPrimary : c.onSurface }]}>
+        <Text style={[styles.bubbleText, { color: isUser ? '#fff' : c.onSurface }]}>
           {msg.content}
         </Text>
       </View>
@@ -206,7 +256,7 @@ function TypingBubble({ c }: { c: ReturnType<typeof useColors> }) {
     <View style={styles.bubbleWrap}>
       <View style={[styles.bubble, { backgroundColor: c.surface }]}>
         <Text style={[styles.bubbleText, { color: c.onSurfaceMuted, fontStyle: 'italic' }]}>
-          Stella escribiendo…
+          Stella está escribiendo…
         </Text>
       </View>
     </View>
@@ -217,7 +267,7 @@ function EmptyState({ c }: { c: ReturnType<typeof useColors> }) {
   return (
     <View style={styles.empty}>
       <View style={[styles.emptyAvatar, { backgroundColor: c.primaryMuted }]}>
-        <Text style={[styles.emptyAvatarText, { color: c.primary }]}>S</Text>
+        <IconRobot size={38} color={c.primary} />
       </View>
       <Text style={[styles.emptyTitle, { color: c.onSurface }]}>Hola, soy Stella</Text>
       <Text style={[styles.emptyBody, { color: c.onSurfaceMuted }]}>
@@ -228,12 +278,28 @@ function EmptyState({ c }: { c: ReturnType<typeof useColors> }) {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1 },
-  backBtn: { padding: 2 },
-  stellaAvatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  stellaLetter: { fontSize: 18, fontWeight: '700' },
-  stellaName: { fontSize: 15, fontWeight: '700' },
-  stellaStatus: { fontSize: 12 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  stellaAvatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stellaAvatarIcon: { fontSize: 22 },
+  stellaName: { fontSize: 16, fontWeight: '700' },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 1 },
+  statusDot: { width: 7, height: 7, borderRadius: 4 },
+  statusText: { fontSize: 12, fontWeight: '500' },
+  headerIcon: { padding: 4 },
+
   list: { padding: 16, gap: 10 },
   bubbleWrap: { alignItems: 'flex-start', maxWidth: '82%' },
   bubbleWrapUser: { alignSelf: 'flex-end', alignItems: 'flex-end' },
@@ -241,12 +307,62 @@ const styles = StyleSheet.create({
   bubbleText: { fontSize: 14, lineHeight: 21 },
   context: { fontSize: 10, marginTop: 3, marginHorizontal: 4 },
   error: { fontSize: 13, marginHorizontal: 16, marginBottom: 4 },
-  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, padding: 12, borderTopWidth: 1 },
-  input: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, maxHeight: 110, borderWidth: 1 },
-  actionBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+
+  composerDock: {
+    flexShrink: 0,
+    borderTopWidth: 1,
+  },
+  quickActionsScroll: {
+    flexShrink: 0,
+  },
+  quickActionsRow: {
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 4,
+    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+  },
+  quickChipIcon: { fontSize: 14 },
+  quickChipText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
+
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  input: {
+    flex: 1,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 14,
+    maxHeight: 110,
+    borderWidth: 1,
+  },
+  sendBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 32, gap: 14 },
-  emptyAvatar: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center' },
-  emptyAvatarText: { fontSize: 32, fontWeight: '700' },
-  emptyTitle: { fontSize: 20, fontWeight: '700' },
+  emptyAvatar: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center' },
+  emptyAvatarIcon: { fontSize: 38 },
+  emptyTitle: { fontSize: 22, fontWeight: '700' },
   emptyBody: { fontSize: 14, lineHeight: 22, textAlign: 'center' },
 });

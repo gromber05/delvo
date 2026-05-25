@@ -335,6 +335,13 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ status: 'active', ...body }),
     }),
+  updateNote: (id: number, body: { title: string; content?: string | null; status: string }) =>
+    request<ItemResponse<NoteDto>>(`/api/v1/planner/notes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  deleteNote: (id: number) =>
+    request<{ ok: boolean }>(`/api/v1/planner/notes/${id}`, { method: 'DELETE' }),
 
   
   chat: (message: string, history: AssistantChatTurn[]) =>

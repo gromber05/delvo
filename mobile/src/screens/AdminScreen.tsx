@@ -37,7 +37,7 @@ export function AdminScreen() {
       const data = await api.adminStats();
       setStats(data);
     } catch (e: any) {
-      setError(e?.message ?? 'Error cargando stats');
+      setError(e?.message ?? 'Error al cargar estadísticas');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -81,16 +81,14 @@ export function AdminScreen() {
         />
       }
     >
-      <Text style={s.pageTitle}>Panel Admin</Text>
+      <Text style={s.pageTitle}>Panel de administración</Text>
 
-      {/* KPI cards */}
       <View style={s.row}>
         <StatCard label="Usuarios" value={stats.total_users} color={c.primary} colors={c} />
         <StatCard label="Conversaciones" value={stats.total_conversations} color="#9C27B0" colors={c} />
         <StatCard label="Mensajes" value={stats.total_messages} color="#2196F3" colors={c} />
       </View>
 
-      {/* Sentiment */}
       {stats.sentiment_distribution.length > 0 && (
         <Section title="Sentimiento" colors={c}>
           <View style={s.barContainer}>
@@ -112,7 +110,6 @@ export function AdminScreen() {
         </Section>
       )}
 
-      {/* Intent distribution */}
       {stats.intent_distribution.length > 0 && (
         <Section title="Peticiones más frecuentes" colors={c}>
           <View style={s.barContainer}>
@@ -134,7 +131,6 @@ export function AdminScreen() {
         </Section>
       )}
 
-      {/* Daily activity */}
       {stats.daily_activity.length > 0 && (
         <Section title="Actividad últimos 14 días" colors={c}>
           <View style={s.activityGrid}>
@@ -155,7 +151,6 @@ export function AdminScreen() {
         </Section>
       )}
 
-      {/* Top users */}
       {stats.top_users.length > 0 && (
         <Section title="Usuarios más activos" colors={c}>
           {stats.top_users.slice(0, 5).map((u, i) => (

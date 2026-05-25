@@ -11,7 +11,11 @@
         "backgroundColor": "#07162A"
       },
       "package": "com.gromber05.delvo",
-      "permissions": ["SCHEDULE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "VIBRATE"],
+      "permissions": [
+        "SCHEDULE_EXACT_ALARM",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ],
       "androidStatusBar": {
         "barStyle": "light-content",
         "backgroundColor": "#0F1923",
@@ -36,7 +40,7 @@
     "newArchEnabled": true,
     "extra": {
       "eas": {
-        "projectId": "df10e9a8-a6fd-427b-9d1b-39e56a0c7cb6"
+        "projectId": "85e814ea-65c6-4091-a125-f2cf7b9dcbff"
       }
     }
   }

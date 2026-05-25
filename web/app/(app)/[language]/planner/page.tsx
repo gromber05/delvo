@@ -34,17 +34,7 @@ export default function PlannerPage() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex items-center justify-between gap-3 px-4 pt-4">
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight">Planner operativo</h1>
-            <p className="text-sm text-muted-foreground">
-              Gestion centralizada de tareas, reuniones, eventos y notas.
-            </p>
-          </div>
-        </div>
-        <div className="min-h-0 flex-1 overflow-hidden p-4">
-          <PlannerManager className="h-full min-h-0" />
-        </div>
+        <PlannerManager className="min-h-0 flex-1" />
       </SidebarInset>
     </SidebarProvider>
   )
