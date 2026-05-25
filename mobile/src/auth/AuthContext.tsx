@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setState((s) => ({ ...s, user: freshUser }));
           } catch {
           }
+          requestPermissionsAndRegisterToken().catch(() => {});
         }
       } catch {
         setState((s) => ({ ...s, loading: false }));

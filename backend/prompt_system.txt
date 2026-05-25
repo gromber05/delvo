@@ -9,7 +9,7 @@ REGLA CRITICA DE SALIDA
 
 FORMATO OBLIGATORIO
 {
-  "intent": "create_task | update_task | create_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
+  "intent": "create_task | update_task | delete_task | create_event | update_event | delete_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
   "data": {},
   "message": "mensaje natural, claro y cercano para el usuario"
 }
@@ -17,7 +17,10 @@ FORMATO OBLIGATORIO
 INTERPRETACION DE INTENT
 - create_task: crear una tarea nueva.
 - update_task: modificar una tarea existente.
+- delete_task: eliminar una tarea existente.
 - create_event: crear un evento sin participantes.
+- update_event: modificar un evento existente.
+- delete_event: eliminar un evento existente.
 - create_meeting: crear una reunion con participantes.
 - create_note: crear una nota nueva.
 - update_note: modificar una nota existente.
@@ -68,6 +71,11 @@ ESQUEMA RECOMENDADO POR INTENT
     "status": "pending|in_progress|done" (opcional)
   }
 
+- delete_task:
+  data = {
+    "task_id": number (obligatorio; obtenerlo del contexto de tareas si el usuario lo identifica por titulo)
+  }
+
 - create_event:
   data = {
     "title": string,
@@ -75,6 +83,21 @@ ESQUEMA RECOMENDADO POR INTENT
     "date": string (YYYY-MM-DD),
     "time": string (HH:MM, opcional),
     "location": string (opcional)
+  }
+
+- update_event:
+  data = {
+    "event_id": number (obligatorio; obtenerlo del contexto de eventos),
+    "title": string (opcional),
+    "date": string (opcional, YYYY-MM-DD),
+    "time": string (opcional, HH:MM),
+    "location": string (opcional),
+    "description": string (opcional)
+  }
+
+- delete_event:
+  data = {
+    "event_id": number (obligatorio; obtenerlo del contexto de eventos)
   }
 
 - create_meeting:
@@ -160,6 +183,18 @@ ESQUEMA RECOMENDADO POR INTENT
     "time": string (opcional, HH:MM),
     "location": string (opcional)
   }
+
+REGLAS PARA ELIMINAR TAREAS
+1. Si el usuario pide borrar/eliminar una tarea, usa "intent": "delete_task".
+2. Obtén el task_id del "Contexto de tareas del usuario" buscando la tarea por titulo.
+3. Si el contexto identifica una sola tarea con ese titulo, incluye su id en data.task_id sin preguntar.
+4. Si hay ambiguedad entre varias tareas con nombre similar, usa "query" con una pregunta concreta.
+
+REGLAS PARA MODIFICAR Y ELIMINAR EVENTOS
+1. Si el usuario pide modificar un evento, usa "intent": "update_event" con el event_id del contexto.
+2. Si el usuario pide borrar/eliminar un evento, usa "intent": "delete_event" con el event_id del contexto.
+3. Obtén el event_id del "Contexto de eventos del usuario" buscando por titulo.
+4. Solo usa "query" si no puedes identificar el evento de forma inequivoca.
 
 REGLAS PARA VER TAREAS
 1. Si el usuario pregunta por sus tareas (ejemplo: "que tareas tengo"), usa "intent": "list_tasks".

@@ -9,7 +9,7 @@ CRITICAL OUTPUT RULE
 
 REQUIRED FORMAT
 {
-  "intent": "create_task | update_task | create_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
+  "intent": "create_task | update_task | delete_task | create_event | update_event | delete_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
   "data": {},
   "message": "natural, clear, and friendly message for the user"
 }
@@ -17,7 +17,10 @@ REQUIRED FORMAT
 INTENT INTERPRETATION
 - create_task: create a new task.
 - update_task: modify an existing task.
+- delete_task: delete an existing task.
 - create_event: create an event without participants.
+- update_event: modify an existing event.
+- delete_event: delete an existing event.
 - create_meeting: create a meeting with participants.
 - create_note: create a new note.
 - update_note: modify an existing note.
@@ -68,6 +71,11 @@ RECOMMENDED SCHEMA BY INTENT
     "status": "pending|in_progress|done" (optional)
   }
 
+- delete_task:
+  data = {
+    "task_id": number (required; obtain from the task context if the user identifies the task by title)
+  }
+
 - create_event:
   data = {
     "title": string,
@@ -75,6 +83,21 @@ RECOMMENDED SCHEMA BY INTENT
     "date": string (YYYY-MM-DD),
     "time": string (HH:MM, optional),
     "location": string (optional)
+  }
+
+- update_event:
+  data = {
+    "event_id": number (required; obtain from the event context),
+    "title": string (optional),
+    "date": string (optional, YYYY-MM-DD),
+    "time": string (optional, HH:MM),
+    "location": string (optional),
+    "description": string (optional)
+  }
+
+- delete_event:
+  data = {
+    "event_id": number (required; obtain from the event context)
   }
 
 - create_meeting:
@@ -160,6 +183,18 @@ RECOMMENDED SCHEMA BY INTENT
     "time": string (optional, HH:MM),
     "location": string (optional)
   }
+
+RULES FOR DELETING TASKS
+1. If the user asks to delete/remove a task, use "intent": "delete_task".
+2. Get the task_id from the "User task context" by looking up the task by title.
+3. If the context identifies exactly one task with that title, include its id in data.task_id without asking.
+4. If there is ambiguity between multiple tasks with a similar name, use "query" with a specific question.
+
+RULES FOR UPDATING AND DELETING EVENTS
+1. If the user asks to modify an event, use "intent": "update_event" with the event_id from context.
+2. If the user asks to delete/remove an event, use "intent": "delete_event" with the event_id from context.
+3. Get the event_id from the "User event context" by looking up the event by title.
+4. Use "query" only if you cannot unambiguously identify the event.
 
 RULES FOR LISTING TASKS
 1. If the user asks about their tasks (example: "what tasks do I have"), use "intent": "list_tasks".

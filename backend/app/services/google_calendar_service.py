@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
+
+_MADRID_TZ = ZoneInfo("Europe/Madrid")
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -118,7 +121,7 @@ def _parse_gcal_item(item: dict[str, Any], now: datetime) -> tuple[str, str, str
     location: str | None = item.get("location")
     start = item.get("start", {})
     if start.get("dateTime"):
-        dt = datetime.fromisoformat(start["dateTime"])
+        dt = datetime.fromisoformat(start["dateTime"]).astimezone(_MADRID_TZ)
         event_date = dt.date().isoformat()
         event_time = dt.strftime("%H:%M:%S")
     else:
