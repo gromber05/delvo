@@ -75,11 +75,13 @@ Full CRUD for four entity types:
 - Middleware-based auth guard: unauthenticated users are redirected to login; authenticated users are redirected away from login/signup.
 
 ### Mobile App (Expo)
+- **Planner screen**: monthly calendar grid with day-by-day task, meeting, event, and note listing. Supports create/edit/delete and task filtering (`all / pending / done`).
 - Calendar view combining Delvo tasks, events, meetings, and live Google Calendar events.
 - Inline editing for all entry types including Google Calendar events.
 - Settings screen with Google Calendar connect/disconnect flow (using `WebBrowser.openAuthSessionAsync`).
 - AI assistant chat screen.
 - JWT token storage in `SecureStore` with automatic silent refresh.
+- Security and personal info screens for account management.
 
 ---
 
@@ -171,9 +173,14 @@ delvo/
 │   └── src/
 │       ├── screens/
 │       │   ├── CalendarScreen.tsx      # Unified calendar + gcal events
+│       │   ├── PlannerScreen.tsx       # Monthly planner with task/event/meeting/note CRUD
 │       │   ├── SettingsScreen.tsx      # Google Calendar OAuth
-│       │   ├── AssistantScreen.tsx     # Chat
-│       │   └── ...
+│       │   ├── AssistantScreen.tsx     # Chat (maps to ChatScreen.tsx)
+│       │   ├── HomeScreen.tsx          # Dashboard
+│       │   ├── CreateScreen.tsx        # Quick-create entry point
+│       │   ├── SecurityScreen.tsx      # Account security
+│       │   ├── PersonalInfoScreen.tsx  # User profile
+│       │   └── LoginScreen.tsx         # Authentication
 │       ├── api/
 │       │   └── client.ts              # Typed API client + token refresh
 │       └── context/

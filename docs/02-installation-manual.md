@@ -74,8 +74,11 @@ Este comando:
 
 Cuando el arranque termine:
 
-- Web: `http://localhost:31667`
-- Backend: `http://localhost:30667`
+| Servicio | URL |
+|---|---|
+| Aplicación web | `http://localhost:31667` |
+| Backend API | `http://localhost:30667` |
+| PostgreSQL | `localhost:55432` |
 
 Para verificar el backend:
 
@@ -84,6 +87,12 @@ curl http://localhost:30667/health
 ```
 
 Si todo es correcto, el endpoint devuelve un estado de salud válido.
+
+También puedes verificar el health de la web en:
+
+```bash
+curl http://localhost:31667/api/health
+```
 
 ## 7. Acceso a documentación de API
 

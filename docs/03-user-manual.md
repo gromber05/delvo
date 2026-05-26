@@ -115,7 +115,20 @@ Acciones disponibles:
 - Consultar notas.
 - Archivar notas.
 
-## 9. Calendario
+## 9. Planificador (app móvil)
+
+La pantalla de Planificador en la aplicación móvil ofrece una vista de calendario mensual con el detalle de los elementos del día seleccionado.
+
+Funcionalidades disponibles:
+
+- Navegar entre meses con los controles de cabecera.
+- Ver todas las tareas, reuniones, eventos y notas de un día concreto.
+- Filtrar tareas por estado: `Todo`, `Pendientes`, `Completadas`.
+- Crear nuevos elementos pulsando el botón `+`.
+- Editar o eliminar cualquier elemento directamente desde la lista.
+- Colores de prioridad en tareas: rojo (alta), naranja (media), verde (baja).
+
+## 10. Calendario
 
 El calendario ofrece una vista temporal de la actividad.
 
@@ -126,7 +139,7 @@ Puede mostrar:
 - Eventos de Delvo.
 - Eventos de Google Calendar (si hay integración activa).
 
-## 10. Integración con Google Calendar
+## 11. Integración con Google Calendar
 
 Para conectar Google Calendar:
 
@@ -140,7 +153,7 @@ Después, Delvo puede:
 - Consultar eventos de Google Calendar.
 - Permitir edición en determinados casos.
 
-## 11. Asistente inteligente
+## 12. Asistente inteligente
 
 Desde el chat, puedes escribir instrucciones en lenguaje natural.
 
@@ -155,7 +168,7 @@ Características:
 - Soporte en español e inglés.
 - Posible uso de base de conocimiento local con RAG.
 
-## 12. Uso en aplicación móvil
+## 13. Uso en aplicación móvil
 
 La experiencia general es equivalente a la web, con interfaz adaptada.
 
@@ -169,7 +182,7 @@ Incluye:
 
 Si el token de acceso caduca, la app intenta renovarlo automáticamente con el token de refresco.
 
-## 13. Cierre de sesión y seguridad
+## 14. Cierre de sesión y seguridad
 
 Si la sesión expira por completo, deberás iniciar sesión de nuevo.
 
@@ -180,7 +193,7 @@ Para cerrar sesión manualmente:
 
 Esto elimina credenciales activas y protege tu cuenta, especialmente en equipos compartidos.
 
-## 14. Recomendaciones de uso diario
+## 15. Recomendaciones de uso diario
 
 Flujo sugerido:
 
@@ -189,7 +202,7 @@ Flujo sugerido:
 3. Añade reuniones y eventos nuevos.
 4. Usa el asistente para acciones rápidas.
 
-## 15. Resumen
+## 16. Resumen
 
 Delvo unifica productividad y planificación en una sola plataforma.
 

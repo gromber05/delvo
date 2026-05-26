@@ -24,8 +24,15 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "data": [{ "scheme": "com.googleusercontent.apps.95110046175-90rg1ndu2iu8m28otu80epgj602p2f31" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "com.googleusercontent.apps.95110046175-90rg1ndu2iu8m28otu80epgj602p2f31"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },

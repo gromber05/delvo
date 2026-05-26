@@ -2,7 +2,7 @@
 
 **Gonzalo Romero Bernal**
 2º DAM - IES Rafael Alberti
-6 de Mayo de 2026
+26 de Mayo de 2026
 
 ---
 
@@ -166,7 +166,7 @@ Se trata de una solución basada en arquitectura cliente-servidor, formada por:
 * Un backend basado en FastAPI encargado de la lógica de negocio, autenticación y gestión de datos.
 * Una base de datos PostgreSQL para el almacenamiento persistente de información.
 
-Además, este proyecto presenta la mejora de herramientas de inteligencia artificial para automatización, asistencia y recomendaciones inteligentes al usuario.
+Además, este proyecto incorpora herramientas de inteligencia artificial para automatización, asistencia y recomendaciones inteligentes al usuario.
 
 ## b. Características principales
 
@@ -231,7 +231,7 @@ No obstante, esta primera versión no contempla funcionalidades colaborativas av
 
 El desarrollo del proyecto ha estado condicionado por varias restricciones. La primera ha sido el tiempo disponible, ya que el proyecto se ha realizado dentro del periodo correspondiente al Trabajo de Fin de Grado. Esto ha obligado a priorizar las funcionalidades principales frente a otras mejoras que podrían incorporarse en versiones posteriores.
 
-También ha existido una restricción de recursos, al tratarse de un proyecto desarrollado principalmente por una sola persona. Por este motivo, se ha optado por una arquitectura modular y por tecnologías conocidas que facilitan el desarrollo, mantenimiento y despliegue. Otra restricción importante es la dependencia de servicios externos como Google Calendar y Ollama, que requieren configuración específica para poder funcionar de manera establef.
+También ha existido una restricción de recursos, al tratarse de un proyecto desarrollado principalmente por una sola persona. Por este motivo, se ha optado por una arquitectura modular y por tecnologías conocidas que facilitan el desarrollo, mantenimiento y despliegue. Otra restricción importante es la dependencia de servicios externos como Google Calendar y Ollama, que requieren configuración específica para poder funcionar de manera estable.
 
 Por último, el proyecto depende de una configuración del entorno específica, requiriendo variables de entorno, archivos Docker y credenciales externas. Esto implica que la instalación debe seguir unos pasos concretos para que todos los servicios funcionen de manera adecuada.
 
@@ -341,6 +341,48 @@ La aplicación web utiliza Next.js y TypeScript, mientras que la móvil utiliza 
 
 La arquitectura general de Delvo puede entenderse como un sistema formado por tres clientes principales: usuario web, usuario móvil y servicios externos. Tanto la aplicación web como la aplicación móvil se comunican con el backend FastAPI. El backend gestiona la autenticación, la lógica de negocio y el acceso a PostgreSQL. Además, se comunica con Ollama para funciones de inteligencia artificial y con Google Calendar API para la sincronización de eventos.
 
+**Diagrama de arquitectura:**
+
+```
+┌──────────────┐     ┌──────────────────┐
+│  Usuario web  │────▶│  Next.js (web)   │
+└──────────────┘     └────────┬─────────┘
+                              │
+┌──────────────┐              ▼
+│ Usuario móvil │────▶ ┌────────────────────┐      ┌─────────────┐
+└──────────────┘       │  Backend FastAPI    │◀────▶│  PostgreSQL │
+                       │  (Python 3.12)      │      └─────────────┘
+                       └──┬──────────────┬──┘
+                          │              │
+                          ▼              ▼
+               ┌──────────────┐  ┌────────────────┐
+               │  Ollama LLM  │  │ Google Calendar│
+               │  (local IA)  │  │      API        │
+               └──────────────┘  └────────────────┘
+```
+
+**Flujo de petición web:**
+```
+Navegador → Middleware Next.js (autenticación) → Página Next.js → Backend FastAPI → PostgreSQL
+```
+
+**Flujo de petición móvil:**
+```
+App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
+```
+
+**Estructura de módulos del backend:**
+
+| Módulo | Función |
+|---|---|
+| `api/v1/endpoints/auth.py` | Registro, login, refresh, perfil |
+| `api/v1/endpoints/planner.py` | CRUD tareas, reuniones, eventos, notas |
+| `api/v1/endpoints/assistant.py` | Chat IA + reindexado RAG |
+| `api/v1/endpoints/google_calendar.py` | OAuth connect, sync, CRUD eventos Google |
+| `services/assistant_service.py` | LLM chat + recuperación RAG |
+| `services/google_calendar_service.py` | Cliente Google API + lógica de sincronización |
+| `db/postgresql/` | Pool de conexiones + repositorios CRUD |
+
 
 ---
 
@@ -416,7 +458,313 @@ Una vez activos los servicios, se comprueba el estado del backend y se accede a 
 
 ## a. Manual de instalación
 
+### Objetivo
+
+Este manual explica cómo instalar y ejecutar Delvo en un entorno local de desarrollo.
+
+Delvo está compuesto por:
+
+- Backend con FastAPI (Python 3.12).
+- Aplicación web con Next.js 15.
+- Base de datos PostgreSQL 16.
+- Aplicación móvil con Expo y React Native.
+
+La orquestación principal de los tres primeros servicios se realiza con Docker Compose.
+
+### Requisitos previos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- **Git** — para clonar el repositorio.
+- **Docker Desktop** — para ejecutar los contenedores.
+- **Node.js** (v18 o superior) — necesario para la app móvil.
+- **pnpm** o **npm** — gestor de paquetes para Node.js.
+- **Expo Go** — si vas a probar la app móvil en un dispositivo físico (iOS o Android).
+- **Emulador Android** (opcional) — para ejecutar la app sin dispositivo físico.
+
+### Clonar el repositorio
+
+En una terminal, clona el proyecto y accede a su carpeta:
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd delvo
+```
+
+En la raíz encontrarás, entre otros, estos elementos:
+
+- `backend/` — servidor FastAPI
+- `web/` — aplicación web Next.js
+- `mobile/` — aplicación móvil Expo
+- `docs/` — documentación del proyecto
+- `docker-compose.yml` — orquestación de servicios
+- `.env` — variables de entorno (no publicar en repositorios públicos)
+
+### Configurar variables de entorno
+
+Delvo usa un archivo `.env` en la raíz del proyecto que define parámetros críticos. Las principales variables son:
+
+| Variable | Descripción |
+|---|---|
+| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL |
+| `JWT_SECRET_KEY` | Clave secreta para firmar tokens JWT |
+| `GOOGLE_CLIENT_ID` | Client ID de Google OAuth 2.0 |
+| `GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth 2.0 |
+| `GOOGLE_CALLBACK_URL` | URL de callback OAuth |
+| `OLLAMA_URL` | URL del servidor Ollama (IA local) |
+| `LLM_MODEL` | Nombre del modelo LLM (p. ej. `llama3.2`) |
+| `EMBED_MODEL` | Modelo de embeddings (p. ej. `nomic-embed-text`) |
+
+### Levantar servicios con Docker Compose
+
+Desde la raíz del proyecto, ejecuta:
+
+```bash
+docker compose up --build
+```
+
+Este comando:
+
+1. Construye las imágenes necesarias.
+2. Inicia PostgreSQL.
+3. Inicia el backend cuando la base de datos está disponible.
+4. Inicia la aplicación web.
+
+### Comprobar que todo funciona
+
+Cuando el arranque termine, los servicios quedan disponibles en:
+
+| Servicio | URL |
+|---|---|
+| Aplicación web | `http://localhost:31667` |
+| Backend API | `http://localhost:30667` |
+| PostgreSQL | `localhost:55432` |
+
+Para verificar el backend:
+
+```bash
+curl http://localhost:30667/health
+```
+
+La documentación interactiva de la API está en `http://localhost:30667/docs`.
+
+### Configurar integración con Google Calendar
+
+Para habilitar la integración con Google Calendar:
+
+1. Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com/).
+2. Habilita **Google Calendar API** y **People API**.
+3. Crea credenciales OAuth 2.0 de tipo **Aplicación web**.
+4. Añade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
+5. Si la app no está verificada, añade tu correo como **usuario de prueba** en OAuth Consent Screen.
+6. Copia el **Client ID** y **Client Secret** en el `.env`.
+
+### Configurar funcionalidad de IA (Ollama)
+
+Para usar el asistente inteligente:
+
+1. Instala y ejecuta [Ollama](https://ollama.com).
+2. Descarga los modelos necesarios:
+   ```bash
+   ollama pull llama3.2
+   ollama pull nomic-embed-text
+   ```
+3. Asegúrate de que el backend puede acceder a Ollama (la URL por defecto es `http://host.docker.internal:11434`).
+
+### Ejecutar la aplicación móvil
+
+La app móvil no se ejecuta en Docker. En otra terminal:
+
+```bash
+cd mobile
+pnpm install
+pnpm start
+```
+
+Después:
+
+- Escanea el QR con **Expo Go** en tu dispositivo, o
+- Abre la app en un **emulador Android**.
+
+Para apuntar al backend local, ajusta `BASE_URL` en `mobile/src/api/client.ts`.
+
+### Solución de problemas comunes
+
+Si algo falla, comprueba:
+
+- Docker Desktop está iniciado.
+- Los puertos `30667`, `31667` y `55432` están libres.
+- El archivo `.env` contiene todas las variables necesarias.
+
+Para reiniciar el entorno limpio:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+---
+
 ## b. Manual de uso de la aplicación
+
+### Introducción
+
+Delvo permite centralizar en una única plataforma:
+
+- **Tareas** — con prioridad, fecha límite y estado.
+- **Reuniones** — con fecha, hora, duración, ubicación y participantes.
+- **Eventos** — actividades puntuales sincronizables con Google Calendar.
+- **Notas** — apuntes rápidos con opción de archivar.
+- **Asistente inteligente** — chat con IA en español e inglés.
+
+La aplicación está disponible en versión **web** y **móvil**.
+
+### Registro e inicio de sesión
+
+**Registro:**
+
+1. Abre la pantalla de autenticación.
+2. Introduce nombre, correo electrónico y contraseña.
+3. Completa el registro pulsando el botón correspondiente.
+
+**Inicio de sesión:**
+
+1. Introduce correo electrónico y contraseña.
+2. Accede a la aplicación.
+
+Gestión de sesión:
+
+- **Web:** sesión mediante cookies HTTP-only seguras (el token JWT nunca queda expuesto en el navegador).
+- **Móvil:** sesión mediante tokens almacenados en `SecureStore`. El token se renueva automáticamente al caducar.
+
+### Navegación general
+
+Tras iniciar sesión:
+
+- En **web:** navegación lateral con acceso a todas las secciones.
+- En **móvil:** navegación inferior adaptada a pantalla pequeña.
+
+Secciones disponibles: Inicio, Planificador, Calendario, Asistente y Configuración.
+
+### Dashboard (Inicio)
+
+El dashboard muestra una vista resumida del día:
+
+- Tareas próximas.
+- Reuniones del día.
+- Eventos recientes.
+- Notas activas.
+
+Se recomienda usar esta pantalla como punto de control diario.
+
+### Gestión de tareas
+
+En la sección de tareas puedes crear, editar y eliminar tareas.
+
+Campos disponibles:
+
+| Campo | Opciones |
+|---|---|
+| Título | Texto libre |
+| Descripción | Opcional |
+| Fecha límite | Selector de fecha |
+| Hora | Selector de hora |
+| Prioridad | `baja`, `media`, `alta` |
+| Estado | `pendiente`, `en progreso`, `completada` |
+
+### Gestión de reuniones
+
+La sección de reuniones permite registrar encuentros planificados.
+
+Campos disponibles:
+
+| Campo | Descripción |
+|---|---|
+| Título | Nombre de la reunión |
+| Fecha y hora | Cuándo se celebra |
+| Duración | En minutos |
+| Ubicación | Lugar o enlace |
+| Participantes | Lista de correos |
+| Estado | `programada`, `completada`, `cancelada` |
+
+### Gestión de eventos
+
+Los eventos sirven para actividades puntuales. Si Google Calendar está conectado, los eventos creados en Delvo se sincronizan automáticamente con tu calendario de Google.
+
+Campos disponibles: título, descripción, fecha, hora, ubicación y tipo de evento.
+
+### Gestión de notas
+
+La sección de notas permite guardar información rápida:
+
+- Crear notas con título y contenido.
+- Editar y consultar notas.
+- Archivar notas que ya no son relevantes.
+
+### Calendario
+
+El calendario ofrece una vista temporal unificada que muestra:
+
+- Tareas con fecha límite.
+- Reuniones programadas.
+- Eventos de Delvo.
+- Eventos de Google Calendar (si la integración está activa).
+
+### Planificador (app móvil)
+
+La pantalla de Planificador en la app móvil ofrece una vista de calendario mensual con los elementos del día seleccionado. Permite:
+
+- Filtrar tareas por estado (`Todo`, `Pendientes`, `Completadas`).
+- Consultar reuniones, eventos y notas del día.
+- Crear, editar y eliminar cualquier tipo de elemento directamente desde la pantalla.
+- Navegar entre meses con los controles de cabecera.
+
+### Integración con Google Calendar
+
+Para conectar Google Calendar:
+
+1. Ve a **Configuración**.
+2. Selecciona **Conectar cuenta de Google**.
+3. Completa el flujo OAuth y acepta los permisos solicitados.
+
+Una vez conectado, Delvo puede:
+
+- Importar automáticamente eventos de los últimos 30 días y los próximos 180 días.
+- Sincronizar nuevos eventos de Delvo con Google Calendar.
+- Editar eventos de Google Calendar directamente desde la app.
+
+Para desconectar la cuenta, accede de nuevo a Configuración y selecciona la opción correspondiente.
+
+### Asistente inteligente
+
+Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en español o en inglés.
+
+Ejemplos de uso:
+
+- *"Crea una tarea llamada 'Revisar PR' para mañana"*
+- *"¿Cuáles son mis reuniones de esta semana?"*
+- *"Muéstrame mis eventos pendientes"*
+- *"Create a meeting called 'Sprint review' for Friday at 10"*
+
+El asistente detecta la intención, ejecuta la acción correspondiente y responde confirmando el resultado. También puede responder preguntas generales apoyándose en la base de conocimiento local (RAG).
+
+### Cierre de sesión y seguridad
+
+Para cerrar sesión manualmente:
+
+1. Abre **Configuración** o el menú de usuario.
+2. Selecciona **Cerrar sesión**.
+
+Esto elimina las credenciales activas y protege tu cuenta, especialmente en equipos compartidos. Si la sesión expira completamente, deberás iniciar sesión de nuevo.
+
+### Recomendaciones de uso diario
+
+Flujo de trabajo sugerido:
+
+1. Revisa el **Dashboard** y el **Calendario** al comenzar el día.
+2. Actualiza el estado de las tareas en curso.
+3. Añade nuevas reuniones y eventos según necesites.
+4. Usa el **Asistente** para acciones rápidas sin navegar por los menús.
 
 ---
 
@@ -450,18 +798,139 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 # 14. Anexos
 
-* Diagramas ampliados
-* Registros
+## Anexo A — Tabla comparativa de tecnologías utilizadas
 
-// En los anexos se pueden incluir capturas de pantalla de la aplicación web y móvil, diagramas de arquitectura, ejemplos de peticiones y respuestas de la API, estructura del repositorio, configuración de Docker Compose y evidencias de funcionamiento de Google Calendar y del asistente inteligente.
+| Capa | Tecnología | Versión | Función |
+|---|---|---|---|
+| Backend API | Python + FastAPI | Python 3.12 / FastAPI latest | Lógica de negocio y API REST |
+| Servidor ASGI | Uvicorn | latest | Servidor de producción para FastAPI |
+| Base de datos | PostgreSQL | 16 | Almacenamiento persistente |
+| Web frontend | Next.js + React | Next.js 15 | Aplicación web con App Router |
+| Estilos web | Tailwind CSS + shadcn/ui | latest | Interfaz de usuario |
+| App móvil | Expo + React Native | SDK 52 | Aplicación móvil multiplataforma |
+| Lenguaje frontend | TypeScript | 5.x | Tipado estático |
+| Autenticación | JWT + OAuth 2.0 | — | Tokens de acceso y refresco |
+| IA / LLM | Ollama (local) | latest | Modelos de lenguaje locales |
+| RAG | Embeddings propios | — | Base de conocimiento local |
+| Despliegue | Docker Compose | v2 | Orquestación de contenedores |
+| Exposición pública | Cloudflare Tunnel | latest | Acceso externo sin puertos abiertos |
+| Calendarios | Google Calendar API v3 | v3 | Sincronización bidireccional |
 
-También se puede añadir un registro resumido de commits relevantes, mostrando la evolución del proyecto durante los últimos días de desarrollo.
+## Anexo B — Tabla de requisitos funcionales
+
+| ID | Requisito | Estado |
+|---|---|---|
+| RF-01 | Registro de usuario con email y contraseña | ✅ Implementado |
+| RF-02 | Inicio de sesión y generación de tokens JWT | ✅ Implementado |
+| RF-03 | Renovación automática de token de acceso | ✅ Implementado |
+| RF-04 | CRUD completo de tareas | ✅ Implementado |
+| RF-05 | CRUD completo de reuniones | ✅ Implementado |
+| RF-06 | CRUD completo de eventos | ✅ Implementado |
+| RF-07 | CRUD completo de notas | ✅ Implementado |
+| RF-08 | Conexión con Google Calendar vía OAuth 2.0 | ✅ Implementado |
+| RF-09 | Importación automática de eventos de Google al conectar | ✅ Implementado |
+| RF-10 | Sincronización bidireccional de eventos | ✅ Implementado |
+| RF-11 | Edición de eventos de Google Calendar desde Delvo | ✅ Implementado |
+| RF-12 | Asistente inteligente con detección de intención | ✅ Implementado |
+| RF-13 | RAG con base de conocimiento local | ✅ Implementado |
+| RF-14 | Soporte multilenguaje (español e inglés) en web | ✅ Implementado |
+| RF-15 | Aplicación web con dashboard y todas las secciones | ✅ Implementado |
+| RF-16 | Aplicación móvil con calendario, planificador y chat | ✅ Implementado |
+| RF-17 | Política de privacidad pública | ✅ Implementado |
+| RF-18 | Notificaciones push | ❌ Pendiente |
+| RF-19 | Eventos recurrentes | ❌ Pendiente |
+| RF-20 | Espacios colaborativos | ❌ Pendiente |
+
+## Anexo C — Historial de commits relevantes
+
+| Fecha | Hash | Descripción |
+|---|---|---|
+| Mayo 2026 | `d8160ca` | Mejoras en Google Calendar Service y actualización del sistema de prompts |
+| Mayo 2026 | `5b94066` | Implementación de vinculación de eventos con Google Calendar y deduplicación |
+| Mayo 2026 | `45576eb` | Añadida pantalla PlannerScreen en la app móvil |
+| Mayo 2026 | `4bf1ce8` | Refactorización para mejorar legibilidad y mantenibilidad |
+| Mayo 2026 | `eff0b40` | Actualización del README |
+| Mayo 2026 | `fd49e81` | Limpieza de código no utilizado y mejora de integración API |
+
+## Anexo D — Variables de entorno requeridas
+
+```
+# Base de datos
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_USER=delvo
+POSTGRES_PASSWORD=<contraseña>
+POSTGRES_DATABASE=delvo
+
+# Autenticación JWT
+JWT_SECRET_KEY=<clave_secreta>
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=60
+JWT_REFRESH_EXPIRE_DAYS=30
+
+# Aplicación web
+DELVO_BACKEND_URL=http://backend:8000
+DELVO_AUTH_COOKIE_NAME=session_token
+
+# IA / Ollama
+OLLAMA_URL=http://host.docker.internal:11434
+LLM_MODEL=llama3.2
+EMBED_MODEL=nomic-embed-text
+PROMPT_PATH=prompt_system.txt
+PROMPT_PATH_EN=prompt_system_en.txt
+
+# Google Calendar OAuth
+GOOGLE_CLIENT_ID=<client_id>
+GOOGLE_CLIENT_SECRET=<client_secret>
+GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
+```
+
+## Anexo E — Endpoints principales de la API
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `POST` | `/api/v1/auth/register` | Registro de usuario |
+| `POST` | `/api/v1/auth/login` | Inicio de sesión |
+| `POST` | `/api/v1/auth/refresh` | Renovación de token |
+| `GET` | `/api/v1/auth/me` | Perfil del usuario |
+| `GET/POST` | `/api/v1/planner/tasks` | Listar / crear tareas |
+| `GET/PUT/DELETE` | `/api/v1/planner/tasks/{id}` | Gestionar tarea |
+| `GET/POST` | `/api/v1/planner/meetings` | Listar / crear reuniones |
+| `GET/POST` | `/api/v1/planner/events` | Listar / crear eventos |
+| `GET/POST` | `/api/v1/planner/notes` | Listar / crear notas |
+| `POST` | `/api/v1/assistant/chat` | Chat con asistente IA |
+| `POST` | `/api/v1/assistant/reindex` | Reindexar base de conocimiento |
+| `GET` | `/api/v1/google-calendar/connect` | Obtener URL OAuth |
+| `POST` | `/api/v1/google-calendar/sync` | Sincronizar eventos |
+| `PATCH` | `/api/v1/google-calendar/events/{id}` | Editar evento Google |
 
 ---
 
 # 15. Índice de tablas e imágenes
 
-// El documento puede incluir una tabla comparativa entre Delvo y otras aplicaciones similares, una tabla de tecnologías utilizadas, una tabla de requisitos funcionales y una tabla de riesgos del proyecto. También pueden añadirse imágenes del dashboard web, la pantalla de calendario, el asistente inteligente, la configuración de Google Calendar y el diagrama general de arquitectura.
+## Tablas
+
+| Nº | Título | Sección |
+|---|---|---|
+| Tabla 1 | Comparativa de aplicaciones similares | Sección 1b |
+| Tabla 2 | Entidades del planificador y sus campos | Sección 5a |
+| Tabla 3 | Tecnologías utilizadas por capa | Sección 5b y Anexo A |
+| Tabla 4 | Módulos del backend y su función | Sección 8c |
+| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 9a |
+| Tabla 6 | Campos de la entidad Tarea | Sección 12b |
+| Tabla 7 | Campos de la entidad Reunión | Sección 12b |
+| Tabla 8 | Tabla de requisitos funcionales | Anexo B |
+| Tabla 9 | Historial de commits relevantes | Anexo C |
+| Tabla 10 | Variables de entorno requeridas | Anexo D |
+| Tabla 11 | Endpoints principales de la API | Anexo E |
+
+## Diagramas
+
+| Nº | Título | Sección |
+|---|---|---|
+| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 8c |
+| Diagrama 2 | Flujo de petición web | Sección 8c |
+| Diagrama 3 | Flujo de petición móvil | Sección 8c |
 
 
 ---
