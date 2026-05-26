@@ -92,9 +92,9 @@ flowchart LR
     W --> B[Backend API\nFastAPI]
     M --> B
     B --> DB[(PostgreSQL)]
-    B --> O[Ollama\nLocal LLM]
+    B <--> O[Ollama\nLocal LLM]
     B --> K[Knowledge Base\nRAG]
-    B --> G[Google Calendar API]
+    B <--> G[Google Calendar API]
 ```
 
 ### Request flow — web
