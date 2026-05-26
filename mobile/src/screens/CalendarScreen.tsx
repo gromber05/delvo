@@ -146,22 +146,16 @@ export function CalendarScreen() {
   React.useEffect(() => { loadGcal(year, month); }, [year, month, loadGcal]);
 
   const entries: CalendarEntry[] = useMemo(() => {
-    // Eventos creados por el usuario en Delvo (no los importados de Google).
-    // Solo estos deben suprimir la versión "en vivo" de Google, para que los
-    // eventos puramente de Google se sigan viendo (vía gcalEvents).
     const userEvents = events.filter(e => e.event_type !== 'google_calendar');
     const linkedGcalIds = new Set(
       userEvents.map(e => e.gcal_event_id).filter((x): x is string => !!x),
     );
-    // firma (título|fecha) para descartar duplicados cuando el enlace
-    // gcal_event_id no se llegó a guardar (condición de carrera al crear)
     const localEventSignatures = new Set(
       userEvents.map(e => `${e.title.trim().toLowerCase()}|${e.event_date}`),
     );
 
     return [
       ...events
-        // los importados de Google se muestran vía gcalEvents (evita el doble "EVENTO")
         .filter(e => e.event_type !== 'google_calendar')
         .map(e => ({
           id: `ev-${e.id}`,
@@ -535,7 +529,7 @@ export function CalendarScreen() {
             <Text style={[styles.modalTitle, { color: c.onSurface }]}>
               Editar{' '}
               <Text style={[styles.modalTitleType, { color: c.onSurfaceMuted }]}>
-                — {editTarget ? typeLabel(editTarget) : ''}
+                - {editTarget ? typeLabel(editTarget) : ''}
               </Text>
             </Text>
 

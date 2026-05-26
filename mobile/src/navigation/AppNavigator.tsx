@@ -16,7 +16,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { PlannerScreen } from '../screens/PlannerScreen';
 import { ChatScreen } from '../screens/ChatScreen';
 import { CreateScreen } from '../screens/CreateScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
+import { SettingsNavigator } from './SettingsNavigator';
 import { AdminScreen } from '../screens/AdminScreen';
 
 const Tab = createBottomTabNavigator();
@@ -85,7 +85,7 @@ export function AppNavigator() {
         {isAdmin && (
           <Tab.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin', tabBarLabel: 'Admin' }} />
         )}
-        <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes', tabBarLabel: 'Ajustes' }} />
+        <Tab.Screen name="Settings" component={SettingsNavigator} options={{ title: 'Ajustes', tabBarLabel: 'Ajustes' }} />
         <Tab.Screen
           name="Create"
           component={CreateScreen}

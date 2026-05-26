@@ -17,10 +17,8 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   CheckmarkBadgeIcon,
-  CreditCardIcon,
   LogoutIcon,
   NotificationIcon,
-  SparklesIcon,
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
@@ -39,6 +37,9 @@ export function NavUser({
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
   const dictionary = getDictionary(language)
+  const fallbackName = language === "es" ? "Usuario Delvo" : "Delvo User"
+  const safeName = user.name?.trim() || fallbackName
+  const safeInitial = safeName.charAt(0).toUpperCase()
 
   async function handleLogout() {
     try {
@@ -63,11 +64,11 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={user.avatar} alt={safeName} />
+                <AvatarFallback className="rounded-lg">{safeInitial}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">{safeName}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <HugeiconsIcon icon={UnfoldMoreIcon} strokeWidth={2} className="ml-auto size-4" />
@@ -82,11 +83,11 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={user.avatar} alt={safeName} />
+                  <AvatarFallback className="rounded-lg">{safeInitial}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{safeName}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
               </div>

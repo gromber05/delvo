@@ -108,7 +108,6 @@ export function PlannerScreen() {
       setEvents(ev.items);
       setNotes((nt as { items: NoteDto[] }).items);
     } catch {
-      // silent
     } finally {
       setLoading(false);
     }
@@ -222,7 +221,6 @@ export function PlannerScreen() {
       });
       await load();
     } catch {
-      // El refresco mantiene la vista consistente aunque falle el cambio.
       await load();
     } finally {
       setCompletingTaskId(null);
@@ -613,8 +611,6 @@ const styles = StyleSheet.create({
   },
   filterChipText: { fontSize: 13, fontWeight: '600' },
   countText: { width: 72, textAlign: 'right', fontSize: 12 },
-
-  // Task cards
   taskCard: { borderRadius: 16, flexDirection: 'row', overflow: 'hidden' },
   taskAccent: { width: 4 },
   taskBody: { flex: 1, padding: 14, gap: 6 },
@@ -628,15 +624,11 @@ const styles = StyleSheet.create({
   metaText: { fontSize: 12 },
   taskActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
   iconBtn: { padding: 4 },
-
-  // List cards (meetings/notes)
   listCard: { borderRadius: 16, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
   listAccent: { width: 4, alignSelf: 'stretch' },
   listBody: { flex: 1, padding: 14, gap: 4 },
   listTitle: { fontSize: 15, fontWeight: '600' },
   listActions: { flexDirection: 'row', gap: 8, paddingRight: 12 },
-
-  // Calendar (Events tab)
   syncRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 24 },
   syncDot: { width: 8, height: 8, borderRadius: 4 },
   syncText: { fontSize: 13 },
@@ -668,8 +660,6 @@ const styles = StyleSheet.create({
   dotsRow: { flexDirection: 'row', gap: 2, marginTop: 1 },
   dot: { width: 4, height: 4, borderRadius: 2 },
   dayHeader: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
-
-  // Event day cards
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',

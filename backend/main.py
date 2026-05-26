@@ -1,4 +1,4 @@
-﻿from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 import asyncio
 import logging
 import os
@@ -16,8 +16,8 @@ from app.db.postgresql.init_db import init_db
 
 logger = logging.getLogger(__name__)
 
-_RENEW_INTERVAL_SECONDS = 6 * 24 * 3600  # 6 days
-_RENEW_THRESHOLD_HOURS = 24              # renew if expiry is within 24 h
+_RENEW_INTERVAL_SECONDS = 6 * 24 * 3600
+_RENEW_THRESHOLD_HOURS = 24
 
 
 def _renew_all_watches() -> None:

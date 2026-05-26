@@ -373,8 +373,6 @@ def _apply_intent_side_effects(
     safe_data = data if isinstance(data, dict) else {}
     message = str(result.get("message", "")).strip()
 
-    # --- Tasks ---
-
     if intent == "create_task":
         if user_id is None:
             return {"intent": "query", "data": {}, "message": "Para guardar tareas necesito que inicies sesion."}
@@ -491,8 +489,6 @@ def _apply_intent_side_effects(
             return {"intent": "query", "data": {}, "message": "Para ver tus tareas necesito que inicies sesion."}
         return {"intent": intent, "data": {"tasks": _build_serialized_tasks(user_id)}, "message": message}
 
-    # --- Events ---
-
     if intent == "create_event":
         if user_id is None:
             return {"intent": "query", "data": {}, "message": "Para guardar eventos necesito que inicies sesion."}
@@ -600,8 +596,6 @@ def _apply_intent_side_effects(
             "message": message or "Listo. He eliminado el evento.",
         }
 
-    # --- Meetings ---
-
     if intent == "create_meeting":
         if user_id is None:
             return {"intent": "query", "data": {}, "message": "Para guardar reuniones necesito que inicies sesion."}
@@ -673,8 +667,6 @@ def _apply_intent_side_effects(
         duration_minutes = _normalize_int(safe_data.get("duration_minutes"))
         location = _coerce_non_empty_text(safe_data.get("location"))
         status = _normalize_choice(safe_data.get("status"), VALID_MEETING_STATUSES, "scheduled")
-
-        # Dedup: update if a meeting with same title+date+time already exists
         selected_meeting: Dict[str, Any] | None = None
         meeting_id = _normalize_int(safe_data.get("meeting_id") or safe_data.get("id"))
         if meeting_id is not None:
@@ -821,8 +813,6 @@ def _apply_intent_side_effects(
             "message": message or f"Listo. He eliminado {deleted_count} reuniones.",
         }
 
-    # --- Notes ---
-
     if intent == "create_note":
         if user_id is None:
             return {"intent": "query", "data": {}, "message": "Para guardar notas necesito que inicies sesion."}
@@ -921,11 +911,6 @@ def _apply_intent_side_effects(
         return {"intent": intent, "data": {"notes": notes}, "message": message or default_msg}
 
     return {"intent": intent, "data": safe_data, "message": message}
-
-
-# ---------------------------------------------------------------------------
-# Public entry points
-# ---------------------------------------------------------------------------
 
 def assistant_chat(
     payload: ChatRequest,

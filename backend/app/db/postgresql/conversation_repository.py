@@ -137,8 +137,6 @@ def get_admin_stats() -> dict[str, Any]:
 
         cursor.execute("SELECT COUNT(*) AS total FROM users")
         total_users = cursor.fetchone()["total"]
-
-        # Intent distribution
         cursor.execute(
             """
             SELECT intent, COUNT(*) AS count
@@ -150,8 +148,6 @@ def get_admin_stats() -> dict[str, Any]:
             """
         )
         intent_distribution = [dict(r) for r in cursor.fetchall()]
-
-        # Sentiment distribution
         cursor.execute(
             """
             SELECT sentiment, COUNT(*) AS count
@@ -162,8 +158,6 @@ def get_admin_stats() -> dict[str, Any]:
             """
         )
         sentiment_distribution = [dict(r) for r in cursor.fetchall()]
-
-        # Activity last 14 days
         cursor.execute(
             """
             SELECT DATE(created_at) AS day, COUNT(*) AS messages
@@ -174,8 +168,6 @@ def get_admin_stats() -> dict[str, Any]:
             """
         )
         daily_activity = [{"day": str(r["day"]), "messages": r["messages"]} for r in cursor.fetchall()]
-
-        # Users with most conversations
         cursor.execute(
             """
             SELECT u.name, u.email, COUNT(c.id) AS conversations

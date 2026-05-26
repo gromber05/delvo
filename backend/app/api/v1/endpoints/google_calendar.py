@@ -73,7 +73,7 @@ def google_calendar_callback(
     state: str | None = None,
     error: str | None = None,
 ) -> RedirectResponse:
-    """Google OAuth callback — exchanges code, saves tokens, redirects back."""
+    """Google OAuth callback exchanges code, saves tokens, redirects back."""
     if error or not code or not state:
         return _fail_redirect("mobile")
 
@@ -123,8 +123,6 @@ def google_calendar_callback(
         google_token_expiry=expiry,
         google_email=google_email,
     )
-
-    # Register a GCal push-notification watch for real-time bidirectional sync
     try:
         import uuid
         channel_id = str(uuid.uuid4())
@@ -136,7 +134,7 @@ def google_calendar_callback(
         )
         update_gcal_watch(user_id=user_id, channel_id=channel_id, expiry=expiry_iso)
     except Exception:
-        pass  # watch is optional; sync still works on-demand
+        pass
 
     if platform == "web":
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=ok", status_code=302)
@@ -154,8 +152,6 @@ async def google_calendar_webhook(request: Request) -> dict[str, str]:
     """
     channel_id = request.headers.get("X-Goog-Channel-Id", "")
     resource_state = request.headers.get("X-Goog-Resource-State", "")
-
-    # 'sync' is the initial handshake ping — no action needed
     if resource_state == "sync" or not channel_id:
         return {"status": "ok"}
 
@@ -166,7 +162,7 @@ async def google_calendar_webhook(request: Request) -> dict[str, str]:
     try:
         gcal.sync_events(int(user["id"]))
     except Exception:
-        pass  # best-effort; don't fail the webhook response
+        pass
 
     return {"status": "synced"}
 

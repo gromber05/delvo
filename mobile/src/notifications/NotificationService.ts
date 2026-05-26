@@ -33,9 +33,6 @@ export async function requestPermissionsAndRegisterToken(): Promise<string | nul
     finalStatus = status;
   }
   if (finalStatus !== 'granted') return null;
-
-  // Remote push tokens are not supported in Expo Go since SDK 53.
-  // They require a development build or production build.
   if (isExpoGo) return null;
 
   try {

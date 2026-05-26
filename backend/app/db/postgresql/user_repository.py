@@ -56,6 +56,22 @@ def get_all_users() -> list[dict[str, Any]]:
         return [dict(r) for r in cursor.fetchall()]
 
 
+def get_user_by_google_email(google_email: str) -> dict[str, Any] | None:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT id, name, email, profile_photo_base64,
+                   google_email, role, created_at, updated_at
+            FROM users
+            WHERE google_email = %s
+            LIMIT 1
+            """,
+            (google_email,),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
 def create_user(*, name: str | None, email: str, password_hash: str) -> dict[str, Any]:
     with get_db_cursor() as (connection, cursor):
         cursor.execute(
@@ -115,6 +131,27 @@ def get_user_google_tokens(user_id: int) -> dict[str, Any] | None:
         return dict(row) if row else None
 
 
+def get_user_password_hash(user_id: int) -> str | None:
+    with get_db_cursor(dictionary=True) as (_, cursor):
+        cursor.execute(
+            "SELECT password_hash FROM users WHERE id = %s LIMIT 1",
+            (user_id,),
+        )
+        row = cursor.fetchone()
+        return str(row["password_hash"]) if row else None
+
+
+def update_user_password(*, user_id: int, password_hash: str) -> bool:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            "UPDATE users SET password_hash = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+            (password_hash, user_id),
+        )
+        affected = cursor.rowcount
+        connection.commit()
+        return affected > 0
+
+
 def update_push_token(*, user_id: int, token: str | None) -> None:
     with get_db_cursor() as (connection, cursor):
         cursor.execute(
@@ -150,6 +187,33 @@ def get_all_users_with_google() -> list[dict[str, Any]]:
         )
         rows = cursor.fetchall() or []
         return [dict(r) for r in rows]
+
+
+def delete_user(*, user_id: int) -> bool:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        affected = cursor.rowcount
+        connection.commit()
+        return affected > 0
+
+
+def disconnect_google(*, user_id: int) -> bool:
+    with get_db_cursor() as (connection, cursor):
+        cursor.execute(
+            """
+            UPDATE users
+            SET google_access_token = NULL,
+                google_refresh_token = NULL,
+                google_token_expiry = NULL,
+                google_email = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """,
+            (user_id,),
+        )
+        affected = cursor.rowcount
+        connection.commit()
+        return affected > 0
 
 
 def update_google_tokens(

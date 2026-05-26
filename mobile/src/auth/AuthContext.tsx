@@ -23,7 +23,15 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  loginWithGoogle: (params: {
+    google_access_token: string;
+    google_refresh_token?: string | null;
+    google_token_expiry?: string | null;
+    google_email: string;
+    google_name?: string | null;
+  }) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: UserDto) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -124,8 +132,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [persist],
   );
 
+  const loginWithGoogle = useCallback(
+    async (params: {
+      google_access_token: string;
+      google_refresh_token?: string | null;
+      google_token_expiry?: string | null;
+      google_email: string;
+      google_name?: string | null;
+    }) => {
+      const res = await api.googleLogin(params);
+      await persist(res.access_token, res.refresh_token, res.user);
+    },
+    [persist],
+  );
+
+  const updateUser = useCallback(async (user: UserDto) => {
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+    setState((s) => ({ ...s, user }));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider value={{ ...state, login, register, loginWithGoogle, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

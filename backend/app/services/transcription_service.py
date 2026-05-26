@@ -15,7 +15,6 @@ def _get_model() -> WhisperModel:
     global _model
     if _model is None:
         from faster_whisper import WhisperModel
-        # WHISPER_MODEL env var: tiny (39MB) | base (74MB) | small (244MB)
         size = os.environ.get("WHISPER_MODEL", "base")
         _model = WhisperModel(size, device="cpu", compute_type="int8")
     return _model

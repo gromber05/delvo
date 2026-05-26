@@ -53,8 +53,8 @@ const SparkleIcon = ({ className }: { className?: string }) => (
 export function ProductChat({ compact = false, className }: ProductChatProps) {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const dictionary = getDictionary("es")
-  const isSpanish = true
+  const dictionary = getDictionary(language)
+  const isSpanish = language === "es"
 
   const [messages, setMessages] = React.useState<Message[]>([
     { id: "welcome", role: "assistant", content: dictionary.chat.welcome },

@@ -245,6 +245,18 @@ export const api = {
       body: JSON.stringify({ name, email, password }),
     }),
 
+  googleLogin: (params: {
+    google_access_token: string;
+    google_refresh_token?: string | null;
+    google_token_expiry?: string | null;
+    google_email: string;
+    google_name?: string | null;
+  }) =>
+    request<AuthResponse>('/api/v1/auth/google-login', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    }),
+
   
   listTasks: () => request<ListResponse<TaskDto>>('/api/v1/planner/tasks'),
   createTask: (body: {
@@ -353,6 +365,18 @@ export const api = {
   
   me: () => request<{ user: UserDto }>('/api/v1/auth/me'),
 
+  updateProfile: (body: { name?: string }) =>
+    request<{ user: UserDto }>('/api/v1/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+
+  changePassword: (body: { current_password: string; new_password: string }) =>
+    request<{ ok: boolean }>('/api/v1/auth/me/change-password', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
   googleCalendarConnectUrl: () =>
     request<{ url: string }>('/api/v1/google-calendar/connect?platform=mobile'),
 
@@ -384,6 +408,15 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ token }),
     }),
+
+  deleteAccount: () =>
+    request<{ ok: boolean }>('/api/v1/auth/me', { method: 'DELETE' }),
+
+  disconnectGoogle: () =>
+    request<{ ok: boolean }>('/api/v1/auth/me/google-calendar', { method: 'DELETE' }),
+
+  exportData: () =>
+    request<Record<string, unknown>>('/api/v1/auth/me/export'),
 
   adminStats: () => request<AdminStatsDto>('/api/v1/admin/stats'),
   adminUsers: () => request<{ items: { id: number; name: string; email: string; role: string; created_at: string }[] }>('/api/v1/admin/users'),

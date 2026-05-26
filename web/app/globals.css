@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Arimo";
+  src: url("/Arimo-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -57,8 +65,8 @@
 }
 
 :root {
-  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-heading: "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-sans: "Arimo", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Arimo", "Segoe UI", sans-serif;
   --font-geist-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
   --background: oklch(0.985 0.012 238);
   --foreground: oklch(0.245 0.03 244);

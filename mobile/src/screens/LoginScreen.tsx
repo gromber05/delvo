@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -11,11 +11,18 @@ import {
   View,
 } from 'react-native';
 import { IconMail, IconLock, IconBrandGoogle } from '@tabler/icons-react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
 
+WebBrowser.maybeCompleteAuthSession();
+
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
+const GOOGLE_ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? '';
+
 export function LoginScreen() {
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   const c = useColors();
 
   const [registerMode, setRegisterMode] = useState(false);
@@ -23,7 +30,50 @@ export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [, googleResponse, googlePromptAsync] = Google.useAuthRequest({
+    clientId: GOOGLE_WEB_CLIENT_ID,
+    redirectUri: 'https://auth.expo.io/@comanrolea/delvo',
+    scopes: ['email', 'profile'],
+  });
+
+  useEffect(() => {
+    if (googleResponse?.type !== 'success') return;
+    const { authentication } = googleResponse;
+    if (!authentication?.accessToken) return;
+
+    setGoogleLoading(true);
+    (async () => {
+      try {
+        // Obtener info del usuario de Google
+        const infoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${authentication.accessToken}` },
+        });
+        const info = infoRes.ok
+          ? (await infoRes.json() as { email?: string; name?: string })
+          : {};
+
+        if (!info.email) throw new Error('No se pudo obtener el email de Google.');
+
+        const expiresIn = authentication.expiresIn ?? 3600;
+        const expiry = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+        await loginWithGoogle({
+          google_access_token: authentication.accessToken,
+          google_refresh_token: authentication.refreshToken ?? null,
+          google_token_expiry: expiry,
+          google_email: info.email,
+          google_name: info.name ?? null,
+        });
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Error al iniciar sesión con Google.');
+      } finally {
+        setGoogleLoading(false);
+      }
+    })();
+  }, [googleResponse, loginWithGoogle]);
 
   function clearError() { setError(null); }
 
@@ -154,9 +204,18 @@ export function LoginScreen() {
             <View style={[styles.dividerLine, { backgroundColor: c.outline }]} />
           </View>
 
-          <TouchableOpacity style={[styles.googleBtn, { backgroundColor: c.surfaceVariant, borderColor: c.outline }]}>
-            <IconBrandGoogle size={20} color="#4285F4" />
-            <Text style={[styles.googleBtnText, { color: c.onSurface }]}>Google</Text>
+          <TouchableOpacity
+            style={[styles.googleBtn, { backgroundColor: c.surfaceVariant, borderColor: c.outline }, (googleLoading || loading) && styles.btnDisabled]}
+            onPress={() => { clearError(); googlePromptAsync(); }}
+            disabled={googleLoading || loading}
+          >
+            {googleLoading
+              ? <ActivityIndicator color="#4285F4" />
+              : <>
+                  <IconBrandGoogle size={20} color="#4285F4" />
+                  <Text style={[styles.googleBtnText, { color: c.onSurface }]}>Google</Text>
+                </>
+            }
           </TouchableOpacity>
         </View>
 

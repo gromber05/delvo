@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import secrets
 from typing import Any
 
 import jwt
@@ -17,10 +18,15 @@ from app.core.security import (
 )
 from app.db.postgresql.user_repository import (
     create_user,
+    delete_user,
+    disconnect_google,
     get_user_by_email,
+    get_user_by_google_email,
     get_user_by_id,
+    get_user_password_hash,
     update_google_tokens,
     update_push_token,
+    update_user_password,
     update_user_profile,
 )
 
@@ -136,6 +142,47 @@ def login(payload: LoginRequest) -> AuthResponse:
     return AuthResponse(access_token=access_token, refresh_token=refresh_token, user=safe_user)
 
 
+class GoogleLoginRequest(BaseModel):
+    google_access_token: str = Field(..., min_length=1)
+    google_refresh_token: str | None = None
+    google_token_expiry: str | None = None
+    google_email: str = Field(..., min_length=3)
+    google_name: str | None = None
+
+
+@router.post("/google-login", response_model=AuthResponse)
+def google_login(payload: GoogleLoginRequest) -> AuthResponse:
+    google_email = payload.google_email.strip().lower()
+
+    # 1. Buscar usuario por google_email o por email principal
+    user = get_user_by_google_email(google_email)
+    if not user:
+        user = get_user_by_email(google_email)
+
+    if not user:
+        # 2. Crear cuenta nueva (contraseña aleatoria irreversible)
+        random_hash = hash_password(secrets.token_hex(32))
+        name = (payload.google_name or "").strip() or None
+        user = create_user(name=name, email=google_email, password_hash=random_hash)
+
+    uid = int(user["id"])
+
+    # 3. Guardar/actualizar tokens de Google
+    update_google_tokens(
+        user_id=uid,
+        google_access_token=payload.google_access_token,
+        google_refresh_token=payload.google_refresh_token,
+        google_token_expiry=payload.google_token_expiry,
+        google_email=google_email,
+    )
+
+    # 4. Refrescar el usuario y emitir tokens de sesión
+    user = get_user_by_id(uid) or user
+    access_token = create_access_token(subject=google_email, user_id=uid)
+    refresh_token = create_refresh_token(subject=google_email, user_id=uid)
+    return AuthResponse(access_token=access_token, refresh_token=refresh_token, user=_build_safe_user(user))
+
+
 @router.get("/me")
 def me(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
     user = get_user_by_id(user_id)
@@ -201,6 +248,75 @@ def save_google_calendar_tokens(
     if not updated:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"ok": True, "google_email": payload.google_email}
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=1, max_length=128)
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+
+@router.post("/me/change-password")
+def change_password(
+    payload: ChangePasswordRequest,
+    user_id: int = Depends(get_authenticated_user_id),
+) -> dict[str, Any]:
+    current_hash = get_user_password_hash(user_id)
+    if not current_hash:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if not verify_password(payload.current_password, current_hash):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+    ok = update_user_password(user_id=user_id, password_hash=hash_password(payload.new_password))
+    if not ok:
+        raise HTTPException(status_code=500, detail="Error al actualizar la contraseña")
+    return {"ok": True}
+
+
+@router.delete("/me")
+def delete_account(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    ok = delete_user(user_id=user_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True}
+
+
+@router.delete("/me/google-calendar")
+def disconnect_google_calendar(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    ok = disconnect_google(user_id=user_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"ok": True}
+
+
+@router.get("/me/export")
+def export_my_data(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    import datetime
+
+    from app.db.postgresql.event_repository import list_events
+    from app.db.postgresql.meeting_repository import list_meetings
+    from app.db.postgresql.notes_repository import list_notes
+    from app.db.postgresql.task_repository import list_tasks
+
+    user = get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    def serialize(obj: Any) -> Any:
+        if isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        if isinstance(obj, dict):
+            return {k: serialize(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [serialize(i) for i in obj]
+        return obj
+
+    return {
+        "exported_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "user": _build_safe_user(user),
+        "tasks": serialize(list_tasks(user_id=user_id)),
+        "events": serialize(list_events(user_id=user_id)),
+        "meetings": serialize(list_meetings(user_id=user_id)),
+        "notes": serialize(list_notes(user_id=user_id)),
+    }
 
 
 class PushTokenRequest(BaseModel):

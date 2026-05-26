@@ -26,9 +26,17 @@ type SidebarUser = {
   avatar: string
 }
 
+function normalizeSidebarUser(input: Partial<SidebarUser>, fallbackName = "Delvo User"): SidebarUser | null {
+  const email = input.email?.trim()
+  if (!email) return null
+  const name = input.name?.trim() || fallbackName
+  const avatar = input.avatar?.trim() || "/avatars/shadcn.jpg"
+  return { name, email, avatar }
+}
+
 const data = {
   user: {
-    name: "Usuario",
+    name: "Usuario Delvo",
     email: "usuario@delvo.app",
     avatar: "/avatars/shadcn.jpg",
   },
@@ -37,8 +45,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const dictionary = getDictionary("es")
+  const dictionary = getDictionary(language)
   const currentPath = stripLanguagePrefix(pathname ?? "/")
+  const fallbackUserName = language === "es" ? "Usuario Delvo" : "Delvo User"
 
   const navMain = [
     {
@@ -105,9 +114,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (rawUser) {
         try {
           const parsedUser = JSON.parse(rawUser) as Partial<SidebarUser>
-          if (typeof parsedUser.name === "string" && typeof parsedUser.email === "string") {
-            if (!cancelled) setUser(parsedUser as SidebarUser)
-          }
+          const normalized = normalizeSidebarUser(parsedUser, fallbackUserName)
+          if (normalized && !cancelled) setUser(normalized)
         } catch {}
       }
       try {
@@ -116,23 +124,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const payload = (await response.json()) as {
           user?: { name?: string; email?: string; profile_photo_base64?: string | null }
         }
-        const nextName = payload.user?.name?.trim()
         const nextEmail = payload.user?.email?.trim()
-        if (!nextName || !nextEmail) return
-        const nextUser: SidebarUser = {
-          name: nextName,
+        if (!nextEmail) return
+        const nextUser = normalizeSidebarUser({
+          name: payload.user?.name,
           email: nextEmail,
           avatar: typeof payload.user?.profile_photo_base64 === "string" && payload.user.profile_photo_base64.length > 0
             ? payload.user.profile_photo_base64
             : "/avatars/shadcn.jpg",
-        }
+        }, fallbackUserName)
+        if (!nextUser) return
         if (!cancelled) setUser(nextUser)
         sessionStorage.setItem("user", JSON.stringify(nextUser))
       } catch {}
     }
     hydrateUser()
     return () => { cancelled = true }
-  }, [])
+  }, [fallbackUserName])
 
   return (
     <>

@@ -8,5 +8,4 @@ WORKDIR /app/backend
 COPY backend/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Source code is mounted by docker-compose volume.
 EXPOSE 8000

@@ -55,7 +55,6 @@ class STTService:
                     compute_type=self.config.compute_type,
                 )
             except Exception:
-                # Fall back to CPU when CUDA is unavailable (e.g. dev/docker without GPU)
                 self._model = WhisperModel(
                     self.config.model,
                     device="cpu",

@@ -83,8 +83,8 @@ const PRIORITY_BADGE: Record<string, { bg: string; text: string; label: string }
 export function DashboardOverview() {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const isSpanish = true
-  const locale = "es-ES"
+  const isSpanish = language === "es"
+  const locale = isSpanish ? "es-ES" : "en-US"
 
   const [userName, setUserName] = useState<string | null>(null)
   const [summary, setSummary] = useState({ tasks: 0, meetings: 0, events: 0, notes: 0 })

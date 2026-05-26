@@ -13,7 +13,7 @@ const MONTH_ES = ["enero","febrero","marzo","abril","mayo","junio","julio","agos
 const MONTH_ES_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
 const MONTH_EN_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-const DAY_HOURS = Array.from({ length: 17 }, (_, i) => i + 7) // 7:00 – 23:00
+const DAY_HOURS = Array.from({ length: 17 }, (_, i) => i + 7)
 
 type CalViewMode = "month" | "week" | "day"
 
@@ -110,8 +110,8 @@ function entryAccentBg(entry: CalendarEntry): string {
 export function CalendarView() {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const isSpanish = true
-  const weekdays = WEEKDAYS_ES
+  const isSpanish = language === "es"
+  const weekdays = isSpanish ? WEEKDAYS_ES : WEEKDAYS_EN
 
   const now = new Date()
   const today = toISO(now)
@@ -221,8 +221,6 @@ export function CalendarView() {
   }, [entries])
 
   const grid = useMemo(() => buildGrid(year, month), [year, month])
-
-  // Week grid: 7 days starting from week of `selected`
   const weekDays = useMemo(() => {
     const ws = getWeekStart(selected)
     return Array.from({ length: 7 }, (_, i) => {
@@ -231,8 +229,6 @@ export function CalendarView() {
       return d
     })
   }, [selected])
-
-  // Navigation: shift based on view mode
   function shiftView(dir: number) {
     if (calViewMode === "month") {
       const d = new Date(year, month + dir, 1)
@@ -258,8 +254,6 @@ export function CalendarView() {
     setMonth(now.getMonth())
     setSelected(today)
   }
-
-  // Label for the header
   function fmtLabel(): string {
     if (calViewMode === "month") {
       return new Date(year, month, 1).toLocaleString(isSpanish ? "es-ES" : "en-US", { month: "long", year: "numeric" })
@@ -273,10 +267,9 @@ export function CalendarView() {
       const wsD = parseInt(wsISO.split("-")[2] ?? "1", 10)
       const weD = parseInt(weISO.split("-")[2] ?? "1", 10)
       const months = isSpanish ? MONTH_ES_SHORT : MONTH_EN_SHORT
-      if (wsM === weM) return `${months[wsM]} ${wsD} – ${weD}, ${ws.getFullYear()}`
-      return `${months[wsM]} ${wsD} – ${months[weM]} ${weD}, ${we.getFullYear()}`
+      if (wsM === weM) return `${months[wsM]} ${wsD} - ${weD}, ${ws.getFullYear()}`
+      return `${months[wsM]} ${wsD} - ${months[weM]} ${weD}, ${we.getFullYear()}`
     }
-    // day
     const d = new Date(selected + "T00:00:00")
     const dd = d.getDate()
     const mm = d.getMonth()
@@ -746,7 +739,7 @@ export function CalendarView() {
             onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-5 text-lg font-bold">
               {isSpanish ? "Editar" : "Edit"}{" "}
-              <span className="font-normal text-muted-foreground capitalize">— {entryTypeLabel(editTarget)}</span>
+              <span className="font-normal text-muted-foreground capitalize">- {entryTypeLabel(editTarget)}</span>
             </h3>
             <div className="space-y-4">
               {[

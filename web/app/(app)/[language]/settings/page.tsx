@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SettingsView } from "@/components/settings-view"
+import { getDictionary } from "@/lib/dictionary"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +14,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-export default function SettingsPage() {
+export default async function SettingsPage({
+  params,
+}: {
+  params: Promise<{ language: string }>
+}) {
+  const { language } = await params
+  const dictionary = getDictionary(language)
+
   return (
     <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar />
@@ -28,7 +36,7 @@ export default function SettingsPage() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Ajustes</BreadcrumbPage>
+                  <BreadcrumbPage>{dictionary.sidebar.settings}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

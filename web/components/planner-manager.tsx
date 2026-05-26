@@ -72,7 +72,7 @@ type Props = { className?: string }
 export function PlannerManager({ className }: Props) {
   const pathname = usePathname()
   const language = getLanguageFromPathname(pathname ?? "")
-  const isSpanish = true
+  const isSpanish = language === "es"
 
   const [activeTab, setActiveTab] = useState<Tab>("tasks")
   const [loading, setLoading] = useState(true)
