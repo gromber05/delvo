@@ -71,7 +71,7 @@ class TaskCreateRequest(BaseModel):
     due_date: str | None = None
     due_time: str | None = None
     priority: str = Field(default="medium", pattern="^(low|medium|high)$")
-    status: str = Field(default="pending", pattern="^(pending|in_progress|done)$")
+    status: str = Field(default="pending", pattern="^(pending|done)$")
 
 
 class TaskUpdateRequest(TaskCreateRequest):

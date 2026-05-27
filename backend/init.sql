@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   created_at  TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT chk_tasks_priority CHECK (priority IN ('low', 'medium', 'high')),
-  CONSTRAINT chk_tasks_status   CHECK (status   IN ('pending', 'in_progress', 'done'))
+  CONSTRAINT chk_tasks_status   CHECK (status   IN ('pending', 'done'))
 );
 
 CREATE TABLE IF NOT EXISTS meetings (

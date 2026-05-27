@@ -68,7 +68,7 @@ ESQUEMA RECOMENDADO POR INTENT
     "date": string (opcional),
     "time": string (opcional),
     "priority": "low|medium|high" (opcional),
-    "status": "pending|in_progress|done" (opcional)
+    "status": "pending|done" (opcional)
   }
 
 - delete_task:
@@ -154,7 +154,7 @@ ESQUEMA RECOMENDADO POR INTENT
         "date": string ("YYYY-MM-DD" o "sin fecha"),
         "time": string ("HH:MM" o "sin hora"),
         "priority": "low|medium|high" (si existe),
-        "status": "pending|in_progress|done"
+        "status": "pending|done"
       }
     ]
   }

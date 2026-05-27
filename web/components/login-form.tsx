@@ -67,9 +67,6 @@ export function LoginForm({
           <span className="text-xl font-black text-white">D</span>
         </div>
         <h1 className="text-2xl font-black text-white">Delvo</h1>
-        <p className="text-sm text-white/50">
-          {language === "es" ? "Motor de productividad" : "Productivity engine"}
-        </p>
       </div>
 
       <div className="w-full rounded-2xl border border-white/8 bg-[#1a1a22] p-7 shadow-2xl">

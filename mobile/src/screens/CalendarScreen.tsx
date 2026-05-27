@@ -22,7 +22,7 @@ const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const MONTH_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 type Priority = 'low' | 'medium' | 'high';
-type TaskStatus = 'pending' | 'in_progress' | 'done';
+type TaskStatus = 'pending' | 'done';
 
 interface CalendarEntry {
   id: string;

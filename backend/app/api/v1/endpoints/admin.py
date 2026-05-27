@@ -4,8 +4,10 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import func
 
 from app.api.v1.dependencies import require_admin
+from app.db.models import Conversation, Message, User, _to_dict, get_session
 from app.db.postgresql.conversation_repository import get_admin_stats, list_messages
 from app.db.postgresql.conversation_repository import list_conversations as list_all_conversations_for_user
 from app.db.postgresql.user_repository import get_all_users, get_user_by_id, update_user_role
@@ -51,22 +53,28 @@ def admin_list_conversations(
     _admin: dict = Depends(require_admin),
 ) -> dict[str, Any]:
     """All conversations across all users (admin view)."""
-    from app.db.postgresql.connector import get_db_cursor
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT c.id, c.title, c.created_at, c.updated_at,
-                   u.name AS user_name, u.email AS user_email,
-                   COUNT(m.id) AS message_count
-            FROM conversations c
-            JOIN users u ON u.id = c.user_id
-            LEFT JOIN messages m ON m.conversation_id = c.id
-            GROUP BY c.id, u.name, u.email
-            ORDER BY c.updated_at DESC
-            LIMIT 200
-            """
+    with get_session() as session:
+        rows = (
+            session.query(
+                Conversation,
+                User.name.label("user_name"),
+                User.email.label("user_email"),
+                func.count(Message.id).label("message_count"),
+            )
+            .join(User, User.id == Conversation.user_id)
+            .outerjoin(Message, Message.conversation_id == Conversation.id)
+            .group_by(Conversation.id, User.name, User.email)
+            .order_by(Conversation.updated_at.desc())
+            .limit(200)
+            .all()
         )
-        items = [dict(r) for r in cursor.fetchall()]
+        items = []
+        for conv, user_name, user_email, message_count in rows:
+            d = _to_dict(conv)
+            d["user_name"] = user_name
+            d["user_email"] = user_email
+            d["message_count"] = message_count
+            items.append(d)
     return {"items": items}
 
 
@@ -76,21 +84,22 @@ def admin_get_conversation(
     _admin: dict = Depends(require_admin),
 ) -> dict[str, Any]:
     """Full conversation with messages (admin view, no user restriction)."""
-    from app.db.postgresql.connector import get_db_cursor
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT c.id, c.title, c.created_at, c.updated_at,
-                   u.name AS user_name, u.email AS user_email
-            FROM conversations c
-            JOIN users u ON u.id = c.user_id
-            WHERE c.id = %s
-            """,
-            (conversation_id,),
+    with get_session() as session:
+        row = (
+            session.query(
+                Conversation,
+                User.name.label("user_name"),
+                User.email.label("user_email"),
+            )
+            .join(User, User.id == Conversation.user_id)
+            .filter(Conversation.id == conversation_id)
+            .first()
         )
-        row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Conversación no encontrada")
-    conv = dict(row)
-    conv["messages"] = list_messages(conversation_id=conversation_id)
-    return {"item": conv}
+    conv, user_name, user_email = row
+    conv_dict = _to_dict(conv)
+    conv_dict["user_name"] = user_name
+    conv_dict["user_email"] = user_email
+    conv_dict["messages"] = list_messages(conversation_id=conversation_id)
+    return {"item": conv_dict}

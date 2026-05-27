@@ -1,38 +1,48 @@
 from __future__ import annotations
 
+import datetime as dt
 from typing import Any
 
-from app.db.postgresql.connector import get_db_cursor
+from sqlalchemy import asc, nulls_last
+
+from app.db.models import Event, _to_dict, get_session
+
+
+def _parse_date(value: str | None) -> dt.date | None:
+    if not value:
+        return None
+    return dt.date.fromisoformat(value)
+
+
+def _parse_time(value: str | None) -> dt.time | None:
+    if not value:
+        return None
+    return dt.time.fromisoformat(value)
 
 
 def list_events(*, user_id: int) -> list[dict[str, Any]]:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, description, event_date, event_time, location, event_type, gcal_event_id, created_at, updated_at
-            FROM events
-            WHERE user_id = %s
-            ORDER BY event_date, event_time IS NULL, event_time, created_at DESC
-            """,
-            (user_id,),
+    with get_session() as session:
+        rows = (
+            session.query(Event)
+            .filter(Event.user_id == user_id)
+            .order_by(
+                asc(Event.event_date),
+                nulls_last(asc(Event.event_time)),
+                Event.created_at.desc(),
+            )
+            .all()
         )
-        rows = cursor.fetchall() or []
-        return [dict(row) for row in rows]
+        return [_to_dict(row) for row in rows]
 
 
 def get_event(*, event_id: int, user_id: int) -> dict[str, Any] | None:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, description, event_date, event_time, location, event_type, gcal_event_id, created_at, updated_at
-            FROM events
-            WHERE id = %s AND user_id = %s
-            LIMIT 1
-            """,
-            (event_id, user_id),
+    with get_session() as session:
+        row = (
+            session.query(Event)
+            .filter(Event.id == event_id, Event.user_id == user_id)
+            .first()
         )
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        return _to_dict(row) if row else None
 
 
 def create_event(
@@ -46,21 +56,21 @@ def create_event(
     event_type: str,
     gcal_event_id: str | None = None,
 ) -> dict[str, Any]:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            INSERT INTO events (user_id, title, description, event_date, event_time, location, event_type, gcal_event_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id
-            """,
-            (user_id, title, description, event_date, event_time, location, event_type, gcal_event_id),
+    with get_session() as session:
+        event = Event(
+            user_id=user_id,
+            title=title,
+            description=description,
+            event_date=_parse_date(event_date),
+            event_time=_parse_time(event_time),
+            location=location,
+            event_type=event_type,
+            gcal_event_id=gcal_event_id,
         )
-        inserted = cursor.fetchone()
-        event_id = int(inserted[0])
-        connection.commit()
-
-    event = get_event(event_id=event_id, user_id=user_id)
-    return event or {"id": event_id}
+        session.add(event)
+        session.flush()
+        result = _to_dict(event)
+    return result
 
 
 def update_event(
@@ -74,61 +84,54 @@ def update_event(
     location: str | None,
     event_type: str,
 ) -> dict[str, Any] | None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            UPDATE events
-            SET title = %s,
-                description = %s,
-                event_date = %s,
-                event_time = %s,
-                location = %s,
-                event_type = %s,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND user_id = %s
-            """,
-            (title, description, event_date, event_time, location, event_type, event_id, user_id),
+    with get_session() as session:
+        event = (
+            session.query(Event)
+            .filter(Event.id == event_id, Event.user_id == user_id)
+            .first()
         )
-        affected = cursor.rowcount
-        connection.commit()
-
-    if affected == 0:
-        return None
-    return get_event(event_id=event_id, user_id=user_id)
+        if not event:
+            return None
+        event.title = title
+        event.description = description
+        event.event_date = _parse_date(event_date)
+        event.event_time = _parse_time(event_time)
+        event.location = location
+        event.event_type = event_type
+        session.flush()
+        result = _to_dict(event)
+    return result
 
 
 def list_synced_events(*, user_id: int) -> list[dict[str, Any]]:
     """Returns all local events that have a gcal_event_id (synced from or pushed to GCal)."""
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, description, event_date, event_time, location, event_type, gcal_event_id
-            FROM events
-            WHERE user_id = %s AND gcal_event_id IS NOT NULL
-            """,
-            (user_id,),
+    with get_session() as session:
+        rows = (
+            session.query(Event)
+            .filter(Event.user_id == user_id, Event.gcal_event_id.isnot(None))
+            .all()
         )
-        rows = cursor.fetchall() or []
-        return [dict(row) for row in rows]
+        return [_to_dict(row) for row in rows]
 
 
 def find_unlinked_event(*, user_id: int, title: str, event_date: str) -> dict[str, Any] | None:
     """Finds a local event with the same title+date that is NOT yet linked to a
     Google Calendar event. Used to link (instead of duplicating) when a locally
     created event reaches GCal before its gcal_event_id was persisted."""
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, description, event_date, event_time, location, event_type, gcal_event_id
-            FROM events
-            WHERE user_id = %s AND title = %s AND event_date = %s AND gcal_event_id IS NULL
-            ORDER BY created_at DESC
-            LIMIT 1
-            """,
-            (user_id, title, event_date),
+    parsed_date = _parse_date(event_date)
+    with get_session() as session:
+        row = (
+            session.query(Event)
+            .filter(
+                Event.user_id == user_id,
+                Event.title == title,
+                Event.event_date == parsed_date,
+                Event.gcal_event_id.is_(None),
+            )
+            .order_by(Event.created_at.desc())
+            .first()
         )
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        return _to_dict(row) if row else None
 
 
 def update_event_from_gcal(
@@ -141,41 +144,39 @@ def update_event_from_gcal(
     description: str | None,
     location: str | None,
 ) -> None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            UPDATE events
-            SET title = %s,
-                description = %s,
-                event_date = %s,
-                event_time = %s,
-                location = %s,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND user_id = %s
-            """,
-            (title, description, event_date, event_time, location, event_id, user_id),
+    with get_session() as session:
+        event = (
+            session.query(Event)
+            .filter(Event.id == event_id, Event.user_id == user_id)
+            .first()
         )
-        connection.commit()
+        if event:
+            event.title = title
+            event.description = description
+            event.event_date = _parse_date(event_date)
+            event.event_time = _parse_time(event_time)
+            event.location = location
 
 
 def set_gcal_event_id(*, event_id: int, user_id: int, gcal_event_id: str) -> None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            "UPDATE events SET gcal_event_id = %s WHERE id = %s AND user_id = %s",
-            (gcal_event_id, event_id, user_id),
+    with get_session() as session:
+        event = (
+            session.query(Event)
+            .filter(Event.id == event_id, Event.user_id == user_id)
+            .first()
         )
-        connection.commit()
+        if event:
+            event.gcal_event_id = gcal_event_id
 
 
 def delete_event(*, event_id: int, user_id: int) -> bool:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            DELETE FROM events
-            WHERE id = %s AND user_id = %s
-            """,
-            (event_id, user_id),
+    with get_session() as session:
+        event = (
+            session.query(Event)
+            .filter(Event.id == event_id, Event.user_id == user_id)
+            .first()
         )
-        deleted = cursor.rowcount > 0
-        connection.commit()
-    return deleted
+        if not event:
+            return False
+        session.delete(event)
+    return True

@@ -2,37 +2,28 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.db.postgresql.connector import get_db_cursor
+from app.db.models import Note, _to_dict, get_session
 
 
 def list_notes(*, user_id: int) -> list[dict[str, Any]]:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, content, status, created_at, updated_at
-            FROM notes
-            WHERE user_id = %s
-            ORDER BY created_at DESC
-            """,
-            (user_id,),
+    with get_session() as session:
+        rows = (
+            session.query(Note)
+            .filter(Note.user_id == user_id)
+            .order_by(Note.created_at.desc())
+            .all()
         )
-        rows = cursor.fetchall() or []
-        return [dict(row) for row in rows]
+        return [_to_dict(row) for row in rows]
 
 
 def get_note(*, note_id: int, user_id: int) -> dict[str, Any] | None:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, user_id, title, content, status, created_at, updated_at
-            FROM notes
-            WHERE id = %s AND user_id = %s
-            LIMIT 1
-            """,
-            (note_id, user_id),
+    with get_session() as session:
+        row = (
+            session.query(Note)
+            .filter(Note.id == note_id, Note.user_id == user_id)
+            .first()
         )
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        return _to_dict(row) if row else None
 
 
 def create_note(
@@ -42,21 +33,17 @@ def create_note(
     content: str | None,
     status: str,
 ) -> dict[str, Any]:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            INSERT INTO notes (user_id, title, content, status)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id
-            """,
-            (user_id, title, content, status),
+    with get_session() as session:
+        note = Note(
+            user_id=user_id,
+            title=title,
+            content=content,
+            status=status,
         )
-        inserted = cursor.fetchone()
-        note_id = int(inserted[0])
-        connection.commit()
-
-    note = get_note(note_id=note_id, user_id=user_id)
-    return note or {"id": note_id}
+        session.add(note)
+        session.flush()
+        result = _to_dict(note)
+    return result
 
 
 def update_note(
@@ -67,39 +54,33 @@ def update_note(
     content: str | None,
     status: str,
 ) -> dict[str, Any] | None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            UPDATE notes
-            SET title = %s,
-                content = %s,
-                status = %s,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND user_id = %s
-            """,
-            (title, content, status, note_id, user_id),
+    with get_session() as session:
+        note = (
+            session.query(Note)
+            .filter(Note.id == note_id, Note.user_id == user_id)
+            .first()
         )
-        affected = cursor.rowcount
-        connection.commit()
-
-    if affected == 0:
-        return None
-    return get_note(note_id=note_id, user_id=user_id)
+        if not note:
+            return None
+        note.title = title
+        note.content = content
+        note.status = status
+        session.flush()
+        result = _to_dict(note)
+    return result
 
 
 def delete_note(*, note_id: int, user_id: int) -> bool:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            DELETE FROM notes
-            WHERE id = %s AND user_id = %s
-            """,
-            (note_id, user_id),
+    with get_session() as session:
+        note = (
+            session.query(Note)
+            .filter(Note.id == note_id, Note.user_id == user_id)
+            .first()
         )
-        deleted = cursor.rowcount > 0
-        connection.commit()
-    return deleted
-
+        if not note:
+            return False
+        session.delete(note)
+    return True
 
 
 get_notes = get_note

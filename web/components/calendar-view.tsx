@@ -16,6 +16,7 @@ const MONTH_EN_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","O
 const DAY_HOURS = Array.from({ length: 17 }, (_, i) => i + 7)
 
 type CalViewMode = "month" | "week" | "day"
+type NewItemType = "event" | "meeting" | "task"
 
 type TaskData = {
   id: number
@@ -24,7 +25,7 @@ type TaskData = {
   due_date: string | null
   due_time?: string | null
   priority: "low" | "medium" | "high"
-  status: "pending" | "in_progress" | "done"
+  status: "pending" | "done"
 }
 
 type GcalEvent = {
@@ -140,9 +141,12 @@ export function CalendarView() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [completing, setCompleting] = useState<string | null>(null)
 
-  const [showNewEvent, setShowNewEvent] = useState(false)
+  const [showNewItem, setShowNewItem] = useState(false)
+  const [newItemType, setNewItemType] = useState<NewItemType>("event")
   const [newEvent, setNewEvent] = useState({ title: "", event_date: today, event_time: "", location: "" })
-  const [creatingEvent, setCreatingEvent] = useState(false)
+  const [newMeeting, setNewMeeting] = useState({ title: "", meeting_date: today, meeting_time: "09:00", location: "", participants: "", duration: "60" })
+  const [newTask, setNewTask] = useState({ title: "", due_date: today, due_time: "", priority: "medium", description: "" })
+  const [creatingItem, setCreatingItem] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -345,26 +349,86 @@ export function CalendarView() {
     finally { setCompleting(null) }
   }
 
-  async function createEvent() {
-    if (!newEvent.title.trim() || !newEvent.event_date) return
-    setCreatingEvent(true)
+  function openNewItem(date: string) {
+    setNewEvent((v) => ({ ...v, event_date: date }))
+    setNewMeeting((v) => ({ ...v, meeting_date: date }))
+    setNewTask((v) => ({ ...v, due_date: date }))
+    setShowNewItem(true)
+  }
+
+  function closeNewItem() {
+    setShowNewItem(false)
+    setNewEvent({ title: "", event_date: today, event_time: "", location: "" })
+    setNewMeeting({ title: "", meeting_date: today, meeting_time: "09:00", location: "", participants: "", duration: "60" })
+    setNewTask({ title: "", due_date: today, due_time: "", priority: "medium", description: "" })
+  }
+
+  async function createItem() {
+    setCreatingItem(true)
     try {
-      const res = await fetch("/api/planner/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newEvent.title.trim(), event_date: newEvent.event_date,
-          event_time: newEvent.event_time || null, location: newEvent.location.trim() || null, event_type: "general",
-        }),
-      })
-      if (!res.ok) throw new Error()
-      setShowNewEvent(false)
-      setNewEvent({ title: "", event_date: today, event_time: "", location: "" })
+      if (newItemType === "event") {
+        if (!newEvent.title.trim() || !newEvent.event_date) return
+        const res = await fetch("/api/planner/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: newEvent.title.trim(), event_date: newEvent.event_date,
+            event_time: newEvent.event_time || null,
+            location: newEvent.location.trim() || null, event_type: "general",
+          }),
+        })
+        if (!res.ok) throw new Error()
+        toast.success(isSpanish ? "Evento creado" : "Event created")
+      } else if (newItemType === "meeting") {
+        if (!newMeeting.title.trim() || !newMeeting.meeting_date) return
+        const participants = newMeeting.participants
+          .split(",").map((p) => p.trim()).filter(Boolean)
+        const res = await fetch("/api/planner/meetings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: newMeeting.title.trim(),
+            meeting_date: newMeeting.meeting_date,
+            meeting_time: newMeeting.meeting_time || "09:00:00",
+            location: newMeeting.location.trim() || null,
+            participants,
+            duration_minutes: parseInt(newMeeting.duration) || null,
+            status: "scheduled",
+          }),
+        })
+        if (!res.ok) throw new Error()
+        toast.success(isSpanish ? "Reunión creada" : "Meeting created")
+      } else {
+        if (!newTask.title.trim()) return
+        const res = await fetch("/api/planner/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: newTask.title.trim(),
+            description: newTask.description.trim() || null,
+            due_date: newTask.due_date || null,
+            due_time: newTask.due_time || null,
+            priority: newTask.priority,
+            status: "pending",
+          }),
+        })
+        if (!res.ok) throw new Error()
+        toast.success(isSpanish ? "Tarea creada" : "Task created")
+        window.dispatchEvent(new CustomEvent("planner:tasks-updated"))
+      }
+      closeNewItem()
       load()
-      toast.success(isSpanish ? "Evento creado" : "Event created")
     } catch {
-      toast.error(isSpanish ? "No se pudo crear el evento" : "Could not create event")
-    } finally { setCreatingEvent(false) }
+      toast.error(isSpanish ? "No se pudo crear el elemento" : "Could not create item")
+    } finally {
+      setCreatingItem(false)
+    }
+  }
+
+  function newItemValid(): boolean {
+    if (newItemType === "event") return !!newEvent.title.trim() && !!newEvent.event_date
+    if (newItemType === "meeting") return !!newMeeting.title.trim() && !!newMeeting.meeting_date
+    return !!newTask.title.trim()
   }
 
   function entryTypeLabel(entry: CalendarEntry) {
@@ -436,12 +500,12 @@ export function CalendarView() {
             ))}
           </div>
 
-          <button type="button" onClick={() => { setNewEvent((v) => ({ ...v, event_date: selected })); setShowNewEvent(true) }}
+          <button type="button" onClick={() => openNewItem(selected)}
             className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors">
             <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            {isSpanish ? "Nuevo evento" : "New Event"}
+            {isSpanish ? "Nuevo" : "New"}
           </button>
         </div>
       </div>
@@ -684,48 +748,154 @@ export function CalendarView() {
         </div>
       )}
 
-      {showNewEvent && (
+      {showNewItem && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-          onClick={() => !creatingEvent && setShowNewEvent(false)}>
+          onClick={() => !creatingItem && closeNewItem()}>
           <div className="w-full max-w-md rounded-t-3xl border border-border bg-card p-6 shadow-2xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}>
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold">{isSpanish ? "Nuevo evento" : "New Event"}</h3>
-              <button type="button" onClick={() => setShowNewEvent(false)}
+
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold">{isSpanish ? "Crear nuevo" : "Create new"}</h3>
+              <button type="button" onClick={closeNewItem}
                 className="rounded-full p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="space-y-3">
-              <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Título" : "Title"}</label>
-                <input className={inputCls} placeholder={isSpanish ? "Nombre del evento" : "Event name"} value={newEvent.title} onChange={(e) => setNewEvent((v) => ({ ...v, title: e.target.value }))} disabled={creatingEvent} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Fecha" : "Date"}</label>
-                  <input type="date" className={inputCls} value={newEvent.event_date} onChange={(e) => setNewEvent((v) => ({ ...v, event_date: e.target.value }))} disabled={creatingEvent} />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Hora" : "Time"}</label>
-                  <input type="time" className={inputCls} value={newEvent.event_time} onChange={(e) => setNewEvent((v) => ({ ...v, event_time: e.target.value }))} disabled={creatingEvent} />
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Ubicación" : "Location"}</label>
-                <input className={inputCls} placeholder={isSpanish ? "Opcional" : "Optional"} value={newEvent.location} onChange={(e) => setNewEvent((v) => ({ ...v, location: e.target.value }))} disabled={creatingEvent} />
-              </div>
+
+            {/* Type tabs */}
+            <div className="mb-5 flex rounded-xl border border-border/70 overflow-hidden">
+              {([
+                { key: "event",   label: isSpanish ? "Evento"  : "Event",   icon: "🗓️" },
+                { key: "meeting", label: isSpanish ? "Reunión" : "Meeting", icon: "👥" },
+                { key: "task",    label: isSpanish ? "Tarea"   : "Task",    icon: "✅" },
+              ] as { key: NewItemType; label: string; icon: string }[]).map((tab) => (
+                <button key={tab.key} type="button"
+                  onClick={() => setNewItemType(tab.key)}
+                  className={cn(
+                    "flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm font-semibold transition-colors",
+                    newItemType === tab.key
+                      ? "bg-primary text-white"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}>
+                  <span>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
             </div>
+
+            {/* ── Event form ── */}
+            {newItemType === "event" && (
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Título" : "Title"}</label>
+                  <input className={inputCls} placeholder={isSpanish ? "Nombre del evento" : "Event name"} value={newEvent.title} onChange={(e) => setNewEvent((v) => ({ ...v, title: e.target.value }))} disabled={creatingItem} autoFocus />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Fecha" : "Date"}</label>
+                    <input type="date" className={inputCls} value={newEvent.event_date} onChange={(e) => setNewEvent((v) => ({ ...v, event_date: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Hora" : "Time"}</label>
+                    <input type="time" className={inputCls} value={newEvent.event_time} onChange={(e) => setNewEvent((v) => ({ ...v, event_time: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Ubicación" : "Location"}</label>
+                  <input className={inputCls} placeholder={isSpanish ? "Opcional" : "Optional"} value={newEvent.location} onChange={(e) => setNewEvent((v) => ({ ...v, location: e.target.value }))} disabled={creatingItem} />
+                </div>
+              </div>
+            )}
+
+            {/* ── Meeting form ── */}
+            {newItemType === "meeting" && (
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Título" : "Title"}</label>
+                  <input className={inputCls} placeholder={isSpanish ? "Nombre de la reunión" : "Meeting name"} value={newMeeting.title} onChange={(e) => setNewMeeting((v) => ({ ...v, title: e.target.value }))} disabled={creatingItem} autoFocus />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Fecha" : "Date"}</label>
+                    <input type="date" className={inputCls} value={newMeeting.meeting_date} onChange={(e) => setNewMeeting((v) => ({ ...v, meeting_date: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Hora" : "Time"}</label>
+                    <input type="time" className={inputCls} value={newMeeting.meeting_time} onChange={(e) => setNewMeeting((v) => ({ ...v, meeting_time: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Duración (min)" : "Duration (min)"}</label>
+                    <input type="number" min="5" step="5" className={inputCls} placeholder="60" value={newMeeting.duration} onChange={(e) => setNewMeeting((v) => ({ ...v, duration: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Ubicación" : "Location"}</label>
+                    <input className={inputCls} placeholder={isSpanish ? "Opcional" : "Optional"} value={newMeeting.location} onChange={(e) => setNewMeeting((v) => ({ ...v, location: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Participantes (separados por comas)" : "Participants (comma-separated)"}</label>
+                  <input className={inputCls} placeholder={isSpanish ? "Ana, Juan, sofia@email.com…" : "Alice, Bob, carol@email.com…"} value={newMeeting.participants} onChange={(e) => setNewMeeting((v) => ({ ...v, participants: e.target.value }))} disabled={creatingItem} />
+                </div>
+              </div>
+            )}
+
+            {/* ── Task form ── */}
+            {newItemType === "task" && (
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Título" : "Title"}</label>
+                  <input className={inputCls} placeholder={isSpanish ? "¿Qué hay que hacer?" : "What needs to be done?"} value={newTask.title} onChange={(e) => setNewTask((v) => ({ ...v, title: e.target.value }))} disabled={creatingItem} autoFocus />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Descripción" : "Description"}</label>
+                  <textarea rows={2} className={cn(inputCls, "resize-none")} placeholder={isSpanish ? "Opcional" : "Optional"} value={newTask.description} onChange={(e) => setNewTask((v) => ({ ...v, description: e.target.value }))} disabled={creatingItem} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Fecha límite" : "Due date"}</label>
+                    <input type="date" className={inputCls} value={newTask.due_date} onChange={(e) => setNewTask((v) => ({ ...v, due_date: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Hora límite" : "Due time"}</label>
+                    <input type="time" className={inputCls} value={newTask.due_time} onChange={(e) => setNewTask((v) => ({ ...v, due_time: e.target.value }))} disabled={creatingItem} />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Prioridad" : "Priority"}</label>
+                  <div className="flex gap-2">
+                    {([
+                      { val: "low",    label: isSpanish ? "Baja"  : "Low",    cls: "text-emerald-500 border-emerald-500/40 bg-emerald-500/10" },
+                      { val: "medium", label: isSpanish ? "Media" : "Medium", cls: "text-amber-500 border-amber-500/40 bg-amber-500/10" },
+                      { val: "high",   label: isSpanish ? "Alta"  : "High",   cls: "text-red-400 border-red-400/40 bg-red-400/10" },
+                    ]).map((p) => (
+                      <button key={p.val} type="button"
+                        onClick={() => setNewTask((v) => ({ ...v, priority: p.val }))}
+                        className={cn(
+                          "flex-1 rounded-xl border py-2 text-xs font-bold transition-colors",
+                          newTask.priority === p.val ? p.cls : "border-border text-muted-foreground hover:bg-accent"
+                        )}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
             <div className="mt-5 flex gap-3">
-              <button type="button" onClick={() => setShowNewEvent(false)} disabled={creatingEvent}
+              <button type="button" onClick={closeNewItem} disabled={creatingItem}
                 className="flex-1 rounded-xl border border-border py-3 text-sm font-semibold hover:bg-accent disabled:opacity-50 transition-colors">
                 {isSpanish ? "Cancelar" : "Cancel"}
               </button>
-              <button type="button" onClick={createEvent} disabled={creatingEvent || !newEvent.title.trim() || !newEvent.event_date}
+              <button type="button" onClick={createItem} disabled={creatingItem || !newItemValid()}
                 className="flex-1 rounded-xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 disabled:opacity-60 transition-colors">
-                {creatingEvent ? "..." : isSpanish ? "Crear" : "Create"}
+                {creatingItem ? "..." : isSpanish ? "Crear" : "Create"}
               </button>
             </div>
           </div>

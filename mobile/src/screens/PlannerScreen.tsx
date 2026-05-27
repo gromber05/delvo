@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   listBody: { flex: 1, padding: 14, gap: 4 },
   listTitle: { fontSize: 15, fontWeight: '600' },
   listActions: { flexDirection: 'row', gap: 8, paddingRight: 12 },
-  syncRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 24 },
+  syncRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 1 },
   syncDot: { width: 8, height: 8, borderRadius: 4 },
   syncText: { fontSize: 13 },
   calHeaderRow: {

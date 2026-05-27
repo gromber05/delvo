@@ -30,12 +30,10 @@ function formatLongDate(isoDate: string, locale: string) {
 function getTaskStateLabel(state: string, language: "es" | "en") {
   if (language === "es") {
     if (state === "done") return "Completada"
-    if (state === "in_progress") return "En progreso"
     return "Pendiente"
   }
 
   if (state === "done") return "Done"
-  if (state === "in_progress") return "In progress"
   return "Pending"
 }
 
@@ -53,7 +51,7 @@ function getPriorityLabel(priority: TaskItem["priority"], language: "es" | "en")
 
 function getStateBadgeClass(state: string) {
   if (state === "done") return "border-emerald-200 bg-emerald-50 text-emerald-700"
-  if (state === "in_progress") return "border-amber-200 bg-amber-50 text-amber-700"
+
   return "border-slate-200 bg-slate-100 text-slate-700"
 }
 

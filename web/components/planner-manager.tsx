@@ -15,7 +15,7 @@ type Task = {
   due_date?: string | null
   due_time?: string | null
   priority: "low" | "medium" | "high"
-  status: "pending" | "in_progress" | "done"
+  status: "pending" | "done"
 }
 
 type Meeting = {
@@ -140,7 +140,7 @@ export function PlannerManager({ className }: Props) {
             due_date: normalizeDate(item.due_date) || null,
             due_time: normalizeTime(item.due_time) || null,
             priority: item.priority === "low" || item.priority === "high" ? item.priority : "medium",
-            status: item.status === "in_progress" || item.status === "done" ? item.status : "pending",
+            status: item.status === "done" ? "done" : "pending",
           }
         }).filter((item): item is Task => item !== null)
       )
@@ -768,7 +768,6 @@ export function PlannerManager({ className }: Props) {
                     </select>
                     <select className={selectCls} value={taskForm.status} onChange={(e) => setTaskForm((v) => ({ ...v, status: e.target.value as Task["status"] }))}>
                       <option value="pending">{isSpanish ? "Pendiente" : "Pending"}</option>
-                      <option value="in_progress">{isSpanish ? "En progreso" : "In progress"}</option>
                       <option value="done">{isSpanish ? "Completada" : "Done"}</option>
                     </select>
                   </div>
@@ -882,7 +881,6 @@ export function PlannerManager({ className }: Props) {
                       <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{isSpanish ? "Estado" : "Status"}</label>
                       <select className={selectCls} value={editForm.status ?? "pending"} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))} disabled={editSaving}>
                         <option value="pending">{isSpanish ? "Pendiente" : "Pending"}</option>
-                        <option value="in_progress">{isSpanish ? "En progreso" : "In progress"}</option>
                         <option value="done">{isSpanish ? "Completada" : "Done"}</option>
                       </select>
                     </div>

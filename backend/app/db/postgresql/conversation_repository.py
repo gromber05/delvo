@@ -1,77 +1,72 @@
 from __future__ import annotations
 
+import datetime as dt
 from typing import Any
 
-from app.db.postgresql.connector import get_db_cursor
+from sqlalchemy import func, literal_column
+
+from app.db.models import Conversation, Message, User, _to_dict, get_session
 
 
 def create_conversation(*, user_id: int, title: str) -> dict[str, Any]:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            INSERT INTO conversations (user_id, title)
-            VALUES (%s, %s)
-            RETURNING id, user_id, title, created_at, updated_at
-            """,
-            (user_id, title[:255]),
-        )
-        row = cursor.fetchone()
-        connection.commit()
-        return {
-            "id": row[0],
-            "user_id": row[1],
-            "title": row[2],
-            "created_at": row[3],
-            "updated_at": row[4],
-        }
+    with get_session() as session:
+        conv = Conversation(user_id=user_id, title=title[:255])
+        session.add(conv)
+        session.flush()
+        result = _to_dict(conv)
+    return result
 
 
 def list_conversations(*, user_id: int) -> list[dict[str, Any]]:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT c.id, c.user_id, c.title, c.created_at, c.updated_at,
-                   COUNT(m.id) AS message_count
-            FROM conversations c
-            LEFT JOIN messages m ON m.conversation_id = c.id
-            WHERE c.user_id = %s
-            GROUP BY c.id
-            ORDER BY c.updated_at DESC
-            LIMIT 100
-            """,
-            (user_id,),
+    with get_session() as session:
+        rows = (
+            session.query(
+                Conversation,
+                func.count(Message.id).label("message_count"),
+            )
+            .outerjoin(Message, Message.conversation_id == Conversation.id)
+            .filter(Conversation.user_id == user_id)
+            .group_by(Conversation.id)
+            .order_by(Conversation.updated_at.desc())
+            .limit(100)
+            .all()
         )
-        return [dict(r) for r in cursor.fetchall()]
+        result = []
+        for conv, message_count in rows:
+            d = _to_dict(conv)
+            d["message_count"] = message_count
+            result.append(d)
+    return result
 
 
 def get_conversation(*, conversation_id: int, user_id: int) -> dict[str, Any] | None:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            "SELECT id, user_id, title, created_at, updated_at FROM conversations WHERE id = %s AND user_id = %s",
-            (conversation_id, user_id),
+    with get_session() as session:
+        row = (
+            session.query(Conversation)
+            .filter(Conversation.id == conversation_id, Conversation.user_id == user_id)
+            .first()
         )
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        return _to_dict(row) if row else None
 
 
 def delete_conversation(*, conversation_id: int, user_id: int) -> bool:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            "DELETE FROM conversations WHERE id = %s AND user_id = %s",
-            (conversation_id, user_id),
+    with get_session() as session:
+        row = (
+            session.query(Conversation)
+            .filter(Conversation.id == conversation_id, Conversation.user_id == user_id)
+            .first()
         )
-        affected = cursor.rowcount
-        connection.commit()
-        return affected > 0
+        if not row:
+            return False
+        session.delete(row)
+    return True
 
 
 def touch_conversation(*, conversation_id: int) -> None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            "UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = %s",
-            (conversation_id,),
-        )
-        connection.commit()
+    with get_session() as session:
+        row = session.query(Conversation).filter(Conversation.id == conversation_id).first()
+        if row:
+            row.updated_at = func.now()
 
 
 def add_message(
@@ -82,110 +77,107 @@ def add_message(
     intent: str | None = None,
     sentiment: str | None = None,
 ) -> dict[str, Any]:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            """
-            INSERT INTO messages (conversation_id, role, content, intent, sentiment)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id, conversation_id, role, content, intent, sentiment, created_at
-            """,
-            (conversation_id, role, content, intent, sentiment),
+    with get_session() as session:
+        msg = Message(
+            conversation_id=conversation_id,
+            role=role,
+            content=content,
+            intent=intent,
+            sentiment=sentiment,
         )
-        row = cursor.fetchone()
-        connection.commit()
-        return {
-            "id": row[0],
-            "conversation_id": row[1],
-            "role": row[2],
-            "content": row[3],
-            "intent": row[4],
-            "sentiment": row[5],
-            "created_at": row[6],
-        }
+        session.add(msg)
+        session.flush()
+        result = _to_dict(msg)
+    return result
 
 
 def update_message_sentiment(*, message_id: int, sentiment: str) -> None:
-    with get_db_cursor() as (connection, cursor):
-        cursor.execute(
-            "UPDATE messages SET sentiment = %s WHERE id = %s",
-            (sentiment, message_id),
-        )
-        connection.commit()
+    with get_session() as session:
+        msg = session.query(Message).filter(Message.id == message_id).first()
+        if msg:
+            msg.sentiment = sentiment
 
 
 def list_messages(*, conversation_id: int) -> list[dict[str, Any]]:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute(
-            """
-            SELECT id, conversation_id, role, content, intent, sentiment, created_at
-            FROM messages
-            WHERE conversation_id = %s
-            ORDER BY created_at ASC
-            """,
-            (conversation_id,),
+    with get_session() as session:
+        rows = (
+            session.query(Message)
+            .filter(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.asc())
+            .all()
         )
-        return [dict(r) for r in cursor.fetchall()]
+        return [_to_dict(row) for row in rows]
 
 
 def get_admin_stats() -> dict[str, Any]:
-    with get_db_cursor(dictionary=True) as (_, cursor):
-        cursor.execute("SELECT COUNT(*) AS total FROM conversations")
-        total_conversations = cursor.fetchone()["total"]
+    with get_session() as session:
+        total_conversations = session.query(func.count(Conversation.id)).scalar() or 0
 
-        cursor.execute("SELECT COUNT(*) AS total FROM messages WHERE role = 'user'")
-        total_messages = cursor.fetchone()["total"]
+        total_messages = (
+            session.query(func.count(Message.id))
+            .filter(Message.role == "user")
+            .scalar()
+            or 0
+        )
 
-        cursor.execute("SELECT COUNT(*) AS total FROM users")
-        total_users = cursor.fetchone()["total"]
-        cursor.execute(
-            """
-            SELECT intent, COUNT(*) AS count
-            FROM messages
-            WHERE role = 'assistant' AND intent IS NOT NULL AND intent != 'query'
-            GROUP BY intent
-            ORDER BY count DESC
-            LIMIT 10
-            """
-        )
-        intent_distribution = [dict(r) for r in cursor.fetchall()]
-        cursor.execute(
-            """
-            SELECT sentiment, COUNT(*) AS count
-            FROM messages
-            WHERE role = 'user' AND sentiment IS NOT NULL
-            GROUP BY sentiment
-            ORDER BY count DESC
-            """
-        )
-        sentiment_distribution = [dict(r) for r in cursor.fetchall()]
-        cursor.execute(
-            """
-            SELECT DATE(created_at) AS day, COUNT(*) AS messages
-            FROM messages
-            WHERE role = 'user' AND created_at >= CURRENT_DATE - INTERVAL '14 days'
-            GROUP BY day
-            ORDER BY day ASC
-            """
-        )
-        daily_activity = [{"day": str(r["day"]), "messages": r["messages"]} for r in cursor.fetchall()]
-        cursor.execute(
-            """
-            SELECT u.name, u.email, COUNT(c.id) AS conversations
-            FROM users u
-            LEFT JOIN conversations c ON c.user_id = u.id
-            GROUP BY u.id, u.name, u.email
-            ORDER BY conversations DESC
-            LIMIT 10
-            """
-        )
-        top_users = [dict(r) for r in cursor.fetchall()]
+        total_users = session.query(func.count(User.id)).scalar() or 0
 
-        return {
-            "total_users": total_users,
-            "total_conversations": total_conversations,
-            "total_messages": total_messages,
-            "intent_distribution": intent_distribution,
-            "sentiment_distribution": sentiment_distribution,
-            "daily_activity": daily_activity,
-            "top_users": top_users,
-        }
+        intent_rows = (
+            session.query(Message.intent, func.count(Message.id).label("count"))
+            .filter(
+                Message.role == "assistant",
+                Message.intent.isnot(None),
+                Message.intent != "query",
+            )
+            .group_by(Message.intent)
+            .order_by(literal_column("count").desc())
+            .limit(10)
+            .all()
+        )
+        intent_distribution = [{"intent": r.intent, "count": r.count} for r in intent_rows]
+
+        sentiment_rows = (
+            session.query(Message.sentiment, func.count(Message.id).label("count"))
+            .filter(Message.role == "user", Message.sentiment.isnot(None))
+            .group_by(Message.sentiment)
+            .order_by(literal_column("count").desc())
+            .all()
+        )
+        sentiment_distribution = [{"sentiment": r.sentiment, "count": r.count} for r in sentiment_rows]
+
+        cutoff = dt.datetime.utcnow() - dt.timedelta(days=14)
+        daily_rows = (
+            session.query(
+                func.date(Message.created_at).label("day"),
+                func.count(Message.id).label("messages"),
+            )
+            .filter(Message.role == "user", Message.created_at >= cutoff)
+            .group_by(func.date(Message.created_at))
+            .order_by(func.date(Message.created_at).asc())
+            .all()
+        )
+        daily_activity = [{"day": str(r.day), "messages": r.messages} for r in daily_rows]
+
+        top_user_rows = (
+            session.query(
+                User.name,
+                User.email,
+                func.count(Conversation.id).label("conversations"),
+            )
+            .outerjoin(Conversation, Conversation.user_id == User.id)
+            .group_by(User.id, User.name, User.email)
+            .order_by(literal_column("conversations").desc())
+            .limit(10)
+            .all()
+        )
+        top_users = [{"name": r.name, "email": r.email, "conversations": r.conversations} for r in top_user_rows]
+
+    return {
+        "total_users": total_users,
+        "total_conversations": total_conversations,
+        "total_messages": total_messages,
+        "intent_distribution": intent_distribution,
+        "sentiment_distribution": sentiment_distribution,
+        "daily_activity": daily_activity,
+        "top_users": top_users,
+    }

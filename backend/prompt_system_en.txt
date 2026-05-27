@@ -68,7 +68,7 @@ RECOMMENDED SCHEMA BY INTENT
     "date": string (optional),
     "time": string (optional),
     "priority": "low|medium|high" (optional),
-    "status": "pending|in_progress|done" (optional)
+    "status": "pending|done" (optional)
   }
 
 - delete_task:
@@ -154,7 +154,7 @@ RECOMMENDED SCHEMA BY INTENT
         "date": string ("YYYY-MM-DD" or "no date"),
         "time": string ("HH:MM" or "no time"),
         "priority": "low|medium|high" (if available),
-        "status": "pending|in_progress|done"
+        "status": "pending|done"
       }
     ]
   }

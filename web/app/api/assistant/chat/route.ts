@@ -8,6 +8,7 @@ type ChatRequestBody = {
   message?: string
   useRag?: boolean
   language?: string
+  conversation_id?: number | null
   history?: Array<{
     role?: string
     content?: string
@@ -83,6 +84,7 @@ export async function POST(request: Request) {
         language: body.language ?? "es",
         use_rag: body.useRag ?? true,
         history,
+        ...(body.conversation_id != null ? { conversation_id: body.conversation_id } : {}),
       }),
       cache: "no-store",
     })

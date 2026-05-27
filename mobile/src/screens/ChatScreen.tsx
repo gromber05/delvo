@@ -1,9 +1,12 @@
 import { Audio } from 'expo-av';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActionSheetIOS,
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, AssistantChatTurn } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
 import {
+  IconAnalyze,
   IconCalendarPlus,
   IconClipboardCheck,
   IconClipboardText,
@@ -49,13 +53,72 @@ export function ChatScreen() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recordState, setRecordState] = useState<RecordState>('idle');
+  const [initializing, setInitializing] = useState(true);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
   const listRef = useRef<FlatList>(null);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const listRes = await api.listConversations();
+      const latest = listRes.items?.[0];
+      if (!latest) return;
+      const convRes = await api.getConversation(latest.id);
+      const loaded: Message[] = convRes.item.messages.map(m => ({
+        id: `loaded-${m.id}`,
+        role: m.role,
+        content: m.content,
+      }));
+      if (loaded.length > 0) {
+        setMessages(loaded);
+        setConversationId(latest.id);
+      }
+    } catch {
+    } finally {
+      setInitializing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   useEffect(() => {
     if (messages.length > 0)
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 80);
   }, [messages]);
+
+  function confirmReset() {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancelar', 'Reiniciar chat'],
+          destructiveButtonIndex: 1,
+          cancelButtonIndex: 0,
+          title: '¿Reiniciar la conversación?',
+          message: 'Se iniciará un chat nuevo. El historial anterior queda guardado.',
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) doReset();
+        },
+      );
+    } else {
+      Alert.alert(
+        '¿Reiniciar el chat?',
+        'Se iniciará un chat nuevo. El historial anterior queda guardado.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Reiniciar', style: 'destructive', onPress: doReset },
+        ],
+      );
+    }
+  }
+
+  function doReset() {
+    setConversationId(null);
+    setMessages([]);
+    setError(null);
+  }
 
   async function send(text?: string) {
     const content = (text ?? input).trim();
@@ -67,7 +130,10 @@ export function ChatScreen() {
     setError(null);
     const history: AssistantChatTurn[] = messages.map(m => ({ role: m.role, content: m.content }));
     try {
-      const res = await api.chat(content, history);
+      const res = await api.chat(content, history, conversationId);
+      if (res.conversation_id != null) {
+        setConversationId(res.conversation_id);
+      }
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -136,28 +202,31 @@ export function ChatScreen() {
             <Text style={[styles.statusText, { color: c.secondary }]}>En línea</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.headerIcon} hitSlop={8}>
-          <IconSearch size={22} color={c.onSurfaceMuted} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.headerIcon} hitSlop={8}>
-          <IconDotsVertical size={22} color={c.onSurfaceMuted} />
+        <TouchableOpacity style={styles.headerIcon} hitSlop={8} onPress={confirmReset}>
+          <IconAnalyze size={22} color={c.onSurfaceMuted} />
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        ref={listRef}
-        data={messages}
-        keyExtractor={m => m.id}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={<EmptyState c={c} />}
-        ListFooterComponent={sending ? <TypingBubble c={c} /> : null}
-        renderItem={({ item }) => <Bubble msg={item} c={c} />}
-      />
+      {initializing ? (
+        <View style={styles.initLoader}>
+          <ActivityIndicator size="large" color={c.primary} />
+        </View>
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={messages}
+          keyExtractor={m => m.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={<EmptyState c={c} />}
+          ListFooterComponent={sending ? <TypingBubble c={c} /> : null}
+          renderItem={({ item }) => <Bubble msg={item} c={c} />}
+        />
+      )}
 
       {error ? <Text style={[styles.error, { color: c.error }]}>{error}</Text> : null}
 
       <View style={[styles.composerDock, { backgroundColor: c.surface, borderTopColor: c.outline }]}>
-        {messages.length === 0 && !sending && (
+        {messages.length === 0 && !sending && !initializing && (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -192,7 +261,7 @@ export function ChatScreen() {
             onChangeText={setInput}
             onSubmitEditing={() => send()}
             returnKeyType="send"
-            editable={!sending && !isRecording && !isTranscribing}
+            editable={!sending && !isRecording && !isTranscribing && !initializing}
             multiline
           />
 
@@ -203,7 +272,7 @@ export function ChatScreen() {
                 { backgroundColor: isRecording ? '#EF4444' : isTranscribing ? c.surfaceVariant : c.primary },
               ]}
               onPress={isRecording ? stopRecording : startRecording}
-              disabled={isTranscribing}
+              disabled={isTranscribing || initializing}
             >
               {isTranscribing
                 ? <ActivityIndicator size="small" color={c.primary} />
@@ -216,7 +285,7 @@ export function ChatScreen() {
             <TouchableOpacity
               style={[styles.sendBtn, { backgroundColor: input.trim() && !sending ? c.primary : c.surfaceVariant }]}
               onPress={() => send()}
-              disabled={!input.trim() || sending}
+              disabled={!input.trim() || sending || initializing}
             >
               {sending
                 ? <ActivityIndicator size="small" color={c.primary} />
@@ -299,6 +368,12 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   statusText: { fontSize: 12, fontWeight: '500' },
   headerIcon: { padding: 4 },
+
+  initLoader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   list: { padding: 16, gap: 10 },
   bubbleWrap: { alignItems: 'flex-start', maxWidth: '82%' },

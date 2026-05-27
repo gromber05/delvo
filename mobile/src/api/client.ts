@@ -111,6 +111,30 @@ export interface AssistantChatResponse {
   data: Record<string, unknown>;
   message: string;
   context_used: string[];
+  conversation_id?: number | null;
+}
+
+export interface ConversationMessageDto {
+  id: number;
+  conversation_id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  intent?: string | null;
+  sentiment?: string | null;
+  created_at: string;
+}
+
+export interface ConversationDto {
+  id: number;
+  user_id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
+}
+
+export interface ConversationDetailDto extends ConversationDto {
+  messages: ConversationMessageDto[];
 }
 
 
@@ -356,11 +380,26 @@ export const api = {
     request<{ ok: boolean }>(`/api/v1/planner/notes/${id}`, { method: 'DELETE' }),
 
   
-  chat: (message: string, history: AssistantChatTurn[]) =>
+  chat: (message: string, history: AssistantChatTurn[], conversationId?: number | null) =>
     request<AssistantChatResponse>('/api/v1/assistant/chat', {
       method: 'POST',
-      body: JSON.stringify({ message, use_rag: true, history, language: 'es' }),
+      body: JSON.stringify({
+        message,
+        use_rag: true,
+        history,
+        language: 'es',
+        ...(conversationId != null ? { conversation_id: conversationId } : {}),
+      }),
     }),
+
+  listConversations: () =>
+    request<ListResponse<ConversationDto>>('/api/v1/conversations/'),
+
+  getConversation: (id: number) =>
+    request<{ item: ConversationDetailDto }>(`/api/v1/conversations/${id}`),
+
+  deleteConversation: (id: number) =>
+    request<{ ok: boolean }>(`/api/v1/conversations/${id}`, { method: 'DELETE' }),
 
   
   me: () => request<{ user: UserDto }>('/api/v1/auth/me'),

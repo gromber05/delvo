@@ -10,7 +10,7 @@ type Task = {
   id: number
   title: string
   priority: "low" | "medium" | "high"
-  status: "pending" | "in_progress" | "done"
+  status: "pending" | "done"
   due_date?: string
   due_time?: string
 }

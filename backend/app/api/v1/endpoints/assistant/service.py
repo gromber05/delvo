@@ -42,7 +42,7 @@ from .schemas import ChatRequest, ChatResponse
 
 
 VALID_TASK_PRIORITIES = {"low", "medium", "high"}
-VALID_TASK_STATUSES = {"pending", "in_progress", "done"}
+VALID_TASK_STATUSES = {"pending", "done"}
 VALID_MEETING_STATUSES = {"scheduled", "completed", "cancelled"}
 
 def build_tasks_context(user_id: int | None) -> str:
