@@ -49,7 +49,7 @@
    * [b. Recursos preventivos](#b-recursos-preventivos)
    * [c. Plan para mitigar dichos riesgos](#c-plan-para-mitigar-dichos-riesgos)
 
-8. [Diseño](#8-diseño)
+8. [Diseno](#8-diseno)
 
    * [a. Prototipado](#a-prototipado)
    * [b. Especificaciones técnicas](#b-especificaciones-técnicas)
@@ -97,7 +97,7 @@
 
 ## a. Justificación del proyecto: cómo se originó la idea
 
-Delvo se originó de mi necesidad urgente de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas, poco personalizables o no estaban adaptadas a las necesidades reales de estudiantes y pequeños equipos de trabajo.
+Delvo se originó de mi necesidad urgente de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas, poco personalizables o no estaban adaptadas a las necesidades reales de estudiantes y pequenos equipos de trabajo.
 
 A partir de esta problemática surgió la idea de crear una plataforma propia que combinara productividad, organización y asistencia inteligente en una misma solución. El objetivo principal de Delvo es facilitar la gestión diaria mediante una interfaz clara, accesible y moderna, permitiendo centralizar información importante y mejorar la eficiencia del usuario.
 
@@ -121,7 +121,7 @@ Todoist se centra en la productividad personal y la gestión rápida de tareas m
 
 ### Diferenciación de Delvo
 
-Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que tanto usuarios individuales como pequeños equipos puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
+Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que tanto usuarios individuales como pequenos equipos puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
 
 ## c. Tendencias
 
@@ -157,7 +157,7 @@ En conjunto, Delvo representa no solo una solución tecnológica para la organiz
 
 ## a. Tipo de proyecto
 
-Delvo es una aplicación multiplataforma de productividad y organización desarrollada como un proyecto de desarrollo de software moderno. Este proyecto está orientado a la gestión de tareas, proyectos, recordatorios y organización personal o de pequeños equipos de trabajo, integrando funcionalidades web y móviles dentro de una misma plataforma.
+Delvo es una aplicación multiplataforma de productividad y organización desarrollada como un proyecto de desarrollo de software moderno. Este proyecto está orientado a la gestión de tareas, proyectos, recordatorios y organización personal o de pequenos equipos de trabajo, integrando funcionalidades web y móviles dentro de una misma plataforma.
 
 Se trata de una solución basada en arquitectura cliente-servidor, formada por:
 
@@ -181,13 +181,13 @@ Delvo incorpora diferentes funcionalidades orientadas a mejorar la productividad
 * Posibilidad de integración con inteligencia artificial para automatización y asistencia inteligente.
 * Interfaz moderna y personalizable enfocada en la facilidad del uso.
 * Centralización de información importante en una única plataforma.
-* Compatibilidad con trabajo individual y colaboración en pequeños equipos.
+* Compatibilidad con trabajo individual y colaboración en pequenos equipos.
 
 ## c. Usuarios destinatarios
 
 Delvo, desde un principio, estaba orientado a una aplicación de uso personal, pero ha sido desarrollada para un ámbito lectivo, en específico, para aquellos estudiantes que necesitan organizar tareas, proyectos académicos y recordatorios.
 
-También para aquellos usuarios individuales que solo buscan una herramienta sencilla para mejorar su productividad diaria o, tan solo, para pequeños equipos que requieren una plataforma accesible para gestionar proyectos y tareas colaborativas.
+También para aquellos usuarios individuales que solo buscan una herramienta sencilla para mejorar su productividad diaria o, tan solo, para pequenos equipos que requieren una plataforma accesible para gestionar proyectos y tareas colaborativas.
 
 Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable, evitando la complejidad excesiva presente en otras herramientas del mercado y facilitando el acceso a funciones de organización desde distintos dispositivos.
 
@@ -197,13 +197,13 @@ Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable
 
 ## a. Objetivo general
 
-Realizar el desarrollo de una aplicación multiplataforma de organización y productividad llamada Delvo, orientada a estudiantes, usuarios individuales y pequeños equipos, que permita centralizar la gestión de tareas, reuniones, eventos y recordatorios en un único entorno, con una experiencia de uso sencilla, moderna y accesible desde web y móvil.
+Realizar el desarrollo de una aplicación multiplataforma de organización y productividad llamada Delvo, orientada a estudiantes, usuarios individuales y pequenos equipos, que permita centralizar la gestión de tareas, reuniones, eventos y recordatorios en un único entorno, con una experiencia de uso sencilla, moderna y accesible desde web y móvil.
 
 ## b. Objetivo específico
 
 Para alcanzar el objetivo general, se definen los siguientes objetivos específicos:
 
-* Diseñar e implementar una arquitectura cliente-servidor escalable, separando frontend web, app móvil, backend y base de datos.
+* Disenar e implementar una arquitectura cliente-servidor escalable, separando frontend web, app móvil, backend y base de datos.
 * Desarrollar un sistema de autenticación y gestión de usuarios seguro para proteger el acceso a la información personal.
 * Implementar funcionalidades de gestión de tareas (crear, editar, listar y actualizar estado y prioridad).
 * Implementar funcionalidades de gestión de reuniones y eventos con fecha, hora, duración, ubicación y participantes.
@@ -261,7 +261,7 @@ Para la inteligencia artificial se utiliza Ollama, lo que permite ejecutar model
 
 ## c. Requisitos legales o normativos
 
-Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa española de protección de datos.
+Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa espanola de protección de datos.
 
 La aplicación debe almacenar únicamente la información necesaria para su funcionamiento y proteger las credenciales mediante técnicas de seguridad adecuadas, como el hash de contraseñas y el uso de tokens de acceso. Además, las credenciales sensibles, como claves JWT o credenciales de Google, deben mantenerse fuera del código fuente y gestionarse mediante variables de entorno.
 
@@ -273,7 +273,7 @@ La integración con Google Calendar debe respetar las condiciones de uso de las 
 
 ## a. Estructura de tareas
 
-El desarrollo de Delvo se ha organizado en varias fases. En primer lugar, se realizó el análisis de la idea y la definición del problema que se quería resolver. A partir de ahí, se diseñó la arquitectura general del sistema, separando claramente backend, aplicación web, aplicación móvil y base de datos.
+El desarrollo de Delvo se ha organizado en varias fases. En primer lugar, se realizó el análisis de la idea y la definición del problema que se quería resolver. A partir de ahí, se disenó la arquitectura general del sistema, separando claramente backend, aplicación web, aplicación móvil y base de datos.
 
 Después se implementó el backend, comenzando por la autenticación de usuarios y continuando con los módulos de tareas, reuniones, eventos y notas. Una vez disponible la API principal, se desarrolló la aplicación web con sus pantallas de acceso, panel principal, calendario, planificador, configuración y asistente.
 
@@ -282,7 +282,7 @@ Posteriormente se trabajó en la aplicación móvil, adaptando las funcionalidad
 
 ## b. Cronograma
 
-La planificación del proyecto se distribuyó principalmente entre los meses de marzo, abril y mayo de 2026. Durante marzo se trabajó en el análisis inicial, la definición de objetivos, el diseño de la arquitectura y las primeras decisiones tecnológicas. En abril se avanzó en la implementación del backend, la base de datos y los primeros módulos funcionales.
+La planificación del proyecto se distribuyó principalmente entre los meses de marzo, abril y mayo de 2026. Durante marzo se trabajó en el análisis inicial, la definición de objetivos, el diseno de la arquitectura y las primeras decisiones tecnológicas. En abril se avanzó en la implementación del backend, la base de datos y los primeros módulos funcionales.
 
 Durante mayo se concentró la integración final del sistema, incluyendo la aplicación web, la aplicación móvil, Google Calendar, el asistente inteligente y la documentación del proyecto. En el historial del repositorio se observan hitos relevantes el 20 de mayo de 2026, con la incorporación de documentación, calendario y páginas de configuración, y el 21 de mayo de 2026, con refactorizaciones, mejoras de legibilidad, integración OAuth y política de privacidad.
 
@@ -291,7 +291,7 @@ Durante mayo se concentró la integración final del sistema, incluyendo la apli
 
 Para desarrollar Delvo se ha utilizado un equipo de desarrollo capaz de ejecutar contenedores Docker y herramientas modernas de desarrollo web y móvil. A nivel de software, han sido necesarios Git, Docker, Docker Compose, Python, Node.js, pnpm, Expo y un editor de código.
 
-También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local. En cuanto a recursos humanos, el proyecto ha sido desarrollado por el autor, asumiendo tareas de análisis, diseño, implementación, pruebas y documentación.
+También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local. En cuanto a recursos humanos, el proyecto ha sido desarrollado por el autor, asumiendo tareas de análisis, diseno, implementación, pruebas y documentación.
 
 
 ---
@@ -319,14 +319,14 @@ Para el asistente inteligente, se plantea limitar las acciones críticas y valid
 
 ---
 
-# 8. Diseño
+# 8. Diseno
 
 ## a. Prototipado
 
 
-El diseño de Delvo se ha planteado buscando una experiencia clara, moderna y sencilla. La aplicación se organiza en secciones principales que responden a las necesidades del usuario: inicio, planificador, calendario, asistente y configuración.
+El diseno de Delvo se ha planteado buscando una experiencia clara, moderna y sencilla. La aplicación se organiza en secciones principales que responden a las necesidades del usuario: inicio, planificador, calendario, asistente y configuración.
 
-La interfaz web utiliza una estructura de navegación lateral y vistas específicas para cada módulo. La aplicación móvil adapta estas funcionalidades a una navegación más compacta y directa, pensada para consultar y gestionar información rápidamente desde el teléfono. El prototipado se ha realizado de forma progresiva, construyendo primero las pantallas esenciales y añadiendo después funcionalidades más avanzadas.
+La interfaz web utiliza una estructura de navegación lateral y vistas específicas para cada módulo. La aplicación móvil adapta estas funcionalidades a una navegación más compacta y directa, pensada para consultar y gestionar información rápidamente desde el teléfono. El prototipado se ha realizado de forma progresiva, construyendo primero las pantallas esenciales y anadiendo después funcionalidades más avanzadas.
 
 
 ## b. Especificaciones técnicas
@@ -424,7 +424,7 @@ También se debe comprobar que la conexión con Google Calendar funciona correct
 
 ## b. Registro de pruebas
 
-Delvo dispone de una suite de tests automatizados en `backend/tests/`, organizada en tests unitarios e de integración. Se ejecutan con `pytest` y no requieren una base de datos activa.
+Delvo dispone de una suite de tests automatizados en `backend/tests/`, organizada en tests unitarios y de integración. Se ejecutan con `pytest` y no requieren una base de datos activa.
 
 **Tests de integración:**
 
@@ -683,8 +683,8 @@ Para habilitar la integración con Google Calendar:
 1. Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com/).
 2. Habilita **Google Calendar API** y **People API**.
 3. Crea credenciales OAuth 2.0 de tipo **Aplicación web**.
-4. Añade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
-5. Si la app no está verificada, añade tu correo como **usuario de prueba** en OAuth Consent Screen.
+4. Anade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
+5. Si la app no está verificada, anade tu correo como **usuario de prueba** en OAuth Consent Screen.
 6. Copia el **Client ID** y **Client Secret** en el `.env`.
 
 ### Configurar funcionalidad de IA (Ollama)
@@ -743,7 +743,7 @@ Delvo permite centralizar en una única plataforma:
 - **Reuniones** — con fecha, hora, duración, ubicación y participantes.
 - **Eventos** — actividades puntuales sincronizables con Google Calendar.
 - **Notas** — apuntes rápidos con opción de archivar.
-- **Asistente inteligente** — chat con IA en español e inglés.
+- **Asistente inteligente** — chat con IA en espanol e inglés.
 
 La aplicación está disponible en versión **web** y **móvil**.
 
@@ -770,7 +770,7 @@ Gestión de sesión:
 Tras iniciar sesión:
 
 - En **web:** navegación lateral con acceso a todas las secciones.
-- En **móvil:** navegación inferior adaptada a pantalla pequeña.
+- En **móvil:** navegación inferior adaptada a pantalla pequena.
 
 Secciones disponibles: Inicio, Planificador, Calendario, Asistente y Configuración.
 
@@ -865,7 +865,7 @@ Para desconectar la cuenta, accede de nuevo a Configuración y selecciona la opc
 
 ### Asistente inteligente
 
-Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en español o en inglés.
+Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en espanol o en inglés.
 
 Ejemplos de uso:
 
@@ -891,7 +891,7 @@ Flujo de trabajo sugerido:
 
 1. Revisa el **Dashboard** y el **Calendario** al comenzar el día.
 2. Actualiza el estado de las tareas en curso.
-3. Añade nuevas reuniones y eventos según necesites.
+3. Anade nuevas reuniones y eventos según necesites.
 4. Usa el **Asistente** para acciones rápidas sin navegar por los menús.
 
 ---
@@ -914,7 +914,7 @@ A nivel académico, el proyecto refleja un desarrollo completo y realista, con u
 
 La viabilidad técnica del proyecto es positiva, ya que se apoya en tecnologías actuales, documentadas y ampliamente utilizadas. La separación entre backend, web, móvil y base de datos permite mantener el sistema de forma ordenada y ampliar cada parte de manera independiente.
 
-La viabilidad funcional también es alta, ya que la necesidad que resuelve Delvo es real: organizar tareas, eventos y recordatorios desde distintos dispositivos. Además, la integración con inteligencia artificial y Google Calendar aporta valor añadido frente a una aplicación básica de tareas.
+La viabilidad funcional también es alta, ya que la necesidad que resuelve Delvo es real: organizar tareas, eventos y recordatorios desde distintos dispositivos. Además, la integración con inteligencia artificial y Google Calendar aporta valor anadido frente a una aplicación básica de tareas.
 
 ## d. Mejoras futuras
 
@@ -963,7 +963,7 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 | RF-11 | Edición de eventos de Google Calendar desde Delvo | ✅ Implementado |
 | RF-12 | Asistente inteligente con detección de intención | ✅ Implementado |
 | RF-13 | RAG con base de conocimiento local | ✅ Implementado |
-| RF-14 | Soporte multilenguaje (español e inglés) en web | ✅ Implementado |
+| RF-14 | Soporte multilenguaje (espanol e inglés) en web | ✅ Implementado |
 | RF-15 | Aplicación web con dashboard y todas las secciones | ✅ Implementado |
 | RF-16 | Aplicación móvil con calendario, planificador y chat | ✅ Implementado |
 | RF-17 | Política de privacidad pública | ✅ Implementado |
@@ -978,11 +978,11 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 | Fecha | Hash | Descripción |
 |---|---|---|
-| Mayo 2026 | `926a94c` | Añadida suite completa de tests unitarios e integración; modelos SQLAlchemy ORM; gestión de conversaciones; mejoras en chat web y móvil |
+| Mayo 2026 | `926a94c` | Anadida suite completa de tests unitarios e integración; modelos SQLAlchemy ORM; gestión de conversaciones; mejoras en chat web y móvil |
 | Mayo 2026 | `33280b3` | Refactorización general para mejorar legibilidad y mantenibilidad |
 | Mayo 2026 | `d8160ca` | Mejoras en Google Calendar Service y actualización del sistema de prompts |
 | Mayo 2026 | `5b94066` | Implementación de vinculación de eventos con Google Calendar y deduplicación |
-| Mayo 2026 | `45576eb` | Añadida pantalla PlannerScreen en la app móvil |
+| Mayo 2026 | `45576eb` | Anadida pantalla PlannerScreen en la app móvil |
 | Mayo 2026 | `4bf1ce8` | Refactorización para mejorar legibilidad y mantenibilidad |
 | Mayo 2026 | `eff0b40` | Actualización del README |
 | Mayo 2026 | `fd49e81` | Limpieza de código no utilizado y mejora de integración API |

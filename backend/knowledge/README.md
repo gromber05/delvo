@@ -7,5 +7,5 @@ Ejemplo:
 - preguntas_frecuentes.md
 - notas_equipo.txt
 
-Endpoint para reconstruir indice:
+Endpoint para reconstruir índice:
 POST /api/v1/assistant/reindex

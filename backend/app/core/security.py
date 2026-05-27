@@ -1,4 +1,4 @@
-"""Utilidades de seguridad para contrasenas y tokens JWT."""
+"""Utilidades de seguridad para contraseñas y tokens JWT."""
 
 from __future__ import annotations
 
@@ -14,12 +14,12 @@ password_hash = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
-    """Calcula un hash seguro para almacenar una contrasena."""
+    """Calcula un hash seguro para almacenar una contraseña."""
     return password_hash.hash(password)
 
 
 def verify_password(password: str, password_hash_value: str) -> bool:
-    """Comprueba una contrasena en claro contra su hash almacenado."""
+    """Comprueba una contraseña en claro contra su hash almacenado."""
     return password_hash.verify(password, password_hash_value)
 
 

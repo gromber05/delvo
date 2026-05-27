@@ -110,7 +110,7 @@ Para habilitar la integración:
 2. Habilita Google Calendar API.
 3. Crea credenciales OAuth 2.0 de tipo aplicación web.
 4. Configura el callback con el mismo valor de `GOOGLE_CALLBACK_URL`.
-5. Si la app no está verificada, añade tu correo como usuario de prueba en OAuth Consent Screen.
+5. Si la app no está verificada, anade tu correo como usuario de prueba en OAuth Consent Screen.
 
 ## 9. Configurar funcionalidad de IA (Ollama)
 
@@ -155,7 +155,7 @@ Si quieres usar backend local en móvil, ajusta `BASE_URL` en el cliente API mó
 
 ## 11. Ejecutar los tests del backend
 
-El backend incluye una suite completa de tests unitarios e de integración. No es necesario tener PostgreSQL activo para ejecutarlos.
+El backend incluye una suite completa de tests unitarios y de integración. No es necesario tener PostgreSQL activo para ejecutarlos.
 
 Instala las dependencias de test:
 

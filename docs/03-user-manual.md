@@ -43,7 +43,7 @@ Gestión de sesión:
 Tras iniciar sesión, accedes al área principal:
 
 - En web: navegación lateral.
-- En móvil: navegación adaptada a pantalla pequeña.
+- En móvil: navegación adaptada a pantalla pequena.
 
 Desde ahí puedes consultar y editar toda tu información.
 
@@ -165,7 +165,7 @@ Ejemplos de uso:
 
 Características:
 
-- Soporte en español e inglés.
+- Soporte en espanol e inglés.
 - Posible uso de base de conocimiento local con RAG.
 - Las conversaciones se guardan en la base de datos y son accesibles desde web y móvil.
 
@@ -210,7 +210,7 @@ Flujo sugerido:
 
 1. Revisa dashboard y calendario al comenzar el día.
 2. Actualiza el estado de tareas.
-3. Añade reuniones y eventos nuevos.
+3. Anade reuniones y eventos nuevos.
 4. Usa el asistente para acciones rápidas.
 
 ## 16. Resumen

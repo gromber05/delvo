@@ -38,7 +38,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 class RegisterRequest(BaseModel):
-    """Datos necesarios para crear una cuenta con email y contrasena."""
+    """Datos necesarios para crear una cuenta con email y contraseña."""
 
     name: str | None = Field(default=None, max_length=120)
     email: str = Field(..., min_length=5, max_length=190)
@@ -46,7 +46,7 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    """Credenciales de acceso por email y contrasena."""
+    """Credenciales de acceso por email y contraseña."""
 
     email: str = Field(..., min_length=5, max_length=190)
     password: str = Field(..., min_length=1, max_length=128)
@@ -275,7 +275,7 @@ def change_password(
     payload: ChangePasswordRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
-    """Cambia la contrasena despues de validar la actual."""
+    """Cambia la contraseña despues de validar la actual."""
     current_hash = get_user_password_hash(user_id)
     if not current_hash:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
