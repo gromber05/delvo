@@ -1,3 +1,9 @@
+"""Punto de entrada HTTP del backend Delvo.
+
+Configura la app FastAPI, protege la documentacion OpenAPI con Basic Auth,
+inicializa la base de datos y mantiene renovados los watches de Google Calendar.
+"""
+
 from contextlib import asynccontextmanager
 import asyncio
 import logging
@@ -21,6 +27,7 @@ _RENEW_THRESHOLD_HOURS = 24
 
 
 def _renew_all_watches() -> None:
+    """Renueva los canales de Google Calendar que estan cerca de expirar."""
     from app.db.postgresql.user_repository import get_all_users_with_google, update_gcal_watch
     from app.services import google_calendar_service as gcal
 
@@ -56,6 +63,7 @@ def _renew_all_watches() -> None:
 
 
 async def _gcal_watch_renewal_loop() -> None:
+    """Ejecuta la renovacion periodica de watches mientras vive la app."""
     await asyncio.sleep(30)
     while True:
         try:
@@ -67,6 +75,7 @@ async def _gcal_watch_renewal_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Inicializa recursos al arrancar FastAPI y cancela tareas al cerrar."""
     import google.auth._helpers as _helpers
     _helpers.utcnow = lambda: datetime.now(timezone.utc)
     init_db()
@@ -95,6 +104,7 @@ DOCS_PASS = os.getenv("DOCS_PASS")
 
 
 def check_docs_auth(credentials: HTTPBasicCredentials = Depends(security)) -> None:
+    """Valida el Basic Auth requerido para acceder a Swagger y OpenAPI."""
     ok_user = secrets.compare_digest(credentials.username, DOCS_USER)
     ok_pass = secrets.compare_digest(credentials.password, DOCS_PASS)
     if not (ok_user and ok_pass):
@@ -107,6 +117,7 @@ def check_docs_auth(credentials: HTTPBasicCredentials = Depends(security)) -> No
 
 @app.get("/health")
 def health() -> dict[str, str]:
+    """Endpoint ligero para comprobar que el proceso HTTP responde."""
     return {"status": "ok"}
 
 
@@ -116,9 +127,11 @@ def health() -> dict[str, str]:
     dependencies=[Depends(check_docs_auth)],
 )
 def openapi_json() -> JSONResponse:
+    """Devuelve el esquema OpenAPI solo para usuarios autorizados."""
     return JSONResponse(app.openapi())
 
 
 @app.get("/docs", include_in_schema=False, dependencies=[Depends(check_docs_auth)])
 def docs():
+    """Sirve Swagger UI usando el endpoint OpenAPI protegido."""
     return get_swagger_ui_html(openapi_url="/openapi.json", title="API Docs")

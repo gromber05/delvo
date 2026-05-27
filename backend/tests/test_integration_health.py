@@ -1,6 +1,3 @@
-"""
-Tests de integración del endpoint /health y rutas básicas.
-"""
 from __future__ import annotations
 
 import pytest

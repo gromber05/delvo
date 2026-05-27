@@ -6,7 +6,6 @@ from app.api.v1.endpoints.assistant.chat_endpoint import _classify_sentiment
 
 
 class TestClassifySentimentPositive:
-
     def test_gracias_is_positive(self):
         assert _classify_sentiment("Gracias por tu ayuda") == "positive"
 
@@ -41,7 +40,6 @@ class TestClassifySentimentPositive:
 
 
 class TestClassifySentimentNegative:
-
     def test_error_is_negative(self):
         assert _classify_sentiment("Hay un error en la aplicación") == "negative"
 
@@ -72,7 +70,6 @@ class TestClassifySentimentNegative:
 
 
 class TestClassifySentimentNeutral:
-
     def test_empty_string_is_neutral(self):
         assert _classify_sentiment("") == "neutral"
 

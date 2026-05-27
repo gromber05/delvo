@@ -1,8 +1,3 @@
-"""
-Tests de integración del endpoint del asistente (/api/v1/assistant/chat).
-
-La llamada al modelo de IA se parchea para evitar dependencias externas.
-"""
 from __future__ import annotations
 
 from unittest.mock import patch, MagicMock

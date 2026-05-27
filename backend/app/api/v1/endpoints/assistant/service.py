@@ -1,3 +1,9 @@
+"""Orquestacion del asistente conversacional.
+
+Construye contexto operativo del usuario, llama al LLM, interpreta intents y
+aplica efectos persistentes sobre tareas, reuniones, eventos y notas.
+"""
+
 from __future__ import annotations
 
 import re
@@ -46,6 +52,7 @@ VALID_TASK_STATUSES = {"pending", "done"}
 VALID_MEETING_STATUSES = {"scheduled", "completed", "cancelled"}
 
 def build_tasks_context(user_id: int | None) -> str:
+    """Serializa tareas recientes para que el LLM pueda responder con contexto."""
     if user_id is None:
         return "Contexto de tareas del usuario: no autenticado."
 
@@ -69,6 +76,7 @@ def build_tasks_context(user_id: int | None) -> str:
 
 
 def build_notes_context(user_id: int | None) -> str:
+    """Serializa notas recientes del usuario para incluirlas en el prompt."""
     if user_id is None:
         return "Contexto de notas del usuario: no autenticado."
 
@@ -91,6 +99,7 @@ def build_notes_context(user_id: int | None) -> str:
 
 
 def build_meetings_context(user_id: int | None) -> str:
+    """Serializa reuniones del usuario con participantes normalizados."""
     if user_id is None:
         return "Contexto de reuniones del usuario: no autenticado."
 
@@ -118,6 +127,7 @@ def build_meetings_context(user_id: int | None) -> str:
 
 
 def build_events_context(user_id: int | None) -> str:
+    """Serializa eventos del usuario para alimentar el contexto conversacional."""
     if user_id is None:
         return "Contexto de eventos del usuario: no autenticado."
 
@@ -368,6 +378,7 @@ def _apply_intent_side_effects(
     *,
     user_id: int | None,
 ) -> Dict[str, Any]:
+    """Aplica cambios de base de datos derivados del intent devuelto por el LLM."""
     intent = str(result.get("intent", "query"))
     data = result.get("data", {})
     safe_data = data if isinstance(data, dict) else {}
@@ -916,6 +927,7 @@ def assistant_chat(
     payload: ChatRequest,
     user_id: int | None,
 ) -> ChatResponse:
+    """Resuelve una peticion de chat completa y devuelve una respuesta API estable."""
     try:
         now = datetime.now(ZoneInfo("Europe/Madrid"))
         tomorrow = now + timedelta(days=1)
@@ -971,5 +983,6 @@ def assistant_chat(
 
 
 def assistant_reindex() -> Dict[str, int]:
+    """Reconstruye el indice RAG expuesto por el endpoint de mantenimiento."""
     chunks = rag_service.rebuild_index()
     return {"chunks": chunks}

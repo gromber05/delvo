@@ -16,7 +16,6 @@ from app.core.security import (
 )
 
 class TestPasswordHashing:
-
     def test_hash_returns_string(self):
         h = hash_password("contraseña_segura123")
         assert isinstance(h, str)
@@ -64,7 +63,6 @@ class TestPasswordHashing:
 
 
 class TestAccessToken:
-
     def test_create_returns_string(self):
         token = create_access_token(subject="user@test.io", user_id=1)
         assert isinstance(token, str)
@@ -117,7 +115,6 @@ class TestAccessToken:
             decode_access_token(tampered)
 
 class TestRefreshToken:
-
     def test_create_returns_string(self):
         token = create_refresh_token(subject="user@test.io", user_id=1)
         assert isinstance(token, str)

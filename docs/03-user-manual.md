@@ -167,6 +167,17 @@ Características:
 
 - Soporte en español e inglés.
 - Posible uso de base de conocimiento local con RAG.
+- Las conversaciones se guardan en la base de datos y son accesibles desde web y móvil.
+
+## 12b. Historial de conversaciones
+
+Delvo guarda el historial completo de tus conversaciones con el asistente.
+
+- En la **app web**, puedes acceder a conversaciones anteriores desde la pantalla del asistente.
+- En la **app móvil**, el chat carga el historial de la conversación activa al abrirla.
+- Puedes eliminar conversaciones desde la interfaz.
+
+Esto permite continuar una conversación aunque cambies de dispositivo o cierres la sesión.
 
 ## 13. Uso en aplicación móvil
 

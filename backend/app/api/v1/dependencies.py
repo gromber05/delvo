@@ -1,3 +1,5 @@
+"""Dependencias FastAPI compartidas para autenticacion y permisos."""
+
 from __future__ import annotations
 
 import jwt
@@ -13,6 +15,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 def get_required_user_id(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> int:
+    """Extrae y valida el id de usuario desde un Bearer token obligatorio."""
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
 
@@ -34,6 +37,7 @@ def get_required_user_id(
 def require_admin(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict:
+    """Valida un Bearer token y exige que el usuario tenga rol admin."""
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
 

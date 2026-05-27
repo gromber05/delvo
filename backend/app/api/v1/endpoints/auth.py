@@ -1,3 +1,5 @@
+"""Endpoints de autenticacion, perfil y gestion de cuenta."""
+
 from __future__ import annotations
 
 import secrets
@@ -36,12 +38,16 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 class RegisterRequest(BaseModel):
+    """Datos necesarios para crear una cuenta con email y contrasena."""
+
     name: str | None = Field(default=None, max_length=120)
     email: str = Field(..., min_length=5, max_length=190)
     password: str = Field(..., min_length=8, max_length=128)
 
 
 class LoginRequest(BaseModel):
+    """Credenciales de acceso por email y contrasena."""
+
     email: str = Field(..., min_length=5, max_length=190)
     password: str = Field(..., min_length=1, max_length=128)
 
@@ -52,6 +58,8 @@ class UpdateProfileRequest(BaseModel):
 
 
 class AuthResponse(BaseModel):
+    """Tokens de sesion y usuario seguro devueltos tras autenticar."""
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
@@ -89,6 +97,7 @@ def _build_safe_user(user: dict[str, Any]) -> dict[str, Any]:
 def get_authenticated_user_id(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> int:
+    """Dependencia local que exige token Bearer y devuelve el uid validado."""
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Token de acceso requerido")
 
@@ -109,6 +118,7 @@ def get_authenticated_user_id(
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterRequest) -> AuthResponse:
+    """Registra un usuario nuevo y devuelve tokens de sesion iniciales."""
     email = _normalize_email(payload.email)
     name = (payload.name or "").strip()
 
@@ -129,6 +139,7 @@ def register(payload: RegisterRequest) -> AuthResponse:
 
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest) -> AuthResponse:
+    """Autentica credenciales y emite un par access/refresh token."""
     email = _normalize_email(payload.email)
     user = get_user_by_email(email)
 
@@ -152,6 +163,7 @@ class GoogleLoginRequest(BaseModel):
 
 @router.post("/google-login", response_model=AuthResponse)
 def google_login(payload: GoogleLoginRequest) -> AuthResponse:
+    """Autentica o crea usuario a partir de credenciales de Google."""
     google_email = payload.google_email.strip().lower()
 
     # 1. Buscar usuario por google_email o por email principal
@@ -185,6 +197,7 @@ def google_login(payload: GoogleLoginRequest) -> AuthResponse:
 
 @router.get("/me")
 def me(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    """Devuelve el perfil publico del usuario autenticado."""
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=401, detail="Token invalido")
@@ -222,6 +235,7 @@ def update_me(
     payload: UpdateProfileRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
+    """Actualiza nombre y foto del perfil autenticado."""
     next_name = payload.name.strip() if isinstance(payload.name, str) else None
     updated = update_user_profile(
         user_id=user_id,
@@ -238,6 +252,7 @@ def save_google_calendar_tokens(
     payload: SaveGoogleTokensRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
+    """Guarda tokens de Google Calendar asociados al usuario autenticado."""
     updated = update_google_tokens(
         user_id=user_id,
         google_access_token=payload.google_access_token,
@@ -260,6 +275,7 @@ def change_password(
     payload: ChangePasswordRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
+    """Cambia la contrasena despues de validar la actual."""
     current_hash = get_user_password_hash(user_id)
     if not current_hash:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -273,6 +289,7 @@ def change_password(
 
 @router.delete("/me")
 def delete_account(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    """Elimina la cuenta y sus datos asociados por cascada."""
     ok = delete_user(user_id=user_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -281,6 +298,7 @@ def delete_account(user_id: int = Depends(get_authenticated_user_id)) -> dict[st
 
 @router.delete("/me/google-calendar")
 def disconnect_google_calendar(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    """Desvincula credenciales y metadata de Google Calendar."""
     ok = disconnect_google(user_id=user_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -289,6 +307,7 @@ def disconnect_google_calendar(user_id: int = Depends(get_authenticated_user_id)
 
 @router.get("/me/export")
 def export_my_data(user_id: int = Depends(get_authenticated_user_id)) -> dict[str, Any]:
+    """Exporta datos personales principales en una respuesta JSON serializable."""
     import datetime
 
     from app.db.postgresql.event_repository import list_events
@@ -328,5 +347,6 @@ def register_push_token(
     payload: PushTokenRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
+    """Registra el token Expo usado para notificaciones push."""
     update_push_token(user_id=user_id, token=payload.token)
     return {"ok": True}

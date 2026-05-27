@@ -1,4 +1,5 @@
-﻿from __future__ import annotations
+
+from __future__ import annotations
 
 import math
 import os
@@ -11,12 +12,17 @@ from app.services.ai_service import ai_service
 
 @dataclass
 class Chunk:
+    """Fragmento indexado junto con su origen y embedding vectorial."""
+
     source: str
     text: str
     embedding: List[float]
 
 class RAGService:
+    """Servicio en memoria para construir y consultar el indice RAG."""
+
     def __init__(self) -> None:
+        """Carga parametros de chunking, ranking y directorio de conocimiento."""
         root = Path(__file__).resolve().parents[2]
         self.knowledge_dir = Path(os.getenv("RAG_KNOWLEDGE_DIR", str(root / "knowledge")))
         self.chunk_size = int(os.getenv("RAG_CHUNK_SIZE", "500"))
@@ -26,6 +32,7 @@ class RAGService:
         self.index: List[Chunk] = []
 
     def _chunk_text(self, text: str) -> List[str]:
+        """Divide texto limpio en ventanas solapadas para mejorar el recall."""
         clean = " ".join(text.split())
         if not clean:
             return []
@@ -41,6 +48,7 @@ class RAGService:
 
     @staticmethod
     def _cosine(a: List[float], b: List[float]) -> float:
+        """Calcula similitud coseno entre dos embeddings compatibles."""
         if not a or not b or len(a) != len(b):
             return 0.0
         dot = sum(x * y for x, y in zip(a, b))
@@ -51,6 +59,7 @@ class RAGService:
         return dot / (na * nb)
 
     def rebuild_index(self) -> int:
+        """Reconstruye el indice desde disco y devuelve el numero de chunks."""
         self.index = []
         if not self.knowledge_dir.exists():
             return 0
@@ -65,6 +74,7 @@ class RAGService:
         return len(self.index)
 
     def retrieve(self, query: str) -> List[Chunk]:
+        """Busca fragmentos relevantes para la consulta usando similitud coseno."""
         if not self.index:
             self.rebuild_index()
         if not self.index:

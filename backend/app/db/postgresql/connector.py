@@ -1,3 +1,9 @@
+"""Conector PostgreSQL de bajo nivel usado por los repositorios.
+
+Centraliza variables de entorno, reintentos de conexion y el contexto de cursor
+para que cada repositorio mantenga transacciones simples y consistentes.
+"""
+
 from __future__ import annotations
 
 import os
@@ -10,6 +16,7 @@ from psycopg.rows import dict_row
 
 
 def _env(name: str, *, legacy: str | None = None, default: str) -> str:
+    """Lee una variable de entorno con soporte para nombres legacy."""
     if legacy:
         return os.getenv(name, os.getenv(legacy, default))
     return os.getenv(name, default)
@@ -17,7 +24,7 @@ def _env(name: str, *, legacy: str | None = None, default: str) -> str:
 
 def _db_config() -> dict[str, str | int | bool]:
     """
-    Función para obtener la configuración de las conexiones de la abse de datos.
+    Construye la configuracion de conexion PostgreSQL desde el entorno.
     """
     return {
         "host": _env("POSTGRES_HOST", legacy="MARIADB_HOST", default="postgres"),
@@ -30,6 +37,7 @@ def _db_config() -> dict[str, str | int | bool]:
 
 
 def _should_try_localhost_fallback(error: OperationalError) -> bool:
+    """Detecta fallos DNS en Docker que permiten probar localhost como fallback."""
     message = str(error).lower()
     return any(
         token in message
@@ -44,6 +52,7 @@ def _should_try_localhost_fallback(error: OperationalError) -> bool:
 
 
 def get_connection() -> Connection:
+    """Abre una conexion PostgreSQL con reintentos y fallback local opcional."""
     config = _db_config()
     max_attempts = int(_env("POSTGRES_CONNECT_RETRIES", default="12"))
     retry_delay_seconds = float(_env("POSTGRES_CONNECT_RETRY_DELAY", default="1.0"))
@@ -74,6 +83,7 @@ def get_db_cursor(
     *,
     dictionary: bool = False,
 ) -> Generator[tuple[Connection, object], None, None]:
+    """Entrega un cursor y cierra cursor/conexion al salir del contexto."""
     connection = get_connection()
     if dictionary:
         cursor = connection.cursor(row_factory=dict_row)

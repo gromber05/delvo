@@ -1,9 +1,3 @@
-"""
-Tests de integración de los endpoints del planificador (/api/v1/planner/*).
-
-Cubre: Tasks, Events, Meetings y Notes.
-Los repositorios psycopg3 se parchean completamente → no se necesita BD.
-"""
 from __future__ import annotations
 
 from unittest.mock import patch
@@ -71,12 +65,7 @@ def _mock_note(note_id: int = 1, user_id: int = 1) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Tasks
-# ---------------------------------------------------------------------------
-
 class TestTasks:
-
     def test_list_tasks_requires_auth(self, client):
         resp = client.get(f"{BASE}/tasks")
         assert resp.status_code == 401
@@ -160,13 +149,7 @@ class TestTasks:
             resp = client.delete(f"{BASE}/tasks/999", headers=_headers())
         assert resp.status_code == 404
 
-
-# ---------------------------------------------------------------------------
-# Events
-# ---------------------------------------------------------------------------
-
 class TestEvents:
-
     def test_list_events_requires_auth(self, client):
         resp = client.get(f"{BASE}/events")
         assert resp.status_code == 401
@@ -218,13 +201,7 @@ class TestEvents:
         assert resp.status_code == 200
         assert resp.json()["ok"] is True
 
-
-# ---------------------------------------------------------------------------
-# Meetings
-# ---------------------------------------------------------------------------
-
 class TestMeetings:
-
     def test_list_meetings_requires_auth(self, client):
         resp = client.get(f"{BASE}/meetings")
         assert resp.status_code == 401
@@ -271,13 +248,7 @@ class TestMeetings:
             resp = client.delete(f"{BASE}/meetings/999", headers=_headers())
         assert resp.status_code == 404
 
-
-# ---------------------------------------------------------------------------
-# Notes
-# ---------------------------------------------------------------------------
-
 class TestNotes:
-
     def test_list_notes_requires_auth(self, client):
         resp = client.get(f"{BASE}/notes")
         assert resp.status_code == 401

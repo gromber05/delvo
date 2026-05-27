@@ -1,3 +1,5 @@
+"""Utilidades de seguridad para contrasenas y tokens JWT."""
+
 from __future__ import annotations
 
 import os
@@ -12,14 +14,17 @@ password_hash = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
+    """Calcula un hash seguro para almacenar una contrasena."""
     return password_hash.hash(password)
 
 
 def verify_password(password: str, password_hash_value: str) -> bool:
+    """Comprueba una contrasena en claro contra su hash almacenado."""
     return password_hash.verify(password, password_hash_value)
 
 
 def create_access_token(*, subject: str, user_id: int, expires_minutes: int | None = None) -> str:
+    """Emite un JWT de acceso corto con subject y uid del usuario."""
     secret = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
     algorithm = os.getenv("JWT_ALGORITHM", "HS256")
     expiry_minutes = expires_minutes or int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
@@ -35,6 +40,7 @@ def create_access_token(*, subject: str, user_id: int, expires_minutes: int | No
 
 
 def decode_access_token(token: str) -> dict[str, Any]:
+    """Decodifica y valida un JWT de acceso; propaga errores de PyJWT."""
     secret = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
     algorithm = os.getenv("JWT_ALGORITHM", "HS256")
     payload = jwt.decode(token, secret, algorithms=[algorithm])

@@ -59,13 +59,7 @@ class TestChatResponse:
         )
         assert resp.conversation_id == 5
 
-
-# ---------------------------------------------------------------------------
-# Auth schemas (RegisterRequest, LoginRequest)
-# ---------------------------------------------------------------------------
-
 class TestRegisterRequest:
-
     def test_valid_register(self):
         from app.api.v1.endpoints.auth import RegisterRequest
         req = RegisterRequest(email="nuevo@test.io", password="password123")
@@ -98,7 +92,6 @@ class TestRegisterRequest:
 
 
 class TestLoginRequest:
-
     def test_valid_login(self):
         from app.api.v1.endpoints.auth import LoginRequest
         req = LoginRequest(email="user@test.io", password="clave")
@@ -109,13 +102,7 @@ class TestLoginRequest:
         with pytest.raises(ValidationError):
             LoginRequest(email="user@test.io", password="")
 
-
-# ---------------------------------------------------------------------------
-# Planner schemas (TaskCreateRequest)
-# ---------------------------------------------------------------------------
-
 class TestTaskCreateRequest:
-
     def test_valid_minimal_task(self):
         from app.api.v1.endpoints.planner import TaskCreateRequest
         req = TaskCreateRequest(title="Estudiar Python")

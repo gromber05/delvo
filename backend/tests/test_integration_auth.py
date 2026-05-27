@@ -1,8 +1,3 @@
-"""
-Tests de integración de los endpoints de autenticación (/api/v1/auth/*).
-
-Los repositorios psycopg3 se parchean completamente → no se necesita BD.
-"""
 from __future__ import annotations
 
 from unittest.mock import patch

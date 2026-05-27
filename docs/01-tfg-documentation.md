@@ -377,11 +377,14 @@ App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 |---|---|
 | `api/v1/endpoints/auth.py` | Registro, login, refresh, perfil |
 | `api/v1/endpoints/planner.py` | CRUD tareas, reuniones, eventos, notas |
-| `api/v1/endpoints/assistant.py` | Chat IA + reindexado RAG |
+| `api/v1/endpoints/assistant/` | Chat IA + reindexado RAG |
+| `api/v1/endpoints/admin.py` | Panel de administración (usuarios, conversaciones, stats) |
 | `api/v1/endpoints/google_calendar.py` | OAuth connect, sync, CRUD eventos Google |
 | `services/assistant_service.py` | LLM chat + recuperación RAG |
 | `services/google_calendar_service.py` | Cliente Google API + lógica de sincronización |
-| `db/postgresql/` | Pool de conexiones + repositorios CRUD |
+| `db/models.py` | Modelos SQLAlchemy ORM (User, Task, Event, Meeting, Note, Conversation, Message) |
+| `db/postgresql/` | Pool de conexiones + repositorios CRUD (psycopg raw) |
+| `tests/` | Suite de tests unitarios e integración (pytest) |
 
 
 ---
@@ -390,10 +393,11 @@ App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 
 ## a. Procedimientos necesarios para hacer funcionar el proyecto
 
-
 Para ejecutar Delvo es necesario clonar el repositorio, configurar el archivo `.env` con las variables necesarias y levantar los servicios mediante Docker Compose. El comando principal de ejecución es `docker compose up --build`, que construye y arranca la base de datos PostgreSQL, el backend y la aplicación web.
 
 Una vez iniciado el entorno, la aplicación web queda disponible en `http://localhost:31667` y el backend en `http://localhost:30667`. Se puede comprobar el estado del backend accediendo al endpoint `/health`. Para la aplicación móvil, es necesario entrar en la carpeta `mobile`, instalar dependencias y ejecutar Expo mediante `pnpm start` o `npx expo start`.
+
+El entorno de producción se ejecuta sobre un **servidor local con Ubuntu/Debian** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 11.
 
 ## b. Procedimientos necesarios para el control de versiones
 
@@ -420,9 +424,27 @@ También se debe comprobar que la conexión con Google Calendar funciona correct
 
 ## b. Registro de pruebas
 
-Las pruebas realizadas han sido principalmente funcionales. Se ha comprobado el registro de usuarios, inicio de sesión, renovación de sesión y consulta del perfil. También se han probado las operaciones de creación, lectura, actualización y eliminación de tareas, reuniones, eventos y notas.
+Delvo dispone de una suite de tests automatizados en `backend/tests/`, organizada en tests unitarios e de integración. Se ejecutan con `pytest` y no requieren una base de datos activa.
 
-Además, se ha verificado el flujo de conexión con Google Calendar, la sincronización de eventos y la edición de eventos desde Delvo. En el asistente inteligente se han probado mensajes orientados a consultar información y ejecutar acciones del planificador.
+**Tests de integración:**
+
+| Archivo | Cobertura |
+|---|---|
+| `test_integration_health.py` | Endpoint `/health` y rutas básicas |
+| `test_integration_auth.py` | Registro, login, refresco de token y perfil |
+| `test_integration_chat.py` | Endpoint de chat del asistente |
+| `test_integration_planner.py` | CRUD completo de tareas, reuniones, eventos y notas |
+
+**Tests unitarios:**
+
+| Archivo | Cobertura |
+|---|---|
+| `test_unit_models.py` | Propiedades de los modelos SQLAlchemy ORM |
+| `test_unit_schemas.py` | Validación de esquemas Pydantic |
+| `test_unit_security.py` | Hash de contraseñas y generación/verificación de JWT |
+| `test_unit_sentiment.py` | Clasificación de sentimiento de mensajes |
+
+Las pruebas funcionales manuales anteriores también se han realizado: registro de usuarios, inicio de sesión, flujo Google Calendar y pruebas del asistente.
 
 ## c. Indicadores de calidad
 
@@ -442,15 +464,121 @@ En la parte visual se ha comprobado el funcionamiento de las principales pantall
 
 ## a. Tecnología de distribución
 
-La distribución del proyecto se basa en Docker y Docker Compose. Esta elección permite empaquetar los servicios principales y ejecutarlos de forma coordinada, reduciendo problemas de configuración entre entornos.
+La distribución del proyecto se basa en **Docker y Docker Compose** para la orquestación de servicios, y en **Cloudflare Tunnel** para exponer la aplicación a internet de forma segura desde una red privada local. Esta combinación permite publicar Delvo con un dominio propio sin necesidad de abrir puertos en el router ni contratar un servidor en la nube.
 
-El backend, la base de datos y la aplicación web se ejecutan como servicios independientes. Esta organización facilita el despliegue local y prepara el proyecto para un despliegue más avanzado en un servidor o infraestructura externa.
+Los servicios que componen el sistema en producción son:
 
-## b. Descripción del proceso
+| Servicio | Tecnología | Función |
+|---|---|---|
+| Base de datos | PostgreSQL 16 (Docker) | Almacenamiento persistente |
+| Backend | FastAPI + Uvicorn (Docker) | API REST y lógica de negocio |
+| Aplicación web | Next.js (Docker) | Interfaz de usuario web |
+| Asistente IA | Ollama (proceso del host) | Inferencia de modelos LLM de forma local |
+| Exposición pública | Cloudflare Tunnel (Docker) | Túnel seguro entre la red privada y Cloudflare |
 
-El proceso de distribución comienza con la configuración del archivo `.env`, donde se definen las credenciales y variables necesarias. Después se ejecuta Docker Compose para construir las imágenes y levantar los contenedores.
+## b. Infraestructura del servidor local
 
-Una vez activos los servicios, se comprueba el estado del backend y se accede a la aplicación web. En un despliegue público, los servicios pueden exponerse mediante un túnel seguro o un proxy inverso, manteniendo separados los puertos internos y externos.
+El servidor de producción es una máquina con **Ubuntu/Debian** conectada a una red privada doméstica. No tiene dirección IP pública fija ni puertos abiertos en el router.
+
+Sobre este servidor conviven:
+
+- **Docker Engine** con los contenedores de PostgreSQL, backend y web definidos en `docker-compose.yml`.
+- **Ollama** instalado directamente en el sistema operativo del host, escuchando en `localhost:11434`. Los contenedores Docker acceden a él mediante el alias especial `host.docker.internal`, que está configurado en el `docker-compose.yml` con `extra_hosts: host.docker.internal:host-gateway`.
+- **cloudflared** ejecutándose como contenedor Docker independiente del compose principal, gestionando el túnel hacia Cloudflare.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Máquina local Ubuntu/Debian (red privada, sin IP pública fija)         │
+│                                                                         │
+│  ┌────────────────────────────────────────────┐                         │
+│  │  Docker Compose                             │                         │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐ │                         │
+│  │  │ postgres │  │ backend  │  │   web    │ │                         │
+│  │  │  :5432   │  │  :8000   │  │  :3000   │ │                         │
+│  │  └──────────┘  └──────────┘  └──────────┘ │                         │
+│  └────────────────────────────────────────────┘                         │
+│                                                                         │
+│  ┌──────────────────────┐   ┌──────────────────────────────────────┐   │
+│  │  Ollama (host)        │   │  cloudflared (contenedor Docker)      │   │
+│  │  localhost:11434      │   │  túnel → Cloudflare edge              │   │
+│  └──────────────────────┘   └──────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+## c. Cloudflare Tunnel: cómo funciona
+
+Cloudflare Tunnel (`cloudflared`) establece una conexión saliente cifrada desde el servidor local hacia la red de Cloudflare. Esto significa que:
+
+- No hace falta abrir ningún puerto en el router.
+- No se necesita IP pública fija.
+- El tráfico entre el cliente (navegador o app móvil) y Cloudflare viaja cifrado con TLS gestionado por Cloudflare.
+- El tráfico entre Cloudflare y el servidor local viaja cifrado a través del túnel.
+
+El flujo de una petición desde internet es el siguiente:
+
+```
+Cliente (navegador / app móvil)
+        │ HTTPS
+        ▼
+Cloudflare Edge (CDN + certificado TLS)
+        │ Túnel cifrado (QUIC/HTTP2)
+        ▼
+cloudflared (contenedor Docker en el servidor local)
+        │ HTTP interno
+        ▼
+Backend (localhost:30667) o Web (localhost:31667)
+```
+
+## d. Configuración del túnel y el dominio
+
+El túnel se crea y configura desde el panel de **Cloudflare Zero Trust** (anteriormente Cloudflare for Teams). Los pasos generales son:
+
+1. Crear un tunnel en la sección **Networks → Tunnels**.
+2. Copiar el token del tunnel que proporciona Cloudflare.
+3. Lanzar el contenedor `cloudflared` con ese token:
+
+```bash
+docker run -d --name cloudflared \
+  --restart unless-stopped \
+  --network host \
+  cloudflare/cloudflared:latest \
+  tunnel --no-autoupdate run \
+  --token <TOKEN_DEL_TUNNEL>
+```
+
+4. En el panel de Cloudflare Zero Trust, configurar las **rutas públicas** del tunnel para asociar subdominio → servicio local:
+
+| Subdominio | Servicio local |
+|---|---|
+| `apidelvo.gromber05.dev` | `http://localhost:30667` |
+| `delvo.gromber05.dev` | `http://localhost:31667` |
+
+5. Los registros DNS de `gromber05.dev` apuntan automáticamente a Cloudflare (el dominio está gestionado por Cloudflare DNS), por lo que no es necesario configurar nada adicional en el registrador del dominio.
+
+## e. Descripción del proceso de despliegue completo
+
+El proceso completo para desplegar Delvo desde cero en el servidor es el siguiente:
+
+1. Clonar el repositorio en el servidor.
+2. Crear el archivo `.env` con las variables de entorno.
+3. Levantar los servicios con Docker Compose:
+   ```bash
+   docker compose up --build -d
+   ```
+4. Verificar que el backend responde:
+   ```bash
+   curl http://localhost:30667/health
+   ```
+5. Asegurarse de que Ollama está ejecutándose en el host y los modelos están descargados:
+   ```bash
+   ollama pull llama3.2
+   ollama pull nomic-embed-text
+   ```
+6. Lanzar el contenedor `cloudflared` con el token del túnel (ver apartado d).
+7. Comprobar que el tunnel aparece como **Healthy** en el panel de Cloudflare Zero Trust.
+8. Acceder a la aplicación desde internet mediante el dominio configurado.
+
+Una vez en marcha, todos los servicios tienen la política `restart: unless-stopped`, por lo que se reanudan automáticamente si el servidor se reinicia.
 
 ---
 
@@ -811,6 +939,8 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 | Lenguaje frontend | TypeScript | 5.x | Tipado estático |
 | Autenticación | JWT + OAuth 2.0 | — | Tokens de acceso y refresco |
 | IA / LLM | Ollama (local) | latest | Modelos de lenguaje locales |
+| ORM | SQLAlchemy | 2.x | Modelos de base de datos para tests y admin |
+| Tests | pytest + httpx | 8.x | Suite de tests unitarios e integración |
 | RAG | Embeddings propios | — | Base de conocimiento local |
 | Despliegue | Docker Compose | v2 | Orquestación de contenedores |
 | Exposición pública | Cloudflare Tunnel | latest | Acceso externo sin puertos abiertos |
@@ -837,14 +967,19 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 | RF-15 | Aplicación web con dashboard y todas las secciones | ✅ Implementado |
 | RF-16 | Aplicación móvil con calendario, planificador y chat | ✅ Implementado |
 | RF-17 | Política de privacidad pública | ✅ Implementado |
-| RF-18 | Notificaciones push | ❌ Pendiente |
-| RF-19 | Eventos recurrentes | ❌ Pendiente |
-| RF-20 | Espacios colaborativos | ❌ Pendiente |
+| RF-18 | Persistencia de conversaciones con el asistente | ✅ Implementado |
+| RF-19 | Panel de administración con gestión de usuarios y conversaciones | ✅ Implementado |
+| RF-20 | Suite de tests automatizados (unitarios e integración) | ✅ Implementado |
+| RF-21 | Notificaciones push | ❌ Pendiente |
+| RF-22 | Eventos recurrentes | ❌ Pendiente |
+| RF-23 | Espacios colaborativos | ❌ Pendiente |
 
 ## Anexo C — Historial de commits relevantes
 
 | Fecha | Hash | Descripción |
 |---|---|---|
+| Mayo 2026 | `926a94c` | Añadida suite completa de tests unitarios e integración; modelos SQLAlchemy ORM; gestión de conversaciones; mejoras en chat web y móvil |
+| Mayo 2026 | `33280b3` | Refactorización general para mejorar legibilidad y mantenibilidad |
 | Mayo 2026 | `d8160ca` | Mejoras en Google Calendar Service y actualización del sistema de prompts |
 | Mayo 2026 | `5b94066` | Implementación de vinculación de eventos con Google Calendar y deduplicación |
 | Mayo 2026 | `45576eb` | Añadida pantalla PlannerScreen en la app móvil |
@@ -900,6 +1035,12 @@ GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
 | `GET/POST` | `/api/v1/planner/notes` | Listar / crear notas |
 | `POST` | `/api/v1/assistant/chat` | Chat con asistente IA |
 | `POST` | `/api/v1/assistant/reindex` | Reindexar base de conocimiento |
+| `GET` | `/api/v1/conversations/` | Listar conversaciones del usuario |
+| `GET` | `/api/v1/conversations/{id}` | Detalle de conversación con mensajes |
+| `DELETE` | `/api/v1/conversations/{id}` | Eliminar conversación |
+| `GET` | `/api/v1/admin/stats` | Estadísticas globales (admin) |
+| `GET` | `/api/v1/admin/users` | Listar usuarios (admin) |
+| `PUT` | `/api/v1/admin/users/{id}/role` | Actualizar rol de usuario (admin) |
 | `GET` | `/api/v1/google-calendar/connect` | Obtener URL OAuth |
 | `POST` | `/api/v1/google-calendar/sync` | Sincronizar eventos |
 | `PATCH` | `/api/v1/google-calendar/events/{id}` | Editar evento Google |

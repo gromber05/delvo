@@ -1,4 +1,10 @@
-﻿from __future__ import annotations
+"""API CRUD del planificador personal.
+
+Expone tareas, reuniones, eventos y notas con autenticacion por usuario.
+Los eventos intentan sincronizarse con Google Calendar cuando hay tokens.
+"""
+
+from __future__ import annotations
 
 from typing import Any, Dict, List
 
@@ -47,6 +53,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 def get_authenticated_user_id(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> int:
+    """Valida el Bearer token y devuelve el id de usuario autenticado."""
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Token de acceso requerido")
 
@@ -66,6 +73,8 @@ def get_authenticated_user_id(
 
 
 class TaskCreateRequest(BaseModel):
+    """Payload para crear tareas del planificador."""
+
     title: str = Field(..., min_length=1, max_length=190)
     description: str | None = None
     due_date: str | None = None
@@ -79,6 +88,8 @@ class TaskUpdateRequest(TaskCreateRequest):
 
 
 class MeetingCreateRequest(BaseModel):
+    """Payload para reuniones, incluyendo asistentes opcionales."""
+
     title: str = Field(..., min_length=1, max_length=190)
     description: str | None = None
     meeting_date: str
@@ -94,6 +105,8 @@ class MeetingUpdateRequest(MeetingCreateRequest):
 
 
 class EventCreateRequest(BaseModel):
+    """Payload para eventos locales y sincronizables con Google Calendar."""
+
     title: str = Field(..., min_length=1, max_length=190)
     description: str | None = None
     event_date: str
@@ -107,6 +120,8 @@ class EventUpdateRequest(EventCreateRequest):
 
 
 class NoteCreateRequest(BaseModel):
+    """Payload para notas rapidas del usuario."""
+
     title: str = Field(..., min_length=1, max_length=190)
     content: str | None = None
     status: str = Field(default="active", pattern="^(active|archived)$")

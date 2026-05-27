@@ -1,3 +1,5 @@
+"""Modelos ORM SQLAlchemy que describen el dominio principal de Delvo."""
+
 from __future__ import annotations
 
 import os
@@ -41,6 +43,7 @@ _engine = None
 
 
 def get_engine():
+    """Devuelve un engine SQLAlchemy singleton con pre-ping habilitado."""
     global _engine
     if _engine is None:
         _engine = create_engine(get_database_url(), pool_pre_ping=True)
@@ -84,9 +87,13 @@ def _to_dict(obj) -> dict[str, Any]:
 
 
 class Base(DeclarativeBase):
+    """Base declarativa comun para todos los modelos ORM."""
+
     pass
 
 class User(Base):
+    """Usuario de la app y raiz de propiedad de datos personales."""
+
     __tablename__ = "users"
 
     id:                   Mapped[int]           = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -124,6 +131,8 @@ class User(Base):
 
 
 class Task(Base):
+    """Tarea personal con prioridad, estado y vencimiento opcional."""
+
     __tablename__ = "tasks"
 
     id:          Mapped[int]                     = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -166,6 +175,8 @@ class Task(Base):
 
 
 class Event(Base):
+    """Evento calendarizable, opcionalmente sincronizado con Google Calendar."""
+
     __tablename__ = "events"
 
     id:            Mapped[int]                  = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -191,6 +202,8 @@ class Event(Base):
 
 
 class Meeting(Base):
+    """Reunion del usuario con fecha, hora, duracion y participantes."""
+
     __tablename__ = "meetings"
 
     id:               Mapped[int]                  = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -232,6 +245,8 @@ class Meeting(Base):
 
 
 class MeetingParticipant(Base):
+    """Participante unico dentro de una reunion."""
+
     __tablename__ = "meeting_participants"
     __table_args__ = (UniqueConstraint("meeting_id", "participant_email", name="uq_meeting_participant_email"),)
 
@@ -283,6 +298,8 @@ class Note(Base):
 
 
 class Conversation(Base):
+    """Hilo de conversacion entre usuario y asistente."""
+
     __tablename__ = "conversations"
 
     id:         Mapped[int]      = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -311,6 +328,8 @@ class Conversation(Base):
 
 
 class Message(Base):
+    """Mensaje individual dentro de una conversacion."""
+
     __tablename__ = "messages"
 
     id:              Mapped[int]           = mapped_column(Integer, primary_key=True, autoincrement=True)

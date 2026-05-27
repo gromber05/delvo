@@ -64,7 +64,14 @@ Full CRUD for four entity types:
 - Intent detection: the LLM identifies what the user wants (create task, list meetings, search knowledge, etc.) and returns structured JSON.
 - Action execution: detected intents are fulfilled by calling the same planner CRUD functions that the UI uses.
 - RAG: assistant answers are grounded in a knowledge base of local Markdown/text files (`backend/knowledge/`). The knowledge base can be reindexed at any time.
-- Conversation history: multi-turn context is passed per request.
+- Conversation history: conversations are persisted per user; the full history is stored in the database and available across devices.
+- Sentiment analysis: incoming messages are classified by sentiment before being processed.
+
+### Admin Panel
+- Role-based access control: users can have an `admin` role with access to privileged endpoints.
+- Stats endpoint: global usage metrics (users, conversations, messages).
+- User management: list all users and update their roles.
+- Conversation access: admins can inspect any user's conversations and messages.
 
 ### Web App
 - Dashboard showing today's tasks, upcoming meetings, and recent notes.
@@ -133,21 +140,35 @@ delvo/
 │   │   ├── core/
 │   │   │   └── security.py              # JWT encode/decode
 │   │   ├── db/
+│   │   │   ├── models.py                # SQLAlchemy ORM models (User, Task, Event, Meeting, Note, Conversation, Message)
 │   │   │   └── postgresql/
 │   │   │       ├── connector.py         # Connection pool + cursor helper
-│   │   │       ├── planner_repository.py# Table migrations (run on startup)
+│   │   │       ├── init_db.py           # Table migrations (run on startup)
 │   │   │       ├── task_repository.py
 │   │   │       ├── event_repository.py
 │   │   │       ├── meeting_repository.py
 │   │   │       ├── notes_repository.py
+│   │   │       ├── conversation_repository.py
 │   │   │       └── user_repository.py
 │   │   └── services/
 │   │       ├── assistant_service.py     # LLM chat + RAG retrieval
 │   │       └── google_calendar_service.py# Google API client + sync logic
 │   ├── knowledge/                       # RAG source files (.md, .txt)
+│   ├── tests/                           # Test suite
+│   │   ├── conftest.py                  # Shared fixtures + helpers
+│   │   ├── test_integration_auth.py     # Auth endpoint integration tests
+│   │   ├── test_integration_chat.py     # Chat endpoint integration tests
+│   │   ├── test_integration_health.py   # Health endpoint integration tests
+│   │   ├── test_integration_planner.py  # Planner CRUD integration tests
+│   │   ├── test_unit_models.py          # SQLAlchemy model unit tests
+│   │   ├── test_unit_schemas.py         # Pydantic schema unit tests
+│   │   ├── test_unit_security.py        # JWT / password hashing unit tests
+│   │   └── test_unit_sentiment.py       # Sentiment classification unit tests
 │   ├── prompt_system.txt                # System prompt in Spanish
 │   ├── prompt_system_en.txt             # System prompt in English
 │   ├── requirements.txt
+│   ├── requirements-test.txt            # Test dependencies (pytest, httpx, pytest-mock)
+│   ├── pytest.ini                       # Pytest configuration
 │   ├── Dockerfile
 │   └── main.py                          # FastAPI app + lifespan startup
 ├── web/
@@ -162,6 +183,9 @@ delvo/
 │   │   │       ├── assistant/          # Chat UI
 │   │   │       ├── settings/           # Google Calendar connect
 │   │   │       └── calendar/
+│   │   ├── api/
+│   │   │   ├── assistant/chat/         # Chat proxy route
+│   │   │   └── conversations/          # Conversation list + detail proxy routes
 │   │   ├── oauth-done/                 # Post-OAuth landing (mobile flow)
 │   │   └── privacy-policy/             # Public privacy policy
 │   ├── components/
@@ -460,6 +484,33 @@ All endpoints except auth require `Authorization: Bearer <access_token>`.
 
 ---
 
+### Conversations — `/api/v1/conversations`
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/` | List all conversations for the current user |
+| `GET` | `/{id}` | Get a specific conversation with its messages |
+| `DELETE` | `/{id}` | Delete a conversation |
+
+---
+
+### Admin — `/api/v1/admin` *(requires admin role)*
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/stats` | Global stats (users, conversations, messages) |
+| `GET` | `/users` | List all users |
+| `PUT` | `/users/{id}/role` | Update a user's role |
+| `GET` | `/conversations` | List all conversations (admin view) |
+| `GET` | `/conversations/{id}/messages` | List messages in a conversation |
+
+**Update role request:**
+```json
+{ "role": "admin" }
+```
+
+---
+
 ### Google Calendar — `/api/v1/google-calendar`
 
 | Method | Path | Description |
@@ -542,6 +593,45 @@ The assistant will use the knowledge base to ground its answers on the next chat
 
 ---
 
+## Testing
+
+The backend ships with a full test suite using **pytest**. Tests do not require a live database — the database initialisation step is patched out automatically by the shared `conftest.py` fixture.
+
+### Install test dependencies
+
+```bash
+cd backend
+pip install -r requirements-test.txt
+```
+
+### Run the tests
+
+```bash
+cd backend
+pytest
+```
+
+Output is verbose by default (`-v --tb=short` is set in `pytest.ini`).
+
+### Test structure
+
+| File | Type | Coverage |
+|---|---|---|
+| `test_integration_health.py` | Integration | `GET /health` endpoint and basic routes |
+| `test_integration_auth.py` | Integration | Register, login, refresh, `/me` |
+| `test_integration_chat.py` | Integration | AI assistant chat endpoint |
+| `test_integration_planner.py` | Integration | Tasks, events, meetings, notes CRUD |
+| `test_unit_models.py` | Unit | SQLAlchemy ORM model properties |
+| `test_unit_schemas.py` | Unit | Pydantic request/response schemas |
+| `test_unit_security.py` | Unit | Password hashing + JWT creation/verification |
+| `test_unit_sentiment.py` | Unit | Sentiment classification logic |
+
+### Environment variables for tests
+
+Sensitive variables are injected automatically by `conftest.py` / `pytest.ini` using safe test defaults — no `.env` file is needed to run the test suite.
+
+---
+
 ## Deployment
 
 The production deployment uses **Cloudflare Tunnel** (`cloudflared`) to expose the backend and web app without opening inbound ports.
@@ -574,8 +664,13 @@ See `docker-compose.yml` for the full service configuration.
 Delvo is in active development. The following are fully operational:
 
 - [x] Backend: auth, full planner CRUD, AI assistant, Google Calendar bidirectional sync
+- [x] Backend: conversation persistence (stored per user in DB, accessible across devices)
+- [x] Backend: admin panel (stats, user management, conversation access)
+- [x] Backend: SQLAlchemy ORM models alongside raw psycopg repositories
+- [x] Backend: full test suite (unit + integration, no live DB required)
 - [x] Web: dashboard, planner screens, chat, settings, bilingual routing
-- [x] Mobile: calendar view (Delvo + Google), chat, settings, Google Calendar editing
+- [x] Web: conversation list + detail proxy API routes
+- [x] Mobile: calendar view (Delvo + Google), chat with conversation history, settings, Google Calendar editing
 - [x] Google OAuth + token auto-refresh on both web and mobile
 - [x] RAG knowledge base with reindex support
 - [ ] Push notifications

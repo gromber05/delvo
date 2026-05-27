@@ -1,9 +1,3 @@
-"""
-Tests unitarios de las propiedades calculadas de los modelos SQLAlchemy ORM.
-
-Nota: estos tests son puramente en memoria y no requieren base de datos.
-Solo instancian objetos del modelo y verifican la lógica de las properties.
-"""
 from __future__ import annotations
 
 from datetime import date
@@ -13,7 +7,6 @@ import pytest
 from app.db.models import Conversation, Event, Meeting, Message, Note, Task, User
 
 class TestUserModel:
-
     def _user(self, **kwargs) -> User:
         defaults = dict(id=1, email="user@test.io", role="user")
         defaults.update(kwargs)
@@ -41,7 +34,6 @@ class TestUserModel:
 
 
 class TestTaskModel:
-
     def _task(self, **kwargs) -> Task:
         defaults = dict(
             id=1, user_id=1, title="Tarea de prueba",
@@ -103,7 +95,6 @@ class TestTaskModel:
         assert t.priority_level == 2
 
 class TestEventModel:
-
     def _event(self, **kwargs) -> Event:
         defaults = dict(
             id=1, user_id=1, title="Reunión kick-off",

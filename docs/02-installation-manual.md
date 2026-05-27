@@ -153,7 +153,26 @@ Después:
 
 Si quieres usar backend local en móvil, ajusta `BASE_URL` en el cliente API móvil.
 
-## 11. Solución de problemas comunes
+## 11. Ejecutar los tests del backend
+
+El backend incluye una suite completa de tests unitarios e de integración. No es necesario tener PostgreSQL activo para ejecutarlos.
+
+Instala las dependencias de test:
+
+```bash
+cd backend
+pip install -r requirements-test.txt
+```
+
+Ejecuta los tests:
+
+```bash
+pytest
+```
+
+La configuración por defecto está en `pytest.ini`. Los tests se ejecutan con salida detallada (`-v --tb=short`) y las variables de entorno necesarias se inyectan automáticamente, sin necesidad de un archivo `.env`.
+
+## 12. Solución de problemas comunes
 
 Si algo falla, comprueba:
 
@@ -168,7 +187,7 @@ docker compose down
 docker compose up --build
 ```
 
-## 12. Resumen
+## 13. Resumen
 
 La instalación de Delvo consiste en:
 
@@ -177,3 +196,4 @@ La instalación de Delvo consiste en:
 3. Verificar backend con `/health`.
 4. Abrir la web en navegador.
 5. Ejecutar la app móvil con Expo (opcional).
+6. Opcionalmente, ejecutar `pytest` en `backend/` para verificar que los tests pasan.
