@@ -18,10 +18,13 @@ import {
   IconMapPin,
   IconBuildingCommunity,
 } from '@tabler/icons-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, EventDto, MeetingDto, NoteDto, TaskDto } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
 import { StellaFAB } from '../components/StellaFAB';
+import { scheduleEventReminders } from '../notifications/NotificationService';
+import { loadNotificationSettings } from '../notifications/NotificationSettings';
 
 interface Summary {
   tasks: number;
@@ -119,6 +122,7 @@ const CAL_WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 export function HomeScreen() {
   const { user } = useAuth();
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const now = new Date();
 
@@ -158,6 +162,11 @@ export function HomeScreen() {
       });
       setPendingTasks(tasks.items.filter((t) => t.status === 'pending'));
       setAgenda(buildAgenda(meetings.items, dedupedEvents));
+      loadNotificationSettings().then(s => {
+        if (s.taskReminders) {
+          scheduleEventReminders(dedupedEvents, tasks.items).catch(() => {});
+        }
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al cargar los datos.');
     } finally {
@@ -204,7 +213,7 @@ export function HomeScreen() {
     <View style={{ flex: 1, backgroundColor: c.background }}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
       >
         <View style={styles.greetingSection}>
@@ -361,7 +370,7 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 20, paddingTop: 56, gap: 12 },
+  content: { padding: 20, gap: 12 },
 
   greetingSection: { marginBottom: 4 },
   greetingText: { fontSize: 28, fontWeight: '800', lineHeight: 34 },

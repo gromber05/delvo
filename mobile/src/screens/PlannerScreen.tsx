@@ -23,8 +23,11 @@ import {
   IconList,
   IconSortAscending,
 } from '@tabler/icons-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, EventDto, MeetingDto, NoteDto, TaskDto } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
+import { scheduleEventReminders } from '../notifications/NotificationService';
+import { loadNotificationSettings } from '../notifications/NotificationSettings';
 
 type TaskFilter = 'all' | 'pending' | 'done';
 type EditTarget =
@@ -71,6 +74,7 @@ function formatDate(dateStr: string): string {
 
 export function PlannerScreen() {
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [sortTasksByDueDate, setSortTasksByDueDate] = useState(false);
@@ -107,6 +111,11 @@ export function PlannerScreen() {
       setMeetings(mt.items);
       setEvents(ev.items);
       setNotes((nt as { items: NoteDto[] }).items);
+      loadNotificationSettings().then(s => {
+        if (s.taskReminders) {
+          scheduleEventReminders(ev.items, tk.items).catch(() => {});
+        }
+      });
     } catch {
     } finally {
       setLoading(false);
@@ -310,7 +319,7 @@ export function PlannerScreen() {
       ) : (
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={c.primary} />}
         >
           <Text style={[styles.calMonthTitle, { color: c.onSurface }]}>Calendario</Text>
@@ -594,7 +603,7 @@ function EmptyCard({ label, c }: { label: string; c: ReturnType<typeof useColors
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 16, paddingTop: 56, gap: 16 },
+  content: { paddingHorizontal: 16, gap: 16 },
   sectionTitle: { fontSize: 18, fontWeight: '800', marginTop: 20 },
 
   filterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

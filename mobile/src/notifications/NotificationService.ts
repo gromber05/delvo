@@ -14,8 +14,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const isExpoGo = Constants.executionEnvironment === 'storeClient';
-
 export async function requestPermissionsAndRegisterToken(): Promise<string | null> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('reminders', {
@@ -33,16 +31,17 @@ export async function requestPermissionsAndRegisterToken(): Promise<string | nul
     finalStatus = status;
   }
   if (finalStatus !== 'granted') return null;
-  if (isExpoGo) return null;
 
   try {
-    const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: 'df10e9a8-a6fd-427b-9d1b-39e56a0c7cb6',
-    });
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
+    const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
     const token = tokenData.data;
+    console.log('[Push] Token obtenido:', token);
     await api.registerPushToken(token);
+    console.log('[Push] Token registrado en backend');
     return token;
-  } catch {
+  } catch (e) {
+    console.error('[Push] Error al obtener/registrar token:', e);
     return null;
   }
 }

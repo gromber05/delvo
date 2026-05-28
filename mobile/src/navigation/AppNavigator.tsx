@@ -1,6 +1,7 @@
-import React from 'react';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
+import { DarkTheme, DefaultTheme, NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as Notifications from 'expo-notifications';
 import {
   IconHome,
   IconClipboardList,
@@ -33,6 +34,23 @@ export function AppNavigator() {
   const { token, loading, user } = useAuth();
   const { isDark, colors: c } = useTheme();
   const isAdmin = user?.role === 'admin';
+  const navigationRef = useRef<NavigationContainerRef<Record<string, undefined>>>(null);
+
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data as { type?: string };
+      const nav = navigationRef.current;
+      if (!nav) return;
+      if (data?.type === 'stella') {
+        nav.navigate('Stella');
+      } else if (data?.type === 'task' || data?.type === 'meeting') {
+        nav.navigate('Tasks');
+      } else if (data?.type === 'event') {
+        nav.navigate('Home');
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   if (loading) return null;
 
@@ -51,14 +69,14 @@ export function AppNavigator() {
 
   if (!token) {
     return (
-      <NavigationContainer theme={navTheme}>
+      <NavigationContainer ref={navigationRef} theme={navTheme}>
         <LoginScreen />
       </NavigationContainer>
     );
   }
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,

@@ -13,6 +13,7 @@ import {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as WebBrowser from 'expo-web-browser';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../auth/AuthContext';
 import { useColors, useTheme, ThemeMode } from '../theme/ThemeContext';
 import { api } from '../api/client';
@@ -22,12 +23,18 @@ import {
   loadNotificationSettings,
   saveNotificationSettings,
 } from '../notifications/NotificationSettings';
+import {
+  requestPermissionsAndRegisterToken,
+  scheduleEventReminders,
+} from '../notifications/NotificationService';
+import * as Notifications from 'expo-notifications';
 import { SettingsStackParamList } from '../navigation/SettingsNavigator';
 
 export function SettingsScreen() {
   const { user, logout } = useAuth();
   const { isDark, mode, setMode } = useTheme();
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
 
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
@@ -58,9 +65,29 @@ export function SettingsScreen() {
     value: boolean,
   ) {
     switch (key) {
-      case 'pushNotifs': setPushNotifs(value); break;
-      case 'taskReminders': setTaskReminders(value); break;
-      case 'stellaAlerts': setStellaAlerts(value); break;
+      case 'pushNotifs':
+        setPushNotifs(value);
+        if (value) {
+          requestPermissionsAndRegisterToken().catch((e) => console.error('[Push] settings error:', e));
+        } else {
+          await Notifications.cancelAllScheduledNotificationsAsync();
+          api.registerPushToken('').catch(() => {});
+        }
+        break;
+      case 'taskReminders':
+        setTaskReminders(value);
+        if (value) {
+          try {
+            const [tk, ev] = await Promise.all([api.listTasks(), api.listEvents()]);
+            scheduleEventReminders(ev.items, tk.items).catch(() => {});
+          } catch {}
+        } else {
+          await Notifications.cancelAllScheduledNotificationsAsync();
+        }
+        break;
+      case 'stellaAlerts':
+        setStellaAlerts(value);
+        break;
     }
     await saveNotificationSettings({ [key]: value });
   }
@@ -191,7 +218,7 @@ export function SettingsScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: c.background }}
-      contentContainerStyle={[styles.content, { paddingTop: 56 }]}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
     >
       <View style={[styles.profileHero, { backgroundColor: c.surface }]}>
         <View style={[styles.avatar, { backgroundColor: c.primaryMuted }]}>

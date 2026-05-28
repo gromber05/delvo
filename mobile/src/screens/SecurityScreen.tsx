@@ -12,12 +12,14 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../theme/ThemeContext';
 import { api } from '../api/client';
 import { IconArrowLeft, IconCheck, IconEye, IconEyeOff, IconLock } from '@tabler/icons-react-native';
 
 export function SecurityScreen() {
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -59,14 +61,10 @@ export function SecurityScreen() {
       style={{ flex: 1, backgroundColor: c.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={[styles.content, { paddingTop: 56 }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <IconArrowLeft size={22} color={c.onSurface} />
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: c.onSurface }]}>Seguridad y contraseña</Text>
-          <View style={{ width: 36 }} />
-        </View>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <IconArrowLeft size={22} color={c.onSurface} />
+        </TouchableOpacity>
 
         <View style={[styles.iconBox, { backgroundColor: c.surface }]}>
           <View style={[styles.iconCircle, { backgroundColor: c.primaryMuted }]}>
@@ -184,14 +182,7 @@ function PasswordField({
 const styles = StyleSheet.create({
   content: { padding: 16, gap: 16, paddingBottom: 40 },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  backBtn: { padding: 6 },
-  title: { fontSize: 18, fontWeight: '700' },
+  backBtn: { padding: 6, alignSelf: 'flex-start' },
 
   iconBox: {
     borderRadius: 20,

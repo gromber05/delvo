@@ -1,4 +1,6 @@
-﻿# Delvo
+# 1. Portada
+
+**Delvo — Aplicación multiplataforma de productividad y organización**
 
 **Gonzalo Romero Bernal**
 2º DAM - IES Rafael Alberti
@@ -6,98 +8,98 @@
 
 ---
 
-# Índice
+# 2. Índice del documento
 
-1. [Introducción](#1-introducción)
+3. [Introducción](#3-introducción)
 
    * [a. Justificación del proyecto: cómo se originó la idea](#a-justificación-del-proyecto-cómo-se-originó-la-idea)
    * [b. Análisis comparativo de aplicaciones similares](#b-análisis-comparativo-de-aplicaciones-similares)
    * [c. Tendencias](#c-tendencias)
    * [d. Beneficios o expectativas que esperas del proyecto](#d-beneficios-o-expectativas-que-esperas-del-proyecto)
 
-2. [Descripción del proyecto](#2-descripción-del-proyecto)
+4. [Descripción del proyecto](#4-descripción-del-proyecto)
 
    * [a. Tipo de proyecto](#a-tipo-de-proyecto)
    * [b. Características principales](#b-características-principales)
    * [c. Usuarios destinatarios](#c-usuarios-destinatarios)
 
-3. [Objetivos del proyecto](#3-objetivos-del-proyecto)
+5. [Objetivos del proyecto](#5-objetivos-del-proyecto)
 
    * [a. Objetivo general](#a-objetivo-general)
-   * [b. Objetivo específico](#b-objetivo-específico)
+   * [b. Objetivos específicos](#b-objetivos-específicos)
 
-4. [Alcance del proyecto](#4-alcance-del-proyecto)
+6. [Alcance del proyecto](#6-alcance-del-proyecto)
 
    * [a. Límites](#a-límites)
    * [b. Restricciones](#b-restricciones)
 
-5. [Requisitos del proyecto](#5-requisitos-del-proyecto)
+7. [Requisitos del proyecto](#7-requisitos-del-proyecto)
 
    * [a. Requisitos funcionales](#a-requisitos-funcionales)
    * [b. Requisitos técnicos](#b-requisitos-técnicos)
    * [c. Requisitos legales o normativos](#c-requisitos-legales-o-normativos)
 
-6. [Planificación del proyecto](#6-planificación-del-proyecto)
+8. [Planificación del proyecto](#8-planificación-del-proyecto)
 
    * [a. Estructura de tareas](#a-estructura-de-tareas)
    * [b. Cronograma (Gantt)](#b-cronograma-gantt)
    * [c. Recursos necesarios](#c-recursos-necesarios)
 
-7. [Plan de gestión de riesgos](#7-plan-de-gestión-de-riesgos)
+9. [Plan de gestión de riesgos](#9-plan-de-gestión-de-riesgos)
 
    * [a. Riesgos encontrados](#a-riesgos-encontrados)
    * [b. Recursos preventivos](#b-recursos-preventivos)
    * [c. Plan para mitigar dichos riesgos](#c-plan-para-mitigar-dichos-riesgos)
 
-8. [Diseno](#8-diseno)
+10. [Diseño](#10-diseño)
 
-   * [a. Prototipado](#a-prototipado)
-   * [b. Especificaciones técnicas](#b-especificaciones-técnicas)
-   * [c. Diagramas](#c-diagramas)
+    * [a. Prototipado](#a-prototipado)
+    * [b. Especificaciones técnicas](#b-especificaciones-técnicas)
+    * [c. Diagramas](#c-diagramas)
 
-9. [Instalación y preparación](#9-instalación-y-preparación)
+11. [Instalación y preparación](#11-instalación-y-preparación)
 
-   * [a. Procedimientos necesarios para hacer funcionar el proyecto](#a-procedimientos-necesarios-para-hacer-funcionar-el-proyecto)
-   * [b. Procedimientos necesarios para el control de versiones](#b-procedimientos-necesarios-para-el-control-de-versiones)
-   * [c. Procedimientos para registrar las incidencias](#c-procedimientos-para-registrar-las-incidencias)
+    * [a. Procedimientos necesarios para hacer funcionar el proyecto](#a-procedimientos-necesarios-para-hacer-funcionar-el-proyecto)
+    * [b. Procedimientos necesarios para el control de versiones](#b-procedimientos-necesarios-para-el-control-de-versiones)
+    * [c. Procedimientos para registrar las incidencias](#c-procedimientos-para-registrar-las-incidencias)
 
-10. [Documentación de ejecución y plan de calidad](#10-documentación-de-ejecución-y-plan-de-calidad)
+12. [Documentación de ejecución y plan de calidad](#12-documentación-de-ejecución-y-plan-de-calidad)
 
-* [a. Procedimientos operativos](#a-procedimientos-operativos)
-* [b. Registro de pruebas](#b-registro-de-pruebas)
-* [c. Indicadores de calidad](#c-indicadores-de-calidad)
-* [d. Métodos de verificación](#d-métodos-de-verificación)
+    * [a. Procedimientos operativos](#a-procedimientos-operativos)
+    * [b. Registro de pruebas](#b-registro-de-pruebas)
+    * [c. Indicadores de calidad](#c-indicadores-de-calidad)
+    * [d. Métodos de verificación](#d-métodos-de-verificación)
 
-11. [Distribución](#11-distribución)
+13. [Distribución](#13-distribución)
 
-* [a. Tecnología de distribución](#a-tecnología-de-distribución)
-* [b. Descripción del proceso](#b-descripción-del-proceso)
+    * [a. Tecnología de distribución](#a-tecnología-de-distribución)
+    * [b. Descripción del proceso](#b-descripción-del-proceso)
 
-12. [Manuales](#12-manuales)
+14. [Manuales](#14-manuales)
 
-* [a. Manual de instalación](#a-manual-de-instalación)
-* [b. Manual de uso de la aplicación](#b-manual-de-uso-de-la-aplicación)
+    * [a. Manual de instalación](#a-manual-de-instalación)
+    * [b. Manual de uso de la aplicación](#b-manual-de-uso-de-la-aplicación)
 
-13. [Conclusiones](#13-conclusiones)
+15. [Conclusiones](#15-conclusiones)
 
-* [a. Informe final](#a-informe-final)
-* [b. Resultados esperados](#b-resultados-esperados)
-* [c. Viabilidad del proyecto](#c-viabilidad-del-proyecto)
-* [d. Mejoras futuras](#d-mejoras-futuras)
+    * [a. Informe final](#a-informe-final)
+    * [b. Resultados esperados](#b-resultados-esperados)
+    * [c. Viabilidad del proyecto](#c-viabilidad-del-proyecto)
+    * [d. Mejoras futuras](#d-mejoras-futuras)
 
-14. [Anexos](#14-anexos)
+16. [Anexos](#16-anexos)
 
-15. [Índice de tablas e imágenes](#15-índice-de-tablas-e-imágenes)
+17. [Índice de tablas e imágenes](#17-índice-de-tablas-e-imágenes)
 
-16. [Bibliografía y referencias](#16-bibliografía-y-referencias)
+18. [Bibliografía y referencias](#18-bibliografía-y-referencias)
 
 ---
 
-# 1. Introducción
+# 3. Introducción
 
 ## a. Justificación del proyecto: cómo se originó la idea
 
-Delvo se originó de mi necesidad urgente de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas, poco personalizables o no estaban adaptadas a las necesidades reales de estudiantes y pequenos equipos de trabajo.
+Delvo se originó de mi necesidad urgente de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas, poco personalizables o no estaban adaptadas a las necesidades reales de estudiantes y pequeños equipos de trabajo.
 
 A partir de esta problemática surgió la idea de crear una plataforma propia que combinara productividad, organización y asistencia inteligente en una misma solución. El objetivo principal de Delvo es facilitar la gestión diaria mediante una interfaz clara, accesible y moderna, permitiendo centralizar información importante y mejorar la eficiencia del usuario.
 
@@ -121,7 +123,7 @@ Todoist se centra en la productividad personal y la gestión rápida de tareas m
 
 ### Diferenciación de Delvo
 
-Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que tanto usuarios individuales como pequenos equipos puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
+Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que tanto usuarios individuales como pequeños equipos puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
 
 ## c. Tendencias
 
@@ -153,11 +155,11 @@ En conjunto, Delvo representa no solo una solución tecnológica para la organiz
 
 ---
 
-# 2. Descripción del proyecto
+# 4. Descripción del proyecto
 
 ## a. Tipo de proyecto
 
-Delvo es una aplicación multiplataforma de productividad y organización desarrollada como un proyecto de desarrollo de software moderno. Este proyecto está orientado a la gestión de tareas, proyectos, recordatorios y organización personal o de pequenos equipos de trabajo, integrando funcionalidades web y móviles dentro de una misma plataforma.
+Delvo es una aplicación multiplataforma de productividad y organización desarrollada como un proyecto de desarrollo de software moderno. Este proyecto está orientado a la gestión de tareas, proyectos, recordatorios y organización personal o de pequeños equipos de trabajo, integrando funcionalidades web y móviles dentro de una misma plataforma.
 
 Se trata de una solución basada en arquitectura cliente-servidor, formada por:
 
@@ -181,29 +183,29 @@ Delvo incorpora diferentes funcionalidades orientadas a mejorar la productividad
 * Posibilidad de integración con inteligencia artificial para automatización y asistencia inteligente.
 * Interfaz moderna y personalizable enfocada en la facilidad del uso.
 * Centralización de información importante en una única plataforma.
-* Compatibilidad con trabajo individual y colaboración en pequenos equipos.
+* Compatibilidad con trabajo individual y colaboración en pequeños equipos.
 
 ## c. Usuarios destinatarios
 
 Delvo, desde un principio, estaba orientado a una aplicación de uso personal, pero ha sido desarrollada para un ámbito lectivo, en específico, para aquellos estudiantes que necesitan organizar tareas, proyectos académicos y recordatorios.
 
-También para aquellos usuarios individuales que solo buscan una herramienta sencilla para mejorar su productividad diaria o, tan solo, para pequenos equipos que requieren una plataforma accesible para gestionar proyectos y tareas colaborativas.
+También para aquellos usuarios individuales que solo buscan una herramienta sencilla para mejorar su productividad diaria o, tan solo, para pequeños equipos que requieren una plataforma accesible para gestionar proyectos y tareas colaborativas.
 
 Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable, evitando la complejidad excesiva presente en otras herramientas del mercado y facilitando el acceso a funciones de organización desde distintos dispositivos.
 
 ---
 
-# 3. Objetivos del proyecto
+# 5. Objetivos del proyecto
 
 ## a. Objetivo general
 
-Realizar el desarrollo de una aplicación multiplataforma de organización y productividad llamada Delvo, orientada a estudiantes, usuarios individuales y pequenos equipos, que permita centralizar la gestión de tareas, reuniones, eventos y recordatorios en un único entorno, con una experiencia de uso sencilla, moderna y accesible desde web y móvil.
+Realizar el desarrollo de una aplicación multiplataforma de organización y productividad llamada Delvo, orientada a estudiantes, usuarios individuales y pequeños equipos, que permita centralizar la gestión de tareas, reuniones, eventos y recordatorios en un único entorno, con una experiencia de uso sencilla, moderna y accesible desde web y móvil.
 
-## b. Objetivo específico
+## b. Objetivos específicos
 
 Para alcanzar el objetivo general, se definen los siguientes objetivos específicos:
 
-* Disenar e implementar una arquitectura cliente-servidor escalable, separando frontend web, app móvil, backend y base de datos.
+* Diseñar e implementar una arquitectura cliente-servidor escalable, separando frontend web, app móvil, backend y base de datos.
 * Desarrollar un sistema de autenticación y gestión de usuarios seguro para proteger el acceso a la información personal.
 * Implementar funcionalidades de gestión de tareas (crear, editar, listar y actualizar estado y prioridad).
 * Implementar funcionalidades de gestión de reuniones y eventos con fecha, hora, duración, ubicación y participantes.
@@ -217,7 +219,7 @@ Estos objetivos permiten que Delvo no sea solo una demostración académica, sin
 
 ---
 
-# 4. Alcance del proyecto
+# 6. Alcance del proyecto
 
 ## a. Límites
 
@@ -237,7 +239,7 @@ Por último, el proyecto depende de una configuración del entorno específica, 
 
 ---
 
-# 5. Requisitos del proyecto
+# 7. Requisitos del proyecto
 
 ## a. Requisitos funcionales
 
@@ -261,7 +263,7 @@ Para la inteligencia artificial se utiliza Ollama, lo que permite ejecutar model
 
 ## c. Requisitos legales o normativos
 
-Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa espanola de protección de datos.
+Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa española de protección de datos.
 
 La aplicación debe almacenar únicamente la información necesaria para su funcionamiento y proteger las credenciales mediante técnicas de seguridad adecuadas, como el hash de contraseñas y el uso de tokens de acceso. Además, las credenciales sensibles, como claves JWT o credenciales de Google, deben mantenerse fuera del código fuente y gestionarse mediante variables de entorno.
 
@@ -269,20 +271,20 @@ La integración con Google Calendar debe respetar las condiciones de uso de las 
 
 ---
 
-# 6. Planificación del proyecto
+# 8. Planificación del proyecto
 
 ## a. Estructura de tareas
 
-El desarrollo de Delvo se ha organizado en varias fases. En primer lugar, se realizó el análisis de la idea y la definición del problema que se quería resolver. A partir de ahí, se disenó la arquitectura general del sistema, separando claramente backend, aplicación web, aplicación móvil y base de datos.
+El desarrollo de Delvo se ha organizado en varias fases. En primer lugar, se realizó el análisis de la idea y la definición del problema que se quería resolver. A partir de ahí, se diseñó la arquitectura general del sistema, separando claramente backend, aplicación web, aplicación móvil y base de datos.
 
 Después se implementó el backend, comenzando por la autenticación de usuarios y continuando con los módulos de tareas, reuniones, eventos y notas. Una vez disponible la API principal, se desarrolló la aplicación web con sus pantallas de acceso, panel principal, calendario, planificador, configuración y asistente.
 
 Posteriormente se trabajó en la aplicación móvil, adaptando las funcionalidades principales a una interfaz pensada para dispositivos móviles. En las últimas fases se incorporaron las integraciones más avanzadas, como el asistente inteligente, la base de conocimiento RAG y la sincronización con Google Calendar. Finalmente, se realizaron pruebas funcionales, ajustes de errores, refactorización y documentación.
 
 
-## b. Cronograma
+## b. Cronograma (Gantt)
 
-La planificación del proyecto se distribuyó principalmente entre los meses de marzo, abril y mayo de 2026. Durante marzo se trabajó en el análisis inicial, la definición de objetivos, el diseno de la arquitectura y las primeras decisiones tecnológicas. En abril se avanzó en la implementación del backend, la base de datos y los primeros módulos funcionales.
+La planificación del proyecto se distribuyó principalmente entre los meses de marzo, abril y mayo de 2026. Durante marzo se trabajó en el análisis inicial, la definición de objetivos, el diseño de la arquitectura y las primeras decisiones tecnológicas. En abril se avanzó en la implementación del backend, la base de datos y los primeros módulos funcionales.
 
 Durante mayo se concentró la integración final del sistema, incluyendo la aplicación web, la aplicación móvil, Google Calendar, el asistente inteligente y la documentación del proyecto. En el historial del repositorio se observan hitos relevantes el 20 de mayo de 2026, con la incorporación de documentación, calendario y páginas de configuración, y el 21 de mayo de 2026, con refactorizaciones, mejoras de legibilidad, integración OAuth y política de privacidad.
 
@@ -291,12 +293,12 @@ Durante mayo se concentró la integración final del sistema, incluyendo la apli
 
 Para desarrollar Delvo se ha utilizado un equipo de desarrollo capaz de ejecutar contenedores Docker y herramientas modernas de desarrollo web y móvil. A nivel de software, han sido necesarios Git, Docker, Docker Compose, Python, Node.js, pnpm, Expo y un editor de código.
 
-También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local. En cuanto a recursos humanos, el proyecto ha sido desarrollado por el autor, asumiendo tareas de análisis, diseno, implementación, pruebas y documentación.
+También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local. En cuanto a recursos humanos, el proyecto ha sido desarrollado por el autor, asumiendo tareas de análisis, diseño, implementación, pruebas y documentación.
 
 
 ---
 
-# 7. Plan de gestión de riesgos
+# 9. Plan de gestión de riesgos
 
 ## a. Riesgos encontrados
 
@@ -319,14 +321,18 @@ Para el asistente inteligente, se plantea limitar las acciones críticas y valid
 
 ---
 
-# 8. Diseno
+# 10. Diseño
 
 ## a. Prototipado
 
 
-El diseno de Delvo se ha planteado buscando una experiencia clara, moderna y sencilla. La aplicación se organiza en secciones principales que responden a las necesidades del usuario: inicio, planificador, calendario, asistente y configuración.
+El diseño de Delvo se ha planteado buscando una experiencia clara, moderna y sencilla. La aplicación se organiza en secciones principales que responden a las necesidades del usuario: inicio, planificador, calendario, asistente y configuración.
 
-La interfaz web utiliza una estructura de navegación lateral y vistas específicas para cada módulo. La aplicación móvil adapta estas funcionalidades a una navegación más compacta y directa, pensada para consultar y gestionar información rápidamente desde el teléfono. El prototipado se ha realizado de forma progresiva, construyendo primero las pantallas esenciales y anadiendo después funcionalidades más avanzadas.
+La interfaz web utiliza una estructura de navegación lateral y vistas específicas para cada módulo. La aplicación móvil adapta estas funcionalidades a una navegación más compacta y directa, pensada para consultar y gestionar información rápidamente desde el teléfono. 
+
+- [Web](https://www.figma.com/proto/PRgSEpb6KTPkEAn6vv6qzu/Sin-t%C3%ADtulo?node-id=0-1&t=hL02xrtf67XXKFfl-1)
+
+- [Móvil](https://www.figma.com/proto/seVlXDmSqDxsApD86fO3YZ/Delvo---Web?node-id=0-1&t=hL02xrtf67XXKFfl-1)
 
 
 ## b. Especificaciones técnicas
@@ -389,7 +395,7 @@ App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 
 ---
 
-# 9. Instalación y preparación
+# 11. Instalación y preparación
 
 ## a. Procedimientos necesarios para hacer funcionar el proyecto
 
@@ -397,7 +403,7 @@ Para ejecutar Delvo es necesario clonar el repositorio, configurar el archivo `.
 
 Una vez iniciado el entorno, la aplicación web queda disponible en `http://localhost:31667` y el backend en `http://localhost:30667`. Se puede comprobar el estado del backend accediendo al endpoint `/health`. Para la aplicación móvil, es necesario entrar en la carpeta `mobile`, instalar dependencias y ejecutar Expo mediante `pnpm start` o `npx expo start`.
 
-El entorno de producción se ejecuta sobre un **servidor local con Ubuntu/Debian** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 11.
+El entorno de producción se ejecuta sobre un **servidor local con Ubuntu/Debian** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 13.
 
 ## b. Procedimientos necesarios para el control de versiones
 
@@ -414,7 +420,7 @@ En Delvo, las incidencias más relevantes se pueden clasificar por áreas: auten
 
 ---
 
-# 10. Documentación de ejecución y plan de calidad
+# 12. Documentación de ejecución y plan de calidad
 
 ## a. Procedimientos operativos
 
@@ -460,7 +466,7 @@ En la parte visual se ha comprobado el funcionamiento de las principales pantall
 
 ---
 
-# 11. Distribución
+# 13. Distribución
 
 ## a. Tecnología de distribución
 
@@ -476,7 +482,9 @@ Los servicios que componen el sistema en producción son:
 | Asistente IA | Ollama (proceso del host) | Inferencia de modelos LLM de forma local |
 | Exposición pública | Cloudflare Tunnel (Docker) | Túnel seguro entre la red privada y Cloudflare |
 
-## b. Infraestructura del servidor local
+## b. Descripción del proceso
+
+### Infraestructura del servidor local
 
 El servidor de producción es una máquina con **Ubuntu/Debian** conectada a una red privada doméstica. No tiene dirección IP pública fija ni puertos abiertos en el router.
 
@@ -488,24 +496,24 @@ Sobre este servidor conviven:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  Máquina local Ubuntu/Debian (red privada, sin IP pública fija)         │
+│  Máquina local Ubuntu                                                   │
 │                                                                         │
 │  ┌────────────────────────────────────────────┐                         │
-│  │  Docker Compose                             │                         │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐ │                         │
-│  │  │ postgres │  │ backend  │  │   web    │ │                         │
-│  │  │  :5432   │  │  :8000   │  │  :3000   │ │                         │
-│  │  └──────────┘  └──────────┘  └──────────┘ │                         │
+│  │  Docker Compose                            │                         │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  │                         │
+│  │  │ postgres │  │ backend  │  │   web    │  │                         │
+│  │  │  :5432   │  │  :8000   │  │  :3000   │  │                         │
+│  │  └──────────┘  └──────────┘  └──────────┘  │                         │
 │  └────────────────────────────────────────────┘                         │
 │                                                                         │
-│  ┌──────────────────────┐   ┌──────────────────────────────────────┐   │
-│  │  Ollama (host)        │   │  cloudflared (contenedor Docker)      │   │
-│  │  localhost:11434      │   │  túnel → Cloudflare edge              │   │
-│  └──────────────────────┘   └──────────────────────────────────────┘   │
+│  ┌──────────────────────┐   ┌──────────────────────────────────────┐    │
+│  │  Ollama (host)       │   │  cloudflared (contenedor Docker)     │    │
+│  │  localhost:11434     │   │  túnel → Cloudflare                  │    │
+│  └──────────────────────┘   └──────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## c. Cloudflare Tunnel: cómo funciona
+### Cloudflare Tunnel: cómo funciona
 
 Cloudflare Tunnel (`cloudflared`) establece una conexión saliente cifrada desde el servidor local hacia la red de Cloudflare. Esto significa que:
 
@@ -521,15 +529,15 @@ Cliente (navegador / app móvil)
         │ HTTPS
         ▼
 Cloudflare Edge (CDN + certificado TLS)
-        │ Túnel cifrado (QUIC/HTTP2)
+        │ Túnel cifrado
         ▼
 cloudflared (contenedor Docker en el servidor local)
-        │ HTTP interno
+        │ HTTP
         ▼
 Backend (localhost:30667) o Web (localhost:31667)
 ```
 
-## d. Configuración del túnel y el dominio
+### Configuración del túnel y el dominio
 
 El túnel se crea y configura desde el panel de **Cloudflare Zero Trust** (anteriormente Cloudflare for Teams). Los pasos generales son:
 
@@ -555,7 +563,7 @@ docker run -d --name cloudflared \
 
 5. Los registros DNS de `gromber05.dev` apuntan automáticamente a Cloudflare (el dominio está gestionado por Cloudflare DNS), por lo que no es necesario configurar nada adicional en el registrador del dominio.
 
-## e. Descripción del proceso de despliegue completo
+### Proceso de despliegue completo
 
 El proceso completo para desplegar Delvo desde cero en el servidor es el siguiente:
 
@@ -574,7 +582,7 @@ El proceso completo para desplegar Delvo desde cero en el servidor es el siguien
    ollama pull llama3.2
    ollama pull nomic-embed-text
    ```
-6. Lanzar el contenedor `cloudflared` con el token del túnel (ver apartado d).
+6. Lanzar el contenedor `cloudflared` con el token del túnel (ver apartado anterior).
 7. Comprobar que el tunnel aparece como **Healthy** en el panel de Cloudflare Zero Trust.
 8. Acceder a la aplicación desde internet mediante el dominio configurado.
 
@@ -582,7 +590,7 @@ Una vez en marcha, todos los servicios tienen la política `restart: unless-stop
 
 ---
 
-# 12. Manuales
+# 14. Manuales
 
 ## a. Manual de instalación
 
@@ -683,8 +691,8 @@ Para habilitar la integración con Google Calendar:
 1. Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com/).
 2. Habilita **Google Calendar API** y **People API**.
 3. Crea credenciales OAuth 2.0 de tipo **Aplicación web**.
-4. Anade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
-5. Si la app no está verificada, anade tu correo como **usuario de prueba** en OAuth Consent Screen.
+4. Añade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
+5. Si la app no está verificada, añade tu correo como **usuario de prueba** en OAuth Consent Screen.
 6. Copia el **Client ID** y **Client Secret** en el `.env`.
 
 ### Configurar funcionalidad de IA (Ollama)
@@ -743,7 +751,7 @@ Delvo permite centralizar en una única plataforma:
 - **Reuniones** — con fecha, hora, duración, ubicación y participantes.
 - **Eventos** — actividades puntuales sincronizables con Google Calendar.
 - **Notas** — apuntes rápidos con opción de archivar.
-- **Asistente inteligente** — chat con IA en espanol e inglés.
+- **Asistente inteligente** — chat con IA en español e inglés.
 
 La aplicación está disponible en versión **web** y **móvil**.
 
@@ -770,7 +778,7 @@ Gestión de sesión:
 Tras iniciar sesión:
 
 - En **web:** navegación lateral con acceso a todas las secciones.
-- En **móvil:** navegación inferior adaptada a pantalla pequena.
+- En **móvil:** navegación inferior adaptada a pantalla pequeña.
 
 Secciones disponibles: Inicio, Planificador, Calendario, Asistente y Configuración.
 
@@ -865,7 +873,7 @@ Para desconectar la cuenta, accede de nuevo a Configuración y selecciona la opc
 
 ### Asistente inteligente
 
-Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en espanol o en inglés.
+Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en español o en inglés.
 
 Ejemplos de uso:
 
@@ -891,12 +899,12 @@ Flujo de trabajo sugerido:
 
 1. Revisa el **Dashboard** y el **Calendario** al comenzar el día.
 2. Actualiza el estado de las tareas en curso.
-3. Anade nuevas reuniones y eventos según necesites.
+3. Añade nuevas reuniones y eventos según necesites.
 4. Usa el **Asistente** para acciones rápidas sin navegar por los menús.
 
 ---
 
-# 13. Conclusiones
+# 15. Conclusiones
 
 ## a. Informe final
 
@@ -914,7 +922,7 @@ A nivel académico, el proyecto refleja un desarrollo completo y realista, con u
 
 La viabilidad técnica del proyecto es positiva, ya que se apoya en tecnologías actuales, documentadas y ampliamente utilizadas. La separación entre backend, web, móvil y base de datos permite mantener el sistema de forma ordenada y ampliar cada parte de manera independiente.
 
-La viabilidad funcional también es alta, ya que la necesidad que resuelve Delvo es real: organizar tareas, eventos y recordatorios desde distintos dispositivos. Además, la integración con inteligencia artificial y Google Calendar aporta valor anadido frente a una aplicación básica de tareas.
+La viabilidad funcional también es alta, ya que la necesidad que resuelve Delvo es real: organizar tareas, eventos y recordatorios desde distintos dispositivos. Además, la integración con inteligencia artificial y Google Calendar aporta valor añadido frente a una aplicación básica de tareas.
 
 ## d. Mejoras futuras
 
@@ -924,7 +932,7 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 ---
 
-# 14. Anexos
+# 16. Anexos
 
 ## Anexo A — Tabla comparativa de tecnologías utilizadas
 
@@ -963,14 +971,14 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 | RF-11 | Edición de eventos de Google Calendar desde Delvo | ✅ Implementado |
 | RF-12 | Asistente inteligente con detección de intención | ✅ Implementado |
 | RF-13 | RAG con base de conocimiento local | ✅ Implementado |
-| RF-14 | Soporte multilenguaje (espanol e inglés) en web | ✅ Implementado |
+| RF-14 | Soporte multilenguaje (español e inglés) en web | ✅ Implementado |
 | RF-15 | Aplicación web con dashboard y todas las secciones | ✅ Implementado |
 | RF-16 | Aplicación móvil con calendario, planificador y chat | ✅ Implementado |
 | RF-17 | Política de privacidad pública | ✅ Implementado |
 | RF-18 | Persistencia de conversaciones con el asistente | ✅ Implementado |
 | RF-19 | Panel de administración con gestión de usuarios y conversaciones | ✅ Implementado |
 | RF-20 | Suite de tests automatizados (unitarios e integración) | ✅ Implementado |
-| RF-21 | Notificaciones push | ❌ Pendiente |
+| RF-21 | Notificaciones push | ✅ Implementado |
 | RF-22 | Eventos recurrentes | ❌ Pendiente |
 | RF-23 | Espacios colaborativos | ❌ Pendiente |
 
@@ -978,11 +986,11 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 | Fecha | Hash | Descripción |
 |---|---|---|
-| Mayo 2026 | `926a94c` | Anadida suite completa de tests unitarios e integración; modelos SQLAlchemy ORM; gestión de conversaciones; mejoras en chat web y móvil |
+| Mayo 2026 | `926a94c` | Añadida suite completa de tests unitarios e integración; modelos SQLAlchemy ORM; gestión de conversaciones; mejoras en chat web y móvil |
 | Mayo 2026 | `33280b3` | Refactorización general para mejorar legibilidad y mantenibilidad |
 | Mayo 2026 | `d8160ca` | Mejoras en Google Calendar Service y actualización del sistema de prompts |
 | Mayo 2026 | `5b94066` | Implementación de vinculación de eventos con Google Calendar y deduplicación |
-| Mayo 2026 | `45576eb` | Anadida pantalla PlannerScreen en la app móvil |
+| Mayo 2026 | `45576eb` | Añadida pantalla PlannerScreen en la app móvil |
 | Mayo 2026 | `4bf1ce8` | Refactorización para mejorar legibilidad y mantenibilidad |
 | Mayo 2026 | `eff0b40` | Actualización del README |
 | Mayo 2026 | `fd49e81` | Limpieza de código no utilizado y mejora de integración API |
@@ -1047,19 +1055,19 @@ GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
 
 ---
 
-# 15. Índice de tablas e imágenes
+# 17. Índice de tablas e imágenes
 
 ## Tablas
 
 | Nº | Título | Sección |
 |---|---|---|
-| Tabla 1 | Comparativa de aplicaciones similares | Sección 1b |
-| Tabla 2 | Entidades del planificador y sus campos | Sección 5a |
-| Tabla 3 | Tecnologías utilizadas por capa | Sección 5b y Anexo A |
-| Tabla 4 | Módulos del backend y su función | Sección 8c |
-| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 9a |
-| Tabla 6 | Campos de la entidad Tarea | Sección 12b |
-| Tabla 7 | Campos de la entidad Reunión | Sección 12b |
+| Tabla 1 | Comparativa de aplicaciones similares | Sección 3b |
+| Tabla 2 | Entidades del planificador y sus campos | Sección 7a |
+| Tabla 3 | Tecnologías utilizadas por capa | Sección 7b y Anexo A |
+| Tabla 4 | Módulos del backend y su función | Sección 10c |
+| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 11a |
+| Tabla 6 | Campos de la entidad Tarea | Sección 14b |
+| Tabla 7 | Campos de la entidad Reunión | Sección 14b |
 | Tabla 8 | Tabla de requisitos funcionales | Anexo B |
 | Tabla 9 | Historial de commits relevantes | Anexo C |
 | Tabla 10 | Variables de entorno requeridas | Anexo D |
@@ -1069,14 +1077,14 @@ GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
 
 | Nº | Título | Sección |
 |---|---|---|
-| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 8c |
-| Diagrama 2 | Flujo de petición web | Sección 8c |
-| Diagrama 3 | Flujo de petición móvil | Sección 8c |
+| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 10c |
+| Diagrama 2 | Flujo de petición web | Sección 10c |
+| Diagrama 3 | Flujo de petición móvil | Sección 10c |
 
 
 ---
 
-# 16. Bibliografía y referencias
+# 18. Bibliografía y referencias
 
 Para la elaboración del proyecto se han utilizado como referencia las documentaciones oficiales de FastAPI, PostgreSQL, Next.js, React, Expo, Docker, Google Calendar API, OAuth 2.0 y Ollama. También se han tenido en cuenta referencias normativas relacionadas con la protección de datos, especialmente el Reglamento General de Protección de Datos y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales.
 

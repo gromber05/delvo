@@ -335,7 +335,7 @@ def export_my_data(user_id: int = Depends(get_authenticated_user_id)) -> dict[st
 
 
 class PushTokenRequest(BaseModel):
-    token: str = Field(..., min_length=1)
+    token: str = Field(default="")
 
 
 @router.post("/me/push-token")
@@ -343,6 +343,6 @@ def register_push_token(
     payload: PushTokenRequest,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
-    """Registra el token Expo usado para notificaciones push."""
-    update_push_token(user_id=user_id, token=payload.token)
+    """Registra o elimina el token Expo para notificaciones push. Token vacío limpia el registro."""
+    update_push_token(user_id=user_id, token=payload.token or None)
     return {"ok": True}

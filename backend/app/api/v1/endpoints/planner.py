@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
@@ -38,7 +38,8 @@ from app.db.postgresql.notes_repository import (
     list_notes,
     update_note,
 )
-from app.db.postgresql.user_repository import get_user_by_id
+from app.db.postgresql.user_repository import get_push_token, get_user_by_id
+from app.services.notification_service import send_push
 
 router = APIRouter(prefix="/planner", tags=["planner"])
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -133,6 +134,7 @@ def api_list_tasks(user_id: int = Depends(get_authenticated_user_id)) -> Dict[st
 @router.post("/tasks")
 def api_create_task(
     payload: TaskCreateRequest,
+    background_tasks: BackgroundTasks,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> Dict[str, Any]:
     item = create_task(
@@ -144,6 +146,16 @@ def api_create_task(
         priority=payload.priority,
         status=payload.status,
     )
+    token = get_push_token(user_id)
+    if token:
+        due_info = f" · vence el {payload.due_date}" if payload.due_date else ""
+        background_tasks.add_task(
+            send_push,
+            token=token,
+            title="Tarea creada",
+            body=f"{payload.title.strip()}{due_info}",
+            data={"type": "task", "id": item["id"]},
+        )
     return {"item": item}
 
 
@@ -192,6 +204,7 @@ def api_list_meetings(user_id: int = Depends(get_authenticated_user_id)) -> Dict
 @router.post("/meetings")
 def api_create_meeting(
     payload: MeetingCreateRequest,
+    background_tasks: BackgroundTasks,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> Dict[str, Any]:
     item = create_meeting(
@@ -205,6 +218,15 @@ def api_create_meeting(
         participants=payload.participants,
         status=payload.status,
     )
+    token = get_push_token(user_id)
+    if token:
+        background_tasks.add_task(
+            send_push,
+            token=token,
+            title="Reunión programada",
+            body=f"{payload.title.strip()} · {payload.meeting_date} {payload.meeting_time}",
+            data={"type": "meeting", "id": item["id"]},
+        )
     return {"item": item}
 
 
@@ -255,6 +277,7 @@ def api_list_events(user_id: int = Depends(get_authenticated_user_id)) -> Dict[s
 @router.post("/events")
 def api_create_event(
     payload: EventCreateRequest,
+    background_tasks: BackgroundTasks,
     user_id: int = Depends(get_authenticated_user_id),
 ) -> Dict[str, Any]:
     item = create_event(
@@ -295,8 +318,17 @@ def api_create_event(
             set_gcal_event_id(event_id=int(item["id"]), user_id=user_id, gcal_event_id=gcal_id)
             item["gcal_event_id"] = gcal_id
     except Exception:
-        pass  
+        pass
 
+    token = get_push_token(user_id)
+    if token:
+        background_tasks.add_task(
+            send_push,
+            token=token,
+            title="Evento creado",
+            body=f"{payload.title.strip()} · {payload.event_date}",
+            data={"type": "event", "id": item["id"]},
+        )
     return {"item": item}
 
 

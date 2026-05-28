@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setState((s) => ({ ...s, user: freshUser }));
           } catch {
           }
-          requestPermissionsAndRegisterToken().catch(() => {});
+          requestPermissionsAndRegisterToken().catch((e) => console.error('[Push] init error:', e));
         }
       } catch {
         setState((s) => ({ ...s, loading: false }));
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       [USER_KEY, JSON.stringify(user)],
     ]);
     setState({ token, user, loading: false });
-    requestPermissionsAndRegisterToken().catch(() => {});
+    requestPermissionsAndRegisterToken().catch((e) => console.error('[Push] persist error:', e));
   }, []);
 
   

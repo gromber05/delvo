@@ -8,9 +8,18 @@ from app.db.postgresql.conversation_repository import (
     touch_conversation,
     update_message_sentiment,
 )
+from app.db.postgresql.user_repository import get_push_token
+from app.services.notification_service import send_push
 from .dependencies import get_authenticated_user_id_optional
 from .schemas import ChatRequest, ChatResponse
 from .service import assistant_chat
+
+_ACTION_INTENTS = {
+    "create_task", "update_task", "delete_task",
+    "create_event", "update_event", "delete_event",
+    "create_meeting", "update_meeting", "delete_meeting",
+    "create_note", "update_note", "delete_note",
+}
 
 router = APIRouter()
 
@@ -92,6 +101,17 @@ def chat_endpoint(
             assistant_message=response.message,
             intent=response.intent,
         )
+        if response.intent in _ACTION_INTENTS:
+            token = get_push_token(user_id)
+            if token:
+                short = response.message[:80] + ("…" if len(response.message) > 80 else "")
+                background_tasks.add_task(
+                    send_push,
+                    token=token,
+                    title="Stella IA",
+                    body=short,
+                    data={"type": "stella", "intent": response.intent},
+                )
         return ChatResponse(
             intent=response.intent,
             data=response.data,

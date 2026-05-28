@@ -14,6 +14,7 @@ import {
   IconMessageCircle,
   IconAlertCircle,
 } from '@tabler/icons-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, AdminStatsDto } from '../api/client';
 import { useColors } from '../theme/ThemeContext';
 
@@ -31,6 +32,7 @@ const SENTIMENT_LABELS: Record<string, string> = {
 
 export function AdminScreen() {
   const c = useColors();
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<AdminStatsDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,7 +94,7 @@ export function AdminScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: c.background }}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -226,7 +228,7 @@ export function AdminScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 20, paddingTop: 56, gap: 12 },
+  content: { padding: 20, gap: 12 },
 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   errorCard: {

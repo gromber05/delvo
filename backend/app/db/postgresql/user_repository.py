@@ -106,6 +106,11 @@ def update_user_password(*, user_id: int, password_hash: str) -> bool:
         row.password_hash = password_hash
     return True
 
+def get_push_token(user_id: int) -> str | None:
+    with get_session() as session:
+        row = session.query(User).filter(User.id == user_id).first()
+        return str(row.expo_push_token) if row and row.expo_push_token else None
+
 def update_push_token(*, user_id: int, token: str | None) -> None:
     with get_session() as session:
         row = session.query(User).filter(User.id == user_id).first()
