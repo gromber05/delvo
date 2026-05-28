@@ -1,4 +1,4 @@
-# 1. Portada
+﻿# 1. Portada
 
 **Delvo — Aplicación multiplataforma de productividad y organización**
 
@@ -99,11 +99,9 @@
 
 ## a. Justificación del proyecto: cómo se originó la idea
 
-Delvo se originó de mi necesidad urgente de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas, poco personalizables o no estaban adaptadas a las necesidades reales de estudiantes y pequeños equipos de trabajo.
+Delvo se originó de mi necesidad de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas o directamente ni me gustaban ni me ofrecian la simpleza que buscaba.
 
-A partir de esta problemática surgió la idea de crear una plataforma propia que combinara productividad, organización y asistencia inteligente en una misma solución. El objetivo principal de Delvo es facilitar la gestión diaria mediante una interfaz clara, accesible y moderna, permitiendo centralizar información importante y mejorar la eficiencia del usuario.
-
-Además, el proyecto nace también con una finalidad formativa y técnica, ya que permite aplicar conocimientos adquiridos en desarrollo multiplataforma, arquitectura de aplicaciones, bases de datos, desarrollo web y móvil, así como integración de servicios de inteligencia artificial. De esta forma, Delvo no solo responde a una necesidad personal, sino que también representa una oportunidad para desarrollar una solución real y escalable utilizando tecnologías actuales.
+A partir de este problema, surgió la idea de crear una plataforma propia que combinara productividad, organización e IA en una misma solución. El objetivo principal de Delvo es facilitar la gestión diaria mediante una interfaz simple, accesible y moderna, permitiendo centralizar información importante y no manchando todo.
 
 ## b. Análisis comparativo de aplicaciones similares
 
@@ -111,7 +109,7 @@ Actualmente existen numerosas aplicaciones enfocadas en la organización persona
 
 ### Notion
 
-Notion destaca por ser una solución «todo en uno», integrando notas, bases de datos, tareas y documentación en una misma plataforma. Sin embargo, su gran cantidad de funciones puede resultar compleja para usuarios que buscan una experiencia más simple e inmediata.
+Notion destaca por ser una solución todo en uno, integrando notas, bases de datos, tareas y documentación en una misma plataforma. Sin embargo, su gran cantidad de funciones puede resultar compleja para usuarios que buscan una experiencia más simple e inmediata.
 
 ### Trello
 
@@ -123,7 +121,7 @@ Todoist se centra en la productividad personal y la gestión rápida de tareas m
 
 ### Diferenciación de Delvo
 
-Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que tanto usuarios individuales como pequeños equipos puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
+Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que usuarios individuales puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
 
 ## c. Tendencias
 
@@ -288,13 +286,13 @@ La planificación del proyecto se distribuyó principalmente entre los meses de 
 
 Durante mayo se concentró la integración final del sistema, incluyendo la aplicación web, la aplicación móvil, Google Calendar, el asistente inteligente y la documentación del proyecto. En el historial del repositorio se observan hitos relevantes el 20 de mayo de 2026, con la incorporación de documentación, calendario y páginas de configuración, y el 21 de mayo de 2026, con refactorizaciones, mejoras de legibilidad, integración OAuth y política de privacidad.
 
+![alt text](gantt_delvo.png)
 
 ## c. Recursos necesarios
 
 Para desarrollar Delvo se ha utilizado un equipo de desarrollo capaz de ejecutar contenedores Docker y herramientas modernas de desarrollo web y móvil. A nivel de software, han sido necesarios Git, Docker, Docker Compose, Python, Node.js, pnpm, Expo y un editor de código.
 
-También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local. En cuanto a recursos humanos, el proyecto ha sido desarrollado por el autor, asumiendo tareas de análisis, diseño, implementación, pruebas y documentación.
-
+También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local.
 
 ---
 
