@@ -1,12 +1,8 @@
-"""Modelos ORM SQLAlchemy que describen el dominio principal de Delvo."""
-
 from __future__ import annotations
-
 import os
 from contextlib import contextmanager
 from datetime import date, datetime
 from typing import Any, Generator, List, Optional
-
 from sqlalchemy import (
     Date,
     DateTime,
@@ -28,9 +24,7 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
-
 def get_database_url() -> str:
-    """Builds the connection URL from environment variables."""
     host     = os.getenv("POSTGRES_HOST",     "postgres")
     port     = os.getenv("POSTGRES_PORT",     "5432")
     user     = os.getenv("POSTGRES_USER",     "delvo")
@@ -38,9 +32,7 @@ def get_database_url() -> str:
     database = os.getenv("POSTGRES_DATABASE", "delvo")
     return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{database}"
 
-
 _engine = None
-
 
 def get_engine():
     """Devuelve un engine SQLAlchemy singleton con pre-ping habilitado."""
@@ -49,25 +41,16 @@ def get_engine():
         _engine = create_engine(get_database_url(), pool_pre_ping=True)
     return _engine
 
-
-# Legacy helpers kept for any code that still imports them directly
 def create_orm_engine(url: str | None = None, **kwargs):
     return create_engine(url or get_database_url(), **kwargs)
-
 
 def get_orm_session(engine=None) -> Session:
     if engine is None:
         engine = get_engine()
     return Session(engine)
 
-
 @contextmanager
 def get_session() -> Generator[Session, None, None]:
-    """Context manager that yields a SQLAlchemy Session.
-
-    Commits on success, rolls back on error.
-    expire_on_commit=False keeps objects accessible after commit.
-    """
     engine = get_engine()
     factory = sessionmaker(bind=engine, expire_on_commit=False)
     session: Session = factory()
@@ -85,12 +68,10 @@ def _to_dict(obj) -> dict[str, Any]:
     """Convert an ORM mapped object to a plain dict using __table__.columns."""
     return {col.name: getattr(obj, col.name) for col in obj.__table__.columns}
 
-
 class Base(DeclarativeBase):
     """Base declarativa comun para todos los modelos ORM."""
 
     pass
-
 class User(Base):
     """Usuario de la app y raiz de propiedad de datos personales."""
 
@@ -128,8 +109,7 @@ class User(Base):
     @property
     def has_google(self) -> bool:
         return self.google_email is not None
-
-
+    
 class Task(Base):
     """Tarea personal con prioridad, estado y vencimiento opcional."""
 
@@ -173,7 +153,6 @@ class Task(Base):
         """Devuelve un entero para ordenar por prioridad: high=3, medium=2, low=1."""
         return {"high": 3, "medium": 2, "low": 1}.get(self.priority, 2)
 
-
 class Event(Base):
     """Evento calendarizable, opcionalmente sincronizado con Google Calendar."""
 
@@ -199,7 +178,6 @@ class Event(Base):
     @property
     def is_synced_with_gcal(self) -> bool:
         return self.gcal_event_id is not None
-
 
 class Meeting(Base):
     """Reunion del usuario con fecha, hora, duracion y participantes."""
@@ -243,7 +221,6 @@ class Meeting(Base):
             return None
         return self.duration_minutes / 60.0
 
-
 class MeetingParticipant(Base):
     """Participante unico dentro de una reunion."""
 
@@ -260,7 +237,6 @@ class MeetingParticipant(Base):
 
     def __repr__(self) -> str:
         return f"<MeetingParticipant id={self.id} meeting_id={self.meeting_id} email={self.participant_email!r}>"
-
 
 class Note(Base):
     """
@@ -295,7 +271,6 @@ class Note(Base):
         if not self.content:
             return ""
         return self.content[:100] + ("…" if len(self.content) > 100 else "")
-
 
 class Conversation(Base):
     """Hilo de conversacion entre usuario y asistente."""

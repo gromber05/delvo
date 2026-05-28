@@ -32,8 +32,6 @@ _CALLBACK_URL = os.environ.get(
 _SCOPES = "email https://www.googleapis.com/auth/calendar"
 
 
-
-
 def _fail_redirect(platform: str) -> RedirectResponse:
     if platform == "web":
         return RedirectResponse("https://delvo.gromber05.dev/es/settings?google=error", status_code=302)
@@ -45,7 +43,6 @@ def google_calendar_connect(
     platform: str = "mobile",
     user_id: int = Depends(get_authenticated_user_id),
 ) -> dict[str, Any]:
-    """Returns a Google OAuth URL. Client opens it in a browser."""
     state = _jwt.encode(
         {
             "uid": user_id,
@@ -66,7 +63,6 @@ def google_calendar_connect(
     })
     return {"url": f"https://accounts.google.com/o/oauth2/v2/auth?{params}"}
 
-
 @router.get("/callback")
 def google_calendar_callback(
     code: str | None = None,
@@ -84,7 +80,6 @@ def google_calendar_callback(
     except Exception:
         return _fail_redirect("mobile")
 
-    
     try:
         post_data = urllib.parse.urlencode({
             "code": code,
@@ -104,7 +99,6 @@ def google_calendar_callback(
     expires_in: int = int(token_data.get("expires_in", 3600))
     expiry = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
 
-    
     google_email: str | None = None
     try:
         req = _urllib.Request(  
@@ -142,7 +136,6 @@ def google_calendar_callback(
     email_param = f"&email={urllib.parse.quote(google_email)}" if google_email else ""
     return RedirectResponse(f"delvo://oauth-done?status=ok{email_param}", status_code=302)
 
-
 @router.post("/webhook", status_code=200)
 async def google_calendar_webhook(request: Request) -> dict[str, str]:
     """
@@ -166,7 +159,6 @@ async def google_calendar_webhook(request: Request) -> dict[str, str]:
 
     return {"status": "synced"}
 
-
 @router.post("/sync")
 def google_calendar_sync(
     user_id: int = Depends(get_authenticated_user_id),
@@ -180,14 +172,10 @@ def google_calendar_sync(
     except Exception as e:
         raise _gcal_error(e)
 
-
-
-
 class EventDateTime(BaseModel):
     dateTime: str | None = None
     date: str | None = None
     timeZone: str | None = None
-
 
 class CalendarEventBody(BaseModel):
     summary: str
@@ -197,7 +185,6 @@ class CalendarEventBody(BaseModel):
     end: EventDateTime
     attendees: list[dict[str, Any]] | None = None
 
-
 def _gcal_error(e: Exception) -> HTTPException:
     import traceback, logging
     logging.error("Google Calendar error: %s\n%s", e, traceback.format_exc())
@@ -205,7 +192,6 @@ def _gcal_error(e: Exception) -> HTTPException:
     if "invalid_grant" in msg or "Token has been expired" in msg:
         return HTTPException(status_code=401, detail="Token de Google expirado, vuelve a vincular tu cuenta")
     return HTTPException(status_code=502, detail=f"Error de Google Calendar: {msg}")
-
 
 @router.get("/events")
 def get_events(
@@ -222,7 +208,6 @@ def get_events(
     except Exception as e:
         raise _gcal_error(e)
 
-
 @router.post("/events", status_code=201)
 def create_event(
     body: CalendarEventBody,
@@ -234,7 +219,6 @@ def create_event(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise _gcal_error(e)
-
 
 @router.put("/events/{event_id}")
 def update_event(
@@ -248,15 +232,12 @@ def update_event(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise _gcal_error(e)
-
-
 class PatchEventBody(BaseModel):
     summary: str | None = None
     description: str | None = None
     location: str | None = None
     start: EventDateTime | None = None
     end: EventDateTime | None = None
-
 
 @router.patch("/events/{event_id}")
 def patch_event(
@@ -270,7 +251,6 @@ def patch_event(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise _gcal_error(e)
-
 
 @router.delete("/events/{event_id}")
 def delete_event(

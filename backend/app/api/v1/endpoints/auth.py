@@ -166,20 +166,17 @@ def google_login(payload: GoogleLoginRequest) -> AuthResponse:
     """Autentica o crea usuario a partir de credenciales de Google."""
     google_email = payload.google_email.strip().lower()
 
-    # 1. Buscar usuario por google_email o por email principal
     user = get_user_by_google_email(google_email)
     if not user:
         user = get_user_by_email(google_email)
 
     if not user:
-        # 2. Crear cuenta nueva (contraseña aleatoria irreversible)
         random_hash = hash_password(secrets.token_hex(32))
         name = (payload.google_name or "").strip() or None
         user = create_user(name=name, email=google_email, password_hash=random_hash)
 
     uid = int(user["id"])
 
-    # 3. Guardar/actualizar tokens de Google
     update_google_tokens(
         user_id=uid,
         google_access_token=payload.google_access_token,
@@ -188,7 +185,6 @@ def google_login(payload: GoogleLoginRequest) -> AuthResponse:
         google_email=google_email,
     )
 
-    # 4. Refrescar el usuario y emitir tokens de sesión
     user = get_user_by_id(uid) or user
     access_token = create_access_token(subject=google_email, user_id=uid)
     refresh_token = create_refresh_token(subject=google_email, user_id=uid)

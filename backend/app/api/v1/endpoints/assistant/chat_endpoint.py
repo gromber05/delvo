@@ -1,9 +1,6 @@
 from __future__ import annotations
-
 import re
-
 from fastapi import APIRouter, BackgroundTasks, Depends
-
 from app.db.postgresql.conversation_repository import (
     add_message,
     create_conversation,
@@ -28,7 +25,6 @@ _NEGATIVE_WORDS = re.compile(
     re.IGNORECASE,
 )
 
-
 def _classify_sentiment(text: str) -> str:
     pos = len(_POSITIVE_WORDS.findall(text))
     neg = len(_NEGATIVE_WORDS.findall(text))
@@ -37,7 +33,6 @@ def _classify_sentiment(text: str) -> str:
     if neg > pos:
         return "negative"
     return "neutral"
-
 
 def _persist_turn(
     *,
@@ -61,7 +56,6 @@ def _persist_turn(
     )
     touch_conversation(conversation_id=conversation_id)
 
-
 def _get_or_create_conversation(
     *,
     user_id: int,
@@ -76,7 +70,6 @@ def _get_or_create_conversation(
     title = first_message[:80] if first_message else "Conversación"
     conv = create_conversation(user_id=user_id, title=title)
     return int(conv["id"])
-
 
 @router.post("/chat", response_model=ChatResponse)
 def chat_endpoint(

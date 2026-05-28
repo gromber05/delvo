@@ -8,14 +8,11 @@ from app.core.security import create_access_token, hash_password
 
 BASE = "/api/v1/planner"
 
-
 def _token(uid: int = 1, email: str = "test@delvo.io") -> str:
     return create_access_token(subject=email, user_id=uid)
 
-
 def _headers(uid: int = 1) -> dict:
     return {"Authorization": f"Bearer {_token(uid)}"}
-
 
 def _mock_user(uid: int = 1) -> dict:
     return {
@@ -24,7 +21,6 @@ def _mock_user(uid: int = 1) -> dict:
         "google_email": None, "profile_photo_base64": None,
         "created_at": None, "updated_at": None,
     }
-
 
 def _mock_task(task_id: int = 1, user_id: int = 1) -> dict:
     return {
@@ -35,7 +31,6 @@ def _mock_task(task_id: int = 1, user_id: int = 1) -> dict:
         "created_at": None, "updated_at": None,
     }
 
-
 def _mock_event(event_id: int = 1, user_id: int = 1) -> dict:
     return {
         "id": event_id, "user_id": user_id,
@@ -44,7 +39,6 @@ def _mock_event(event_id: int = 1, user_id: int = 1) -> dict:
         "location": None, "event_type": "general",
         "gcal_event_id": None, "created_at": None, "updated_at": None,
     }
-
 
 def _mock_meeting(meeting_id: int = 1, user_id: int = 1) -> dict:
     return {
@@ -56,14 +50,12 @@ def _mock_meeting(meeting_id: int = 1, user_id: int = 1) -> dict:
         "created_at": None, "updated_at": None,
     }
 
-
 def _mock_note(note_id: int = 1, user_id: int = 1) -> dict:
     return {
         "id": note_id, "user_id": user_id,
         "title": "Nota de prueba", "content": "Contenido de la nota",
         "status": "active", "created_at": None, "updated_at": None,
     }
-
 
 class TestTasks:
     def test_list_tasks_requires_auth(self, client):

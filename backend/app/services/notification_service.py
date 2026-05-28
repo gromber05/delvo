@@ -5,9 +5,7 @@ import urllib.request as _urllib
 import urllib.error
 from typing import Any
 
-
 _EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
-
 
 def send_push(
     *,
@@ -16,10 +14,6 @@ def send_push(
     body: str,
     data: dict[str, Any] | None = None,
 ) -> None:
-    """
-    Send a push notification via Expo Push API.
-    Fire-and-forget — does not raise on failure.
-    """
     if not token or not token.startswith("ExponentPushToken["):
         return
 
@@ -47,14 +41,9 @@ def send_push(
     except Exception:
         pass
 
-
 def send_push_to_many(
     notifications: list[dict[str, Any]],
 ) -> None:
-    """
-    Batch send notifications. Each item: {token, title, body, data?}.
-    Uses Expo's batch endpoint (up to 100 per call).
-    """
     valid = [
         {
             "to": n["token"],

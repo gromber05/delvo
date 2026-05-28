@@ -1,9 +1,3 @@
-"""Orquestacion del asistente conversacional.
-
-Construye contexto operativo del usuario, llama al LLM, interpreta intents y
-aplica efectos persistentes sobre tareas, reuniones, eventos y notas.
-"""
-
 from __future__ import annotations
 
 import re
@@ -125,7 +119,6 @@ def build_meetings_context(user_id: int | None) -> str:
 
     return "Contexto de reuniones del usuario:\n" + "\n".join(rows)
 
-
 def build_events_context(user_id: int | None) -> str:
     """Serializa eventos del usuario para alimentar el contexto conversacional."""
     if user_id is None:
@@ -181,7 +174,6 @@ def _normalize_date(value: Any) -> str | None:
     except ValueError:
         return None
 
-
 def _normalize_time(value: Any) -> str | None:
     raw = _coerce_non_empty_text(value)
     if not raw:
@@ -193,7 +185,6 @@ def _normalize_time(value: Any) -> str | None:
             continue
     return None
 
-
 def _normalize_choice(value: Any, valid_options: set[str], fallback: str) -> str:
     raw = _coerce_non_empty_text(value)
     if not raw:
@@ -201,14 +192,12 @@ def _normalize_choice(value: Any, valid_options: set[str], fallback: str) -> str
     normalized = raw.lower()
     return normalized if normalized in valid_options else fallback
 
-
 def _resolve_request_language(value: str | None) -> str:
     raw = _coerce_non_empty_text(value)
     if not raw:
         return "es"
     base = raw.lower().split("-")[0]
     return "en" if base == "en" else "es"
-
 
 def _normalize_int(value: Any) -> int | None:
     if value is None:
@@ -228,7 +217,6 @@ def _normalize_int(value: Any) -> int | None:
             return None
     return None
 
-
 def _coerce_datetime(value: Any) -> datetime | None:
     if isinstance(value, datetime):
         return value
@@ -244,7 +232,6 @@ def _coerce_datetime(value: Any) -> datetime | None:
             continue
     return None
 
-
 def _as_date_string(value: Any) -> str | None:
     if isinstance(value, datetime):
         return value.strftime("%Y-%m-%d")
@@ -254,7 +241,6 @@ def _as_date_string(value: Any) -> str | None:
         except Exception:
             return None
     return _normalize_date(value)
-
 
 def _as_time_string(value: Any) -> str | None:
     if isinstance(value, datetime):
@@ -281,7 +267,6 @@ def _build_serialized_tasks(user_id: int) -> List[Dict[str, Any]]:
         )
     return serialized
 
-
 def _build_serialized_notes(user_id: int) -> List[Dict[str, Any]]:
     serialized: List[Dict[str, Any]] = []
     for note in list_notes(user_id=user_id):
@@ -294,7 +279,6 @@ def _build_serialized_notes(user_id: int) -> List[Dict[str, Any]]:
             }
         )
     return serialized
-
 
 def _build_serialized_meetings(user_id: int) -> List[Dict[str, Any]]:
     serialized: List[Dict[str, Any]] = []
@@ -336,7 +320,6 @@ def _normalize_participants_value(value: Any) -> List[str]:
         output.append(normalized)
     return output
 
-
 def _merge_participants(existing: List[str], incoming: List[str]) -> List[str]:
     seen: set[str] = set()
     output: List[str] = []
@@ -350,7 +333,6 @@ def _merge_participants(existing: List[str], incoming: List[str]) -> List[str]:
         seen.add(lowered)
         output.append(normalized)
     return output
-
 
 def _build_participants_added_message(
     *,
@@ -980,7 +962,6 @@ def assistant_chat(
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"assistant_error: {exc}") from exc
-
 
 def assistant_reindex() -> Dict[str, int]:
     """Reconstruye el indice RAG expuesto por el endpoint de mantenimiento."""

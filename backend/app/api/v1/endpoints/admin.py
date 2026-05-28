@@ -52,7 +52,6 @@ def admin_update_role(
 def admin_list_conversations(
     _admin: dict = Depends(require_admin),
 ) -> dict[str, Any]:
-    """All conversations across all users (admin view)."""
     with get_session() as session:
         rows = (
             session.query(
@@ -83,7 +82,6 @@ def admin_get_conversation(
     conversation_id: int,
     _admin: dict = Depends(require_admin),
 ) -> dict[str, Any]:
-    """Full conversation with messages (admin view, no user restriction)."""
     with get_session() as session:
         row = (
             session.query(

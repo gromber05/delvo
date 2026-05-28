@@ -1,12 +1,8 @@
 from __future__ import annotations
-
 import datetime as dt
 from typing import Any
-
 from sqlalchemy import func, literal_column
-
 from app.db.models import Conversation, Message, User, _to_dict, get_session
-
 
 def create_conversation(*, user_id: int, title: str) -> dict[str, Any]:
     with get_session() as session:
@@ -15,7 +11,6 @@ def create_conversation(*, user_id: int, title: str) -> dict[str, Any]:
         session.flush()
         result = _to_dict(conv)
     return result
-
 
 def list_conversations(*, user_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
@@ -38,7 +33,6 @@ def list_conversations(*, user_id: int) -> list[dict[str, Any]]:
             result.append(d)
     return result
 
-
 def get_conversation(*, conversation_id: int, user_id: int) -> dict[str, Any] | None:
     with get_session() as session:
         row = (
@@ -47,7 +41,6 @@ def get_conversation(*, conversation_id: int, user_id: int) -> dict[str, Any] | 
             .first()
         )
         return _to_dict(row) if row else None
-
 
 def delete_conversation(*, conversation_id: int, user_id: int) -> bool:
     with get_session() as session:
@@ -61,13 +54,11 @@ def delete_conversation(*, conversation_id: int, user_id: int) -> bool:
         session.delete(row)
     return True
 
-
 def touch_conversation(*, conversation_id: int) -> None:
     with get_session() as session:
         row = session.query(Conversation).filter(Conversation.id == conversation_id).first()
         if row:
             row.updated_at = func.now()
-
 
 def add_message(
     *,
@@ -90,13 +81,11 @@ def add_message(
         result = _to_dict(msg)
     return result
 
-
 def update_message_sentiment(*, message_id: int, sentiment: str) -> None:
     with get_session() as session:
         msg = session.query(Message).filter(Message.id == message_id).first()
         if msg:
             msg.sentiment = sentiment
-
 
 def list_messages(*, conversation_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
@@ -107,7 +96,6 @@ def list_messages(*, conversation_id: int) -> list[dict[str, Any]]:
             .all()
         )
         return [_to_dict(row) for row in rows]
-
 
 def get_admin_stats() -> dict[str, Any]:
     with get_session() as session:

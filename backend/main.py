@@ -114,7 +114,6 @@ def check_docs_auth(credentials: HTTPBasicCredentials = Depends(security)) -> No
             headers={"WWW-Authenticate": "Basic"},
         )
 
-
 @app.get("/health")
 def health() -> dict[str, str]:
     """Endpoint ligero para comprobar que el proceso HTTP responde."""

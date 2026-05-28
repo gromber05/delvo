@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -22,7 +21,6 @@ from app.db.postgresql.event_repository import (
 _CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 _CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 _TOKEN_URI = "https://oauth2.googleapis.com/token"
-
 
 def _build_credentials(user_id: int) -> Credentials:
     tokens = get_user_google_tokens(user_id)
@@ -65,7 +63,6 @@ def _build_credentials(user_id: int) -> Credentials:
 
     return creds
 
-
 def list_events(
     user_id: int,
     time_min: str | None = None,
@@ -87,18 +84,15 @@ def list_events(
     result = service.events().list(**params).execute()
     return result.get("items", [])
 
-
 def create_event(user_id: int, body: dict[str, Any]) -> dict[str, Any]:
     creds = _build_credentials(user_id)
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)
     return service.events().insert(calendarId="primary", body=body).execute()
 
-
 def update_event(user_id: int, event_id: str, body: dict[str, Any]) -> dict[str, Any]:
     creds = _build_credentials(user_id)
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)
     return service.events().update(calendarId="primary", eventId=event_id, body=body).execute()
-
 
 def patch_event(user_id: int, event_id: str, body: dict[str, Any]) -> dict[str, Any]:
     import logging
@@ -107,15 +101,12 @@ def patch_event(user_id: int, event_id: str, body: dict[str, Any]) -> dict[str, 
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)
     return service.events().patch(calendarId="primary", eventId=event_id, body=body).execute()
 
-
 def delete_event(user_id: int, event_id: str) -> None:
     creds = _build_credentials(user_id)
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)
     service.events().delete(calendarId="primary", eventId=event_id).execute()
 
-
 def _parse_gcal_item(item: dict[str, Any], now: datetime) -> tuple[str, str, str | None, str | None, str | None]:
-    """Returns (title, event_date, event_time, description, location)."""
     title: str = (item.get("summary") or "(sin título)")[:190]
     description: str | None = item.get("description")
     location: str | None = item.get("location")
@@ -129,14 +120,7 @@ def _parse_gcal_item(item: dict[str, Any], now: datetime) -> tuple[str, str, str
         event_time = None
     return title, event_date, event_time, description, location
 
-
 def sync_events(user_id: int) -> dict[str, int]:
-    """
-    Bidirectional sync:
-    - New GCal events → create in Delvo
-    - Changed GCal events (title/date) → update local copy
-    - GCal events deleted → delete local copy
-    """
     now = datetime.now(timezone.utc)
     time_min = (now - timedelta(days=30)).isoformat()
     time_max = (now + timedelta(days=180)).isoformat()
@@ -192,9 +176,7 @@ def sync_events(user_id: int) -> dict[str, int]:
 
     return {"imported": imported, "updated": updated, "deleted": deleted, "skipped": skipped}
 
-
 def register_watch(user_id: int, channel_id: str) -> dict[str, Any]:
-    """Register a Google Calendar push notification watch. Returns {resourceId, expiration}."""
     import os
     creds = _build_credentials(user_id)
     service = build("calendar", "v3", credentials=creds, cache_discovery=False)

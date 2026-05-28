@@ -1,5 +1,3 @@
-"""Dependencias FastAPI compartidas para autenticacion y permisos."""
-
 from __future__ import annotations
 
 import jwt

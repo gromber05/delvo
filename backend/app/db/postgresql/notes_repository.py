@@ -4,7 +4,6 @@ from typing import Any
 
 from app.db.models import Note, _to_dict, get_session
 
-
 def list_notes(*, user_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
         rows = (
@@ -25,7 +24,6 @@ def get_note(*, note_id: int, user_id: int) -> dict[str, Any] | None:
         )
         return _to_dict(row) if row else None
 
-
 def create_note(
     *,
     user_id: int,
@@ -44,7 +42,6 @@ def create_note(
         session.flush()
         result = _to_dict(note)
     return result
-
 
 def update_note(
     *,
@@ -69,7 +66,6 @@ def update_note(
         result = _to_dict(note)
     return result
 
-
 def delete_note(*, note_id: int, user_id: int) -> bool:
     with get_session() as session:
         note = (
@@ -81,7 +77,6 @@ def delete_note(*, note_id: int, user_id: int) -> bool:
             return False
         session.delete(note)
     return True
-
 
 get_notes = get_note
 create_notes = create_note

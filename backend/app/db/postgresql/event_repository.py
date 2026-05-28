@@ -13,12 +13,10 @@ def _parse_date(value: str | None) -> dt.date | None:
         return None
     return dt.date.fromisoformat(value)
 
-
 def _parse_time(value: str | None) -> dt.time | None:
     if not value:
         return None
     return dt.time.fromisoformat(value)
-
 
 def list_events(*, user_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
@@ -34,7 +32,6 @@ def list_events(*, user_id: int) -> list[dict[str, Any]]:
         )
         return [_to_dict(row) for row in rows]
 
-
 def get_event(*, event_id: int, user_id: int) -> dict[str, Any] | None:
     with get_session() as session:
         row = (
@@ -43,7 +40,6 @@ def get_event(*, event_id: int, user_id: int) -> dict[str, Any] | None:
             .first()
         )
         return _to_dict(row) if row else None
-
 
 def create_event(
     *,
@@ -71,7 +67,6 @@ def create_event(
         session.flush()
         result = _to_dict(event)
     return result
-
 
 def update_event(
     *,
@@ -102,9 +97,7 @@ def update_event(
         result = _to_dict(event)
     return result
 
-
 def list_synced_events(*, user_id: int) -> list[dict[str, Any]]:
-    """Returns all local events that have a gcal_event_id (synced from or pushed to GCal)."""
     with get_session() as session:
         rows = (
             session.query(Event)
@@ -113,11 +106,7 @@ def list_synced_events(*, user_id: int) -> list[dict[str, Any]]:
         )
         return [_to_dict(row) for row in rows]
 
-
 def find_unlinked_event(*, user_id: int, title: str, event_date: str) -> dict[str, Any] | None:
-    """Finds a local event with the same title+date that is NOT yet linked to a
-    Google Calendar event. Used to link (instead of duplicating) when a locally
-    created event reaches GCal before its gcal_event_id was persisted."""
     parsed_date = _parse_date(event_date)
     with get_session() as session:
         row = (
@@ -132,7 +121,6 @@ def find_unlinked_event(*, user_id: int, title: str, event_date: str) -> dict[st
             .first()
         )
         return _to_dict(row) if row else None
-
 
 def update_event_from_gcal(
     *,
@@ -157,7 +145,6 @@ def update_event_from_gcal(
             event.event_time = _parse_time(event_time)
             event.location = location
 
-
 def set_gcal_event_id(*, event_id: int, user_id: int, gcal_event_id: str) -> None:
     with get_session() as session:
         event = (
@@ -167,7 +154,6 @@ def set_gcal_event_id(*, event_id: int, user_id: int, gcal_event_id: str) -> Non
         )
         if event:
             event.gcal_event_id = gcal_event_id
-
 
 def delete_event(*, event_id: int, user_id: int) -> bool:
     with get_session() as session:

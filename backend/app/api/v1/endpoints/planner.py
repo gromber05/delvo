@@ -1,9 +1,3 @@
-"""API CRUD del planificador personal.
-
-Expone tareas, reuniones, eventos y notas con autenticacion por usuario.
-Los eventos intentan sincronizarse con Google Calendar cuando hay tokens.
-"""
-
 from __future__ import annotations
 
 from typing import Any, Dict, List

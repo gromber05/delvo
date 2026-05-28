@@ -14,7 +14,6 @@ class ChatRequest(BaseModel):
     language: str | None = None
     conversation_id: int | None = None
 
-
 class ChatResponse(BaseModel):
     """Respuesta normalizada del asistente para UI y persistencia."""
 
@@ -23,7 +22,6 @@ class ChatResponse(BaseModel):
     message: str
     context_used: List[str]
     conversation_id: int | None = None
-
 
 class TranscriptionResponse(BaseModel):
     """Resultado de transcripcion de audio con metadatos opcionales."""

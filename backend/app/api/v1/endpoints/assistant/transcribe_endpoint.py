@@ -18,7 +18,6 @@ ALLOWED_EXTENSIONS = {
     ".aac",
 }
 
-
 @router.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_endpoint(
     file: UploadFile = File(...),

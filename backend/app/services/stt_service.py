@@ -9,7 +9,6 @@ from typing import Any
 
 from faster_whisper import WhisperModel
 
-
 def _as_bool(value: str, default: bool) -> bool:
     normalized = value.strip().lower()
     if normalized in {"1", "true", "yes", "y", "on"}:
@@ -17,7 +16,6 @@ def _as_bool(value: str, default: bool) -> bool:
     if normalized in {"0", "false", "no", "n", "off"}:
         return False
     return default
-
 
 @dataclass(frozen=True)
 class STTConfig:
@@ -28,7 +26,6 @@ class STTConfig:
     vad_filter: bool
     condition_on_previous_text: bool
     concurrency: int
-
 
 class STTService:
     def __init__(self) -> None:

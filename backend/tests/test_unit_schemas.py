@@ -4,7 +4,6 @@ import pytest
 from pydantic import ValidationError
 
 class TestChatRequest:
-
     def test_valid_minimal(self):
         from app.api.v1.endpoints.assistant.schemas import ChatRequest
         req = ChatRequest(message="Hola")
@@ -34,9 +33,7 @@ class TestChatRequest:
         req = ChatRequest(message="Hola", use_rag=False)
         assert req.use_rag is False
 
-
 class TestChatResponse:
-
     def test_valid_response(self):
         from app.api.v1.endpoints.assistant.schemas import ChatResponse
         resp = ChatResponse(
@@ -58,7 +55,6 @@ class TestChatResponse:
             conversation_id=5,
         )
         assert resp.conversation_id == 5
-
 class TestRegisterRequest:
     def test_valid_register(self):
         from app.api.v1.endpoints.auth import RegisterRequest
@@ -89,7 +85,6 @@ class TestRegisterRequest:
         from app.api.v1.endpoints.auth import RegisterRequest
         with pytest.raises(ValidationError):
             RegisterRequest(email="u@test.io", password="x" * 129)
-
 
 class TestLoginRequest:
     def test_valid_login(self):

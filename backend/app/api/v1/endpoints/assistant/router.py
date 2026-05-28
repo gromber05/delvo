@@ -1,5 +1,4 @@
 ﻿from fastapi import APIRouter
-
 from .chat_endpoint import router as chat_router
 from .reindex_endpoint import router as reindex_router
 from .transcribe_endpoint import router as transcribe_router

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 import tempfile
 from pathlib import Path
@@ -10,7 +9,6 @@ if TYPE_CHECKING:
 
 _model: WhisperModel | None = None
 
-
 def _get_model() -> WhisperModel:
     global _model
     if _model is None:
@@ -18,7 +16,6 @@ def _get_model() -> WhisperModel:
         size = os.environ.get("WHISPER_MODEL", "base")
         _model = WhisperModel(size, device="cpu", compute_type="int8")
     return _model
-
 
 def transcribe_audio(audio_bytes: bytes, filename: str) -> str:
     suffix = Path(filename).suffix or ".m4a"

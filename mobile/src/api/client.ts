@@ -137,8 +137,6 @@ export interface ConversationDetailDto extends ConversationDto {
   messages: ConversationMessageDto[];
 }
 
-
-
 let _token: string | null = null;
 let _refreshToken: string | null = null;
 
@@ -156,20 +154,15 @@ export function setApiRefreshToken(token: string | null) {
   _refreshToken = token;
 }
 
-
 export function setOnTokensRefreshed(cb: TokensRefreshedCallback | null) {
   _onTokensRefreshed = cb;
 }
-
 
 export function setOnAuthExpired(cb: AuthExpiredCallback | null) {
   _onAuthExpired = cb;
 }
 
-
-
 let _refreshPromise: Promise<string | null> | null = null;
-
 
 function tryRefresh(): Promise<string | null> {
   if (_refreshPromise) return _refreshPromise;
@@ -195,8 +188,6 @@ function tryRefresh(): Promise<string | null> {
   })();
   return _refreshPromise;
 }
-
-
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const buildHeaders = (token: string | null): Record<string, string> => ({

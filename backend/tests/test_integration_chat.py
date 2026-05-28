@@ -1,21 +1,15 @@
 from __future__ import annotations
-
 from unittest.mock import patch, MagicMock
-
 import pytest
-
 from app.core.security import create_access_token, hash_password
 
 BASE = "/api/v1/assistant"
 
-
 def _token(uid: int = 1, email: str = "test@delvo.io") -> str:
     return create_access_token(subject=email, user_id=uid)
 
-
 def _headers(uid: int = 1) -> dict:
     return {"Authorization": f"Bearer {_token(uid)}"}
-
 
 def _mock_user(uid: int = 1) -> dict:
     return {
@@ -24,7 +18,6 @@ def _mock_user(uid: int = 1) -> dict:
         "google_email": None, "profile_photo_base64": None,
         "created_at": None, "updated_at": None,
     }
-
 
 def _mock_chat_response():
     from app.api.v1.endpoints.assistant.schemas import ChatResponse
@@ -35,9 +28,7 @@ def _mock_chat_response():
         context_used=[],
     )
 
-
 class TestChatEndpoint:
-
     def test_chat_without_auth_returns_response(self, client):
         """El chat funciona sin autenticación (usuario anónimo)."""
         with patch("app.api.v1.endpoints.assistant.chat_endpoint.assistant_chat",
@@ -68,8 +59,6 @@ class TestChatEndpoint:
         with (
             patch("app.api.v1.endpoints.assistant.chat_endpoint.assistant_chat",
                   return_value=mock_response),
-            # El token real se decodifica con la clave de test; solo hay que
-            # mockear get_user_by_id en el módulo dependencies donde está importado
             patch("app.api.v1.endpoints.assistant.dependencies.get_user_by_id",
                   return_value=_mock_user()),
             patch("app.api.v1.endpoints.assistant.chat_endpoint.get_conversation",

@@ -1,17 +1,12 @@
 from __future__ import annotations
-
 import datetime as dt
 import re
 from typing import Any
-
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
-
 from app.db.models import Meeting, MeetingParticipant, _to_dict, get_session
 
-
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
 
 def _split_name_email(raw: str) -> tuple[str | None, str | None]:
     value = raw.strip()
@@ -33,13 +28,11 @@ def _split_name_email(raw: str) -> tuple[str | None, str | None]:
 
     return value, None
 
-
 def _slugify(value: str) -> str:
     lowered = value.strip().lower()
     slug = "".join(char if char.isalnum() else "." for char in lowered)
     slug = ".".join(part for part in slug.split(".") if part)
     return slug or "participant"
-
 
 def _normalize_participants(participants: list[str] | None) -> list[tuple[str | None, str]]:
     if not participants:
@@ -74,7 +67,6 @@ def _normalize_participants(participants: list[str] | None) -> list[tuple[str | 
 
     return normalized
 
-
 def _normalize_participants_value(value: Any) -> list[str]:
     if isinstance(value, str):
         normalized = value.strip()
@@ -98,7 +90,6 @@ def _normalize_participants_value(value: Any) -> list[str]:
         output.append(normalized)
     return output
 
-
 def _merge_participants(existing: list[str], incoming: list[str]) -> list[str]:
     seen: set[str] = set()
     output: list[str] = []
@@ -114,18 +105,15 @@ def _merge_participants(existing: list[str], incoming: list[str]) -> list[str]:
         output.append(normalized)
     return output
 
-
 def _parse_date(value: str | None) -> dt.date | None:
     if not value:
         return None
     return dt.date.fromisoformat(value)
 
-
 def _parse_time(value: str | None) -> dt.time | None:
     if not value:
         return None
     return dt.time.fromisoformat(value)
-
 
 def _participants_to_strings(participants: list[MeetingParticipant]) -> list[str]:
     result = []
@@ -135,36 +123,10 @@ def _participants_to_strings(participants: list[MeetingParticipant]) -> list[str
             result.append(label)
     return result
 
-
 def _meeting_to_dict(meeting: Meeting) -> dict[str, Any]:
     d = _to_dict(meeting)
     d["participants"] = _participants_to_strings(meeting.participants)
     return d
-
-
-def _list_participants_by_meeting_ids(*, meeting_ids: list[int]) -> dict[int, list[str]]:
-    if not meeting_ids:
-        return {}
-
-    with get_session() as session:
-        rows = (
-            session.query(MeetingParticipant)
-            .filter(MeetingParticipant.meeting_id.in_(meeting_ids))
-            .order_by(
-                MeetingParticipant.meeting_id.asc(),
-                MeetingParticipant.created_at.asc(),
-                MeetingParticipant.id.asc(),
-            )
-            .all()
-        )
-        output: dict[int, list[str]] = {meeting_id: [] for meeting_id in meeting_ids}
-        for row in rows:
-            label = (row.participant_name or "").strip() or (row.participant_email or "").strip()
-            if not label:
-                continue
-            output.setdefault(row.meeting_id, []).append(label)
-    return output
-
 
 def _find_exact_meeting_id(
     *,
@@ -196,7 +158,6 @@ def _find_exact_meeting_id(
         return None
     return row.id
 
-
 def _replace_participants(*, meeting_id: int, participants: list[str] | None) -> None:
     normalized = _normalize_participants(participants)
 
@@ -211,7 +172,6 @@ def _replace_participants(*, meeting_id: int, participants: list[str] | None) ->
                 participant_name=name,
                 participant_email=email,
             ))
-
 
 def list_meetings(*, user_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
@@ -228,7 +188,6 @@ def list_meetings(*, user_id: int) -> list[dict[str, Any]]:
         )
         return [_meeting_to_dict(row) for row in rows]
 
-
 def get_meeting(*, meeting_id: int, user_id: int) -> dict[str, Any] | None:
     with get_session() as session:
         row = (
@@ -238,7 +197,6 @@ def get_meeting(*, meeting_id: int, user_id: int) -> dict[str, Any] | None:
             .first()
         )
         return _meeting_to_dict(row) if row else None
-
 
 def create_meeting(
     *,
@@ -306,7 +264,6 @@ def create_meeting(
     result = get_meeting(meeting_id=meeting_id, user_id=user_id)
     return result or {"id": meeting_id}
 
-
 def update_meeting(
     *,
     meeting_id: int,
@@ -345,7 +302,6 @@ def update_meeting(
 
     return get_meeting(meeting_id=meeting_id, user_id=user_id)
 
-
 def update_meeting_participants(
     *,
     meeting_id: int,
@@ -358,7 +314,6 @@ def update_meeting_participants(
 
     _replace_participants(meeting_id=meeting_id, participants=participants)
     return get_meeting(meeting_id=meeting_id, user_id=user_id)
-
 
 def delete_meeting(*, meeting_id: int, user_id: int) -> bool:
     with get_session() as session:

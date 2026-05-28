@@ -1,24 +1,18 @@
 from __future__ import annotations
-
 import datetime as dt
 from typing import Any
-
 from sqlalchemy import asc, nulls_last
-
 from app.db.models import Task, _to_dict, get_session
-
 
 def _parse_date(value: str | None) -> dt.date | None:
     if not value:
         return None
     return dt.date.fromisoformat(value)
 
-
 def _parse_time(value: str | None) -> dt.time | None:
     if not value:
         return None
     return dt.time.fromisoformat(value)
-
 
 def list_tasks(*, user_id: int) -> list[dict[str, Any]]:
     with get_session() as session:
@@ -34,7 +28,6 @@ def list_tasks(*, user_id: int) -> list[dict[str, Any]]:
         )
         return [_to_dict(row) for row in rows]
 
-
 def get_task(*, task_id: int, user_id: int) -> dict[str, Any] | None:
     with get_session() as session:
         row = (
@@ -43,7 +36,6 @@ def get_task(*, task_id: int, user_id: int) -> dict[str, Any] | None:
             .first()
         )
         return _to_dict(row) if row else None
-
 
 def create_task(
     *,
@@ -69,7 +61,6 @@ def create_task(
         session.flush()
         result = _to_dict(task)
     return result
-
 
 def update_task(
     *,
@@ -99,7 +90,6 @@ def update_task(
         session.flush()
         result = _to_dict(task)
     return result
-
 
 def delete_task(*, task_id: int, user_id: int) -> bool:
     with get_session() as session:

@@ -1,12 +1,4 @@
-"""Cliente de IA local usado por el asistente conversacional.
-
-El servicio encapsula Ollama para chat estructurado en JSON y embeddings.
-Tambien normaliza respuestas del modelo para que los endpoints trabajen con
-un contrato estable aunque el proveedor devuelva formatos distintos.
-"""
-
 from __future__ import annotations
-
 import os
 import json
 from pathlib import Path

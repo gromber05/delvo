@@ -1,16 +1,8 @@
-"""Conector PostgreSQL de bajo nivel usado por los repositorios.
-
-Centraliza variables de entorno, reintentos de conexion y el contexto de cursor
-para que cada repositorio mantenga transacciones simples y consistentes.
-"""
-
 from __future__ import annotations
-
 import os
 import time
 from contextlib import contextmanager
 from typing import Generator
-
 from psycopg import Connection, OperationalError, connect
 from psycopg.rows import dict_row
 
@@ -20,7 +12,6 @@ def _env(name: str, *, legacy: str | None = None, default: str) -> str:
     if legacy:
         return os.getenv(name, os.getenv(legacy, default))
     return os.getenv(name, default)
-
 
 def _db_config() -> dict[str, str | int | bool]:
     """
@@ -35,7 +26,6 @@ def _db_config() -> dict[str, str | int | bool]:
         "autocommit": False,
     }
 
-
 def _should_try_localhost_fallback(error: OperationalError) -> bool:
     """Detecta fallos DNS en Docker que permiten probar localhost como fallback."""
     message = str(error).lower()
@@ -49,7 +39,6 @@ def _should_try_localhost_fallback(error: OperationalError) -> bool:
             "no se conoce",
         ]
     )
-
 
 def get_connection() -> Connection:
     """Abre una conexion PostgreSQL con reintentos y fallback local opcional."""
@@ -76,7 +65,6 @@ def get_connection() -> Connection:
 
     assert last_error is not None
     raise last_error
-
 
 @contextmanager
 def get_db_cursor(

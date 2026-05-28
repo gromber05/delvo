@@ -32,7 +32,6 @@ class TestUserModel:
         u = self._user(google_email="user@gmail.com")
         assert u.has_google is True
 
-
 class TestTaskModel:
     def _task(self, **kwargs) -> Task:
         defaults = dict(
@@ -115,7 +114,6 @@ class TestEventModel:
         e = self._event(gcal_event_id="gcal_abc123")
         assert e.is_synced_with_gcal is True
 
-
 class TestMeetingModel:
     def _meeting(self, **kwargs) -> Meeting:
         defaults = dict(
@@ -158,11 +156,6 @@ class TestMeetingModel:
         m = self._meeting(duration_minutes=0)
         assert m.duration_hours == 0.0
 
-
-# ---------------------------------------------------------------------------
-# Note
-# ---------------------------------------------------------------------------
-
 class TestNoteModel:
 
     def _note(self, **kwargs) -> Note:
@@ -202,7 +195,6 @@ class TestNoteModel:
         long_content = "x" * 200
         n = self._note(content=long_content)
         assert n.preview.endswith("…")
-        # 100 chars + 1 ellipsis = 101 chars but as a single unicode char
         assert len(n.preview) == 101
 
     def test_preview_exactly_100_chars_not_truncated(self):
@@ -211,13 +203,7 @@ class TestNoteModel:
         assert n.preview == content
         assert "…" not in n.preview
 
-
-# ---------------------------------------------------------------------------
-# Conversation
-# ---------------------------------------------------------------------------
-
 class TestConversationModel:
-
     def _conversation(self, messages=None, **kwargs) -> Conversation:
         defaults = dict(id=1, user_id=1, title="Conversación test")
         defaults.update(kwargs)
@@ -250,11 +236,6 @@ class TestConversationModel:
         msg2 = Message(id=2, conversation_id=1, role="assistant", content="Segundo")
         c = self._conversation(messages=[msg1, msg2])
         assert c.last_message is msg2
-
-
-# ---------------------------------------------------------------------------
-# Message
-# ---------------------------------------------------------------------------
 
 class TestMessageModel:
 

@@ -1,14 +1,9 @@
 from __future__ import annotations
-
 import logging
 from pathlib import Path
-
 from app.db.postgresql.connector import get_db_cursor
-
 logger = logging.getLogger(__name__)
-
 _SQL_FILE = Path(__file__).parents[3] / "init.sql"
-
 
 def init_db() -> None:
     sql = _SQL_FILE.read_text(encoding="utf-8")

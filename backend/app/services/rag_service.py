@@ -6,9 +6,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
-
 from app.services.ai_service import ai_service
-
 
 @dataclass
 class Chunk:
@@ -92,6 +90,5 @@ class RAGService:
 
         scored.sort(key=lambda x: x[0], reverse=True)
         return [item[1] for item in scored[: self.top_k]]
-
 
 rag_service = RAGService()

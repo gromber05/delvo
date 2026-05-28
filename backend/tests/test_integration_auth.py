@@ -1,9 +1,6 @@
 from __future__ import annotations
-
 from unittest.mock import patch
-
 import pytest
-
 from app.core.security import create_access_token, hash_password
 
 BASE = "/api/v1/auth"
@@ -20,7 +17,6 @@ def _mock_user(uid: int = 1, email: str = "test@delvo.io", role: str = "user") -
         "created_at": None,
         "updated_at": None,
     }
-
 
 class TestRegister:
     def test_register_success(self, client):
@@ -107,7 +103,6 @@ class TestLogin:
         assert resp.status_code == 422
 
 class TestGetMe:
-
     def test_me_returns_user_data(self, client):
         user = _mock_user()
         token = create_access_token(subject=user["email"], user_id=1)
@@ -168,7 +163,6 @@ class TestDeleteAccount:
         assert resp.status_code == 401
 
 class TestChangePassword:
-
     def test_change_password_success(self, client):
         user = _mock_user()
         token = create_access_token(subject=user["email"], user_id=1)

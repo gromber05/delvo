@@ -11,7 +11,6 @@ os.environ.setdefault("JWT_REFRESH_EXPIRE_DAYS", "30")
 os.environ.setdefault("DOCS_USER", "admin")
 os.environ.setdefault("DOCS_PASS", "password")
 
-
 @pytest.fixture(scope="session", autouse=True)
 def patch_init_db():
     """

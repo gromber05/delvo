@@ -1,12 +1,10 @@
 ﻿import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
 from app.core.security import decode_access_token
 from app.db.postgresql.user_repository import get_user_by_id
 
 bearer_scheme = HTTPBearer(auto_error=False)
-
 
 def get_authenticated_user_id_optional(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
