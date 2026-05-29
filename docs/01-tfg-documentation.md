@@ -1,101 +1,91 @@
-﻿# 1. Portada
+﻿# 1. Índice del documento
 
-**Delvo — Aplicación multiplataforma de productividad y organización**
-
-**Gonzalo Romero Bernal**
-2º DAM - IES Rafael Alberti
-26 de Mayo de 2026
-
----
-
-# 2. Índice del documento
-
-3. [Introducción](#3-introducción)
+2. [Introducción](#2-introducción)
 
    * [a. Justificación del proyecto: cómo se originó la idea](#a-justificación-del-proyecto-cómo-se-originó-la-idea)
    * [b. Análisis comparativo de aplicaciones similares](#b-análisis-comparativo-de-aplicaciones-similares)
    * [c. Tendencias](#c-tendencias)
    * [d. Beneficios o expectativas que esperas del proyecto](#d-beneficios-o-expectativas-que-esperas-del-proyecto)
 
-4. [Descripción del proyecto](#4-descripción-del-proyecto)
+3. [Descripción del proyecto](#3-descripción-del-proyecto)
 
    * [a. Tipo de proyecto](#a-tipo-de-proyecto)
    * [b. Características principales](#b-características-principales)
    * [c. Usuarios destinatarios](#c-usuarios-destinatarios)
 
-5. [Objetivos del proyecto](#5-objetivos-del-proyecto)
+4. [Objetivos del proyecto](#4-objetivos-del-proyecto)
 
    * [a. Objetivo general](#a-objetivo-general)
    * [b. Objetivos específicos](#b-objetivos-específicos)
 
-6. [Alcance del proyecto](#6-alcance-del-proyecto)
+5. [Alcance del proyecto](#5-alcance-del-proyecto)
 
    * [a. Límites](#a-límites)
    * [b. Restricciones](#b-restricciones)
 
-7. [Requisitos del proyecto](#7-requisitos-del-proyecto)
+6. [Requisitos del proyecto](#6-requisitos-del-proyecto)
 
    * [a. Requisitos funcionales](#a-requisitos-funcionales)
    * [b. Requisitos técnicos](#b-requisitos-técnicos)
    * [c. Requisitos legales o normativos](#c-requisitos-legales-o-normativos)
 
-8. [Planificación del proyecto](#8-planificación-del-proyecto)
+7. [Planificación del proyecto](#7-planificación-del-proyecto)
 
    * [a. Estructura de tareas](#a-estructura-de-tareas)
    * [b. Cronograma (Gantt)](#b-cronograma-gantt)
    * [c. Recursos necesarios](#c-recursos-necesarios)
 
-9. [Plan de gestión de riesgos](#9-plan-de-gestión-de-riesgos)
+8. [Plan de gestión de riesgos](#8-plan-de-gestión-de-riesgos)
 
    * [a. Riesgos encontrados](#a-riesgos-encontrados)
    * [b. Recursos preventivos](#b-recursos-preventivos)
    * [c. Plan para mitigar dichos riesgos](#c-plan-para-mitigar-dichos-riesgos)
 
-10. [Diseño](#10-diseño)
+9. [Diseño](#9-diseño)
 
     * [a. Prototipado](#a-prototipado)
     * [b. Especificaciones técnicas](#b-especificaciones-técnicas)
     * [c. Diagramas](#c-diagramas)
 
-11. [Instalación y preparación](#11-instalación-y-preparación)
+10. [Instalación y preparación](#10-instalación-y-preparación)
 
     * [a. Procedimientos necesarios para hacer funcionar el proyecto](#a-procedimientos-necesarios-para-hacer-funcionar-el-proyecto)
     * [b. Procedimientos necesarios para el control de versiones](#b-procedimientos-necesarios-para-el-control-de-versiones)
     * [c. Procedimientos para registrar las incidencias](#c-procedimientos-para-registrar-las-incidencias)
 
-12. [Documentación de ejecución y plan de calidad](#12-documentación-de-ejecución-y-plan-de-calidad)
+11. [Documentación de ejecución y plan de calidad](#11-documentación-de-ejecución-y-plan-de-calidad)
 
     * [a. Procedimientos operativos](#a-procedimientos-operativos)
     * [b. Registro de pruebas](#b-registro-de-pruebas)
     * [c. Indicadores de calidad](#c-indicadores-de-calidad)
     * [d. Métodos de verificación](#d-métodos-de-verificación)
 
-13. [Distribución](#13-distribución)
+12. [Distribución](#12-distribución)
 
     * [a. Tecnología de distribución](#a-tecnología-de-distribución)
     * [b. Descripción del proceso](#b-descripción-del-proceso)
 
-14. [Manuales](#14-manuales)
+13. [Manuales](#13-manuales)
 
     * [a. Manual de instalación](#a-manual-de-instalación)
     * [b. Manual de uso de la aplicación](#b-manual-de-uso-de-la-aplicación)
 
-15. [Conclusiones](#15-conclusiones)
+14. [Conclusiones](#14-conclusiones)
 
     * [a. Informe final](#a-informe-final)
     * [b. Resultados esperados](#b-resultados-esperados)
     * [c. Viabilidad del proyecto](#c-viabilidad-del-proyecto)
     * [d. Mejoras futuras](#d-mejoras-futuras)
 
-16. [Anexos](#16-anexos)
+15. [Anexos](#15-anexos)
 
-17. [Índice de tablas e imágenes](#17-índice-de-tablas-e-imágenes)
+16. [Índice de tablas e imágenes](#16-índice-de-tablas-e-imágenes)
 
-18. [Bibliografía y referencias](#18-bibliografía-y-referencias)
+17. [Bibliografía y referencias](#17-bibliografía-y-referencias)
 
 ---
 
-# 3. Introducción
+# 2. Introducción
 
 ## a. Justificación del proyecto: cómo se originó la idea
 
@@ -153,7 +143,7 @@ En conjunto, Delvo representa no solo una solución tecnológica para la organiz
 
 ---
 
-# 4. Descripción del proyecto
+# 3. Descripción del proyecto
 
 ## a. Tipo de proyecto
 
@@ -193,7 +183,7 @@ Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable
 
 ---
 
-# 5. Objetivos del proyecto
+# 4. Objetivos del proyecto
 
 ## a. Objetivo general
 
@@ -217,7 +207,7 @@ Estos objetivos permiten que Delvo no sea solo una demostración académica, sin
 
 ---
 
-# 6. Alcance del proyecto
+# 5. Alcance del proyecto
 
 ## a. Límites
 
@@ -237,7 +227,7 @@ Por último, el proyecto depende de una configuración del entorno específica, 
 
 ---
 
-# 7. Requisitos del proyecto
+# 6. Requisitos del proyecto
 
 ## a. Requisitos funcionales
 
@@ -269,7 +259,7 @@ La integración con Google Calendar debe respetar las condiciones de uso de las 
 
 ---
 
-# 8. Planificación del proyecto
+# 7. Planificación del proyecto
 
 ## a. Estructura de tareas
 
@@ -286,7 +276,7 @@ La planificación del proyecto se distribuyó principalmente entre los meses de 
 
 Durante mayo se concentró la integración final del sistema, incluyendo la aplicación web, la aplicación móvil, Google Calendar, el asistente inteligente y la documentación del proyecto. En el historial del repositorio se observan hitos relevantes el 20 de mayo de 2026, con la incorporación de documentación, calendario y páginas de configuración, y el 21 de mayo de 2026, con refactorizaciones, mejoras de legibilidad, integración OAuth y política de privacidad.
 
-![alt text](gantt_delvo.png)
+![Diagrama de Gant](gantt_delvo.png)
 
 ## c. Recursos necesarios
 
@@ -296,7 +286,7 @@ También han sido necesarios servicios externos como Google Cloud Console para c
 
 ---
 
-# 9. Plan de gestión de riesgos
+# 8. Plan de gestión de riesgos
 
 ## a. Riesgos encontrados
 
@@ -319,7 +309,7 @@ Para el asistente inteligente, se plantea limitar las acciones críticas y valid
 
 ---
 
-# 10. Diseño
+# 9. Diseño
 
 ## a. Prototipado
 
@@ -345,23 +335,25 @@ La aplicación web utiliza Next.js y TypeScript, mientras que la móvil utiliza 
 
 La arquitectura general de Delvo puede entenderse como un sistema formado por tres clientes principales: usuario web, usuario móvil y servicios externos. Tanto la aplicación web como la aplicación móvil se comunican con el backend FastAPI. El backend gestiona la autenticación, la lógica de negocio y el acceso a PostgreSQL. Además, se comunica con Ollama para funciones de inteligencia artificial y con Google Calendar API para la sincronización de eventos.
 
+> [Ver diagramas de clases/ diagramas de uso](04-uml-diagrams.md)
+
 **Diagrama de arquitectura:**
 
 ```
 ┌──────────────┐     ┌──────────────────┐
-│  Usuario web  │────▶│  Next.js (web)   │
+│  Usuario web  │────▶│  Next.js (web)  │
 └──────────────┘     └────────┬─────────┘
                               │
 ┌──────────────┐              ▼
-│ Usuario móvil │────▶ ┌────────────────────┐      ┌─────────────┐
+│ Usuario móvil│────▶ ┌────────────────────┐        ┌─────────────┐
 └──────────────┘       │  Backend FastAPI    │◀────▶│  PostgreSQL │
-                       │  (Python 3.12)      │      └─────────────┘
+                       │  (Python 3.12)      │       └─────────────┘
                        └──┬──────────────┬──┘
                           │              │
                           ▼              ▼
                ┌──────────────┐  ┌────────────────┐
                │  Ollama LLM  │  │ Google Calendar│
-               │  (local IA)  │  │      API        │
+               │  (local IA)  │  │      API       │
                └──────────────┘  └────────────────┘
 ```
 
@@ -393,7 +385,7 @@ App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 
 ---
 
-# 11. Instalación y preparación
+# 10. Instalación y preparación
 
 ## a. Procedimientos necesarios para hacer funcionar el proyecto
 
@@ -401,7 +393,7 @@ Para ejecutar Delvo es necesario clonar el repositorio, configurar el archivo `.
 
 Una vez iniciado el entorno, la aplicación web queda disponible en `http://localhost:31667` y el backend en `http://localhost:30667`. Se puede comprobar el estado del backend accediendo al endpoint `/health`. Para la aplicación móvil, es necesario entrar en la carpeta `mobile`, instalar dependencias y ejecutar Expo mediante `pnpm start` o `npx expo start`.
 
-El entorno de producción se ejecuta sobre un **servidor local con Ubuntu/Debian** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 13.
+El entorno de producción se ejecuta sobre un **servidor local con Ubuntu** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 13.
 
 ## b. Procedimientos necesarios para el control de versiones
 
@@ -418,7 +410,7 @@ En Delvo, las incidencias más relevantes se pueden clasificar por áreas: auten
 
 ---
 
-# 12. Documentación de ejecución y plan de calidad
+# 11. Documentación de ejecución y plan de calidad
 
 ## a. Procedimientos operativos
 
@@ -464,7 +456,7 @@ En la parte visual se ha comprobado el funcionamiento de las principales pantall
 
 ---
 
-# 13. Distribución
+# 12. Distribución
 
 ## a. Tecnología de distribución
 
@@ -588,7 +580,7 @@ Una vez en marcha, todos los servicios tienen la política `restart: unless-stop
 
 ---
 
-# 14. Manuales
+# 13. Manuales
 
 ## a. Manual de instalación
 
@@ -902,7 +894,7 @@ Flujo de trabajo sugerido:
 
 ---
 
-# 15. Conclusiones
+# 14. Conclusiones
 
 ## a. Informe final
 
@@ -930,57 +922,33 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 ---
 
-# 16. Anexos
+# 15. Anexos
 
-## Anexo A — Tabla comparativa de tecnologías utilizadas
+## Diagramas ampliados
 
-| Capa | Tecnología | Versión | Función |
-|---|---|---|---|
-| Backend API | Python + FastAPI | Python 3.12 / FastAPI latest | Lógica de negocio y API REST |
-| Servidor ASGI | Uvicorn | latest | Servidor de producción para FastAPI |
-| Base de datos | PostgreSQL | 16 | Almacenamiento persistente |
-| Web frontend | Next.js + React | Next.js 15 | Aplicación web con App Router |
-| Estilos web | Tailwind CSS + shadcn/ui | latest | Interfaz de usuario |
-| App móvil | Expo + React Native | SDK 52 | Aplicación móvil multiplataforma |
-| Lenguaje frontend | TypeScript | 5.x | Tipado estático |
-| Autenticación | JWT + OAuth 2.0 | — | Tokens de acceso y refresco |
-| IA / LLM | Ollama (local) | latest | Modelos de lenguaje locales |
-| ORM | SQLAlchemy | 2.x | Modelos de base de datos para tests y admin |
-| Tests | pytest + httpx | 8.x | Suite de tests unitarios e integración |
-| RAG | Embeddings propios | — | Base de conocimiento local |
-| Despliegue | Docker Compose | v2 | Orquestación de contenedores |
-| Exposición pública | Cloudflare Tunnel | latest | Acceso externo sin puertos abiertos |
-| Calendarios | Google Calendar API v3 | v3 | Sincronización bidireccional |
+Los diagramas UML completos del sistema se encuentran en el documento [04-uml-diagrams.md](04-uml-diagrams.md) e incluyen:
 
-## Anexo B — Tabla de requisitos funcionales
+- **Diagrama de casos de uso** — actores y funcionalidades principales.
+- **Diagrama de clases** — entidades del modelo de datos y sus relaciones.
+- **Diagramas de flujo / actividad** — flujos de autenticación, planificador, asistente IA y sincronización con Google Calendar.
+- **Diagramas de secuencia** — interacciones entre componentes para los casos de uso principales.
 
-| ID | Requisito | Estado |
+## Registros
+
+### Registro de pruebas
+
+| Archivo | Tipo | Cobertura |
 |---|---|---|
-| RF-01 | Registro de usuario con email y contraseña | ✅ Implementado |
-| RF-02 | Inicio de sesión y generación de tokens JWT | ✅ Implementado |
-| RF-03 | Renovación automática de token de acceso | ✅ Implementado |
-| RF-04 | CRUD completo de tareas | ✅ Implementado |
-| RF-05 | CRUD completo de reuniones | ✅ Implementado |
-| RF-06 | CRUD completo de eventos | ✅ Implementado |
-| RF-07 | CRUD completo de notas | ✅ Implementado |
-| RF-08 | Conexión con Google Calendar vía OAuth 2.0 | ✅ Implementado |
-| RF-09 | Importación automática de eventos de Google al conectar | ✅ Implementado |
-| RF-10 | Sincronización bidireccional de eventos | ✅ Implementado |
-| RF-11 | Edición de eventos de Google Calendar desde Delvo | ✅ Implementado |
-| RF-12 | Asistente inteligente con detección de intención | ✅ Implementado |
-| RF-13 | RAG con base de conocimiento local | ✅ Implementado |
-| RF-14 | Soporte multilenguaje (español e inglés) en web | ✅ Implementado |
-| RF-15 | Aplicación web con dashboard y todas las secciones | ✅ Implementado |
-| RF-16 | Aplicación móvil con calendario, planificador y chat | ✅ Implementado |
-| RF-17 | Política de privacidad pública | ✅ Implementado |
-| RF-18 | Persistencia de conversaciones con el asistente | ✅ Implementado |
-| RF-19 | Panel de administración con gestión de usuarios y conversaciones | ✅ Implementado |
-| RF-20 | Suite de tests automatizados (unitarios e integración) | ✅ Implementado |
-| RF-21 | Notificaciones push | ✅ Implementado |
-| RF-22 | Eventos recurrentes | ❌ Pendiente |
-| RF-23 | Espacios colaborativos | ❌ Pendiente |
+| `test_integration_health.py` | Integración | Endpoint `/health` y rutas básicas |
+| `test_integration_auth.py` | Integración | Registro, login, refresco de token y perfil |
+| `test_integration_chat.py` | Integración | Endpoint de chat del asistente |
+| `test_integration_planner.py` | Integración | CRUD completo de tareas, reuniones, eventos y notas |
+| `test_unit_models.py` | Unitario | Propiedades de los modelos SQLAlchemy ORM |
+| `test_unit_schemas.py` | Unitario | Validación de esquemas Pydantic |
+| `test_unit_security.py` | Unitario | Hash de contraseñas y generación/verificación de JWT |
+| `test_unit_sentiment.py` | Unitario | Clasificación de sentimiento de mensajes |
 
-## Anexo C — Historial de commits relevantes
+### Registro de commits relevantes
 
 | Fecha | Hash | Descripción |
 |---|---|---|
@@ -993,79 +961,21 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 | Mayo 2026 | `eff0b40` | Actualización del README |
 | Mayo 2026 | `fd49e81` | Limpieza de código no utilizado y mejora de integración API |
 
-## Anexo D — Variables de entorno requeridas
-
-```
-# Base de datos
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_USER=delvo
-POSTGRES_PASSWORD=<contraseña>
-POSTGRES_DATABASE=delvo
-
-# Autenticación JWT
-JWT_SECRET_KEY=<clave_secreta>
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=60
-JWT_REFRESH_EXPIRE_DAYS=30
-
-# Aplicación web
-DELVO_BACKEND_URL=http://backend:8000
-DELVO_AUTH_COOKIE_NAME=session_token
-
-# IA / Ollama
-OLLAMA_URL=http://host.docker.internal:11434
-LLM_MODEL=llama3.2
-EMBED_MODEL=nomic-embed-text
-PROMPT_PATH=prompt_system.txt
-PROMPT_PATH_EN=prompt_system_en.txt
-
-# Google Calendar OAuth
-GOOGLE_CLIENT_ID=<client_id>
-GOOGLE_CLIENT_SECRET=<client_secret>
-GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
-```
-
-## Anexo E — Endpoints principales de la API
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `POST` | `/api/v1/auth/register` | Registro de usuario |
-| `POST` | `/api/v1/auth/login` | Inicio de sesión |
-| `POST` | `/api/v1/auth/refresh` | Renovación de token |
-| `GET` | `/api/v1/auth/me` | Perfil del usuario |
-| `GET/POST` | `/api/v1/planner/tasks` | Listar / crear tareas |
-| `GET/PUT/DELETE` | `/api/v1/planner/tasks/{id}` | Gestionar tarea |
-| `GET/POST` | `/api/v1/planner/meetings` | Listar / crear reuniones |
-| `GET/POST` | `/api/v1/planner/events` | Listar / crear eventos |
-| `GET/POST` | `/api/v1/planner/notes` | Listar / crear notas |
-| `POST` | `/api/v1/assistant/chat` | Chat con asistente IA |
-| `POST` | `/api/v1/assistant/reindex` | Reindexar base de conocimiento |
-| `GET` | `/api/v1/conversations/` | Listar conversaciones del usuario |
-| `GET` | `/api/v1/conversations/{id}` | Detalle de conversación con mensajes |
-| `DELETE` | `/api/v1/conversations/{id}` | Eliminar conversación |
-| `GET` | `/api/v1/admin/stats` | Estadísticas globales (admin) |
-| `GET` | `/api/v1/admin/users` | Listar usuarios (admin) |
-| `PUT` | `/api/v1/admin/users/{id}/role` | Actualizar rol de usuario (admin) |
-| `GET` | `/api/v1/google-calendar/connect` | Obtener URL OAuth |
-| `POST` | `/api/v1/google-calendar/sync` | Sincronizar eventos |
-| `PATCH` | `/api/v1/google-calendar/events/{id}` | Editar evento Google |
-
 ---
 
-# 17. Índice de tablas e imágenes
+# 16. Índice de tablas e imágenes
 
 ## Tablas
 
 | Nº | Título | Sección |
 |---|---|---|
-| Tabla 1 | Comparativa de aplicaciones similares | Sección 3b |
-| Tabla 2 | Entidades del planificador y sus campos | Sección 7a |
-| Tabla 3 | Tecnologías utilizadas por capa | Sección 7b y Anexo A |
-| Tabla 4 | Módulos del backend y su función | Sección 10c |
-| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 11a |
-| Tabla 6 | Campos de la entidad Tarea | Sección 14b |
-| Tabla 7 | Campos de la entidad Reunión | Sección 14b |
+| Tabla 1 | Comparativa de aplicaciones similares | Sección 2b |
+| Tabla 2 | Entidades del planificador y sus campos | Sección 6a |
+| Tabla 3 | Tecnologías utilizadas por capa | Sección 6b y Anexo A |
+| Tabla 4 | Módulos del backend y su función | Sección 9c |
+| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 10a |
+| Tabla 6 | Campos de la entidad Tarea | Sección 13b |
+| Tabla 7 | Campos de la entidad Reunión | Sección 13b |
 | Tabla 8 | Tabla de requisitos funcionales | Anexo B |
 | Tabla 9 | Historial de commits relevantes | Anexo C |
 | Tabla 10 | Variables de entorno requeridas | Anexo D |
@@ -1075,14 +985,14 @@ GOOGLE_CALLBACK_URL=https://apidelvo.test.dev/api/v1/google-calendar/callback
 
 | Nº | Título | Sección |
 |---|---|---|
-| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 10c |
-| Diagrama 2 | Flujo de petición web | Sección 10c |
-| Diagrama 3 | Flujo de petición móvil | Sección 10c |
+| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 9c |
+| Diagrama 2 | Flujo de petición web | Sección 9c |
+| Diagrama 3 | Flujo de petición móvil | Sección 9c |
 
 
 ---
 
-# 18. Bibliografía y referencias
+# 17. Bibliografía y referencias
 
 Para la elaboración del proyecto se han utilizado como referencia las documentaciones oficiales de FastAPI, PostgreSQL, Next.js, React, Expo, Docker, Google Calendar API, OAuth 2.0 y Ollama. También se han tenido en cuenta referencias normativas relacionadas con la protección de datos, especialmente el Reglamento General de Protección de Datos y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales.
 
