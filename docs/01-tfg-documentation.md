@@ -1,77 +1,64 @@
 ﻿# 1. Índice del documento
 
 2. [Introducción](#2-introducción)
-
    * [a. Justificación del proyecto: cómo se originó la idea](#a-justificación-del-proyecto-cómo-se-originó-la-idea)
    * [b. Análisis comparativo de aplicaciones similares](#b-análisis-comparativo-de-aplicaciones-similares)
    * [c. Tendencias](#c-tendencias)
    * [d. Beneficios o expectativas que esperas del proyecto](#d-beneficios-o-expectativas-que-esperas-del-proyecto)
 
 3. [Descripción del proyecto](#3-descripción-del-proyecto)
-
    * [a. Tipo de proyecto](#a-tipo-de-proyecto)
    * [b. Características principales](#b-características-principales)
    * [c. Usuarios destinatarios](#c-usuarios-destinatarios)
 
 4. [Objetivos del proyecto](#4-objetivos-del-proyecto)
-
    * [a. Objetivo general](#a-objetivo-general)
    * [b. Objetivos específicos](#b-objetivos-específicos)
 
 5. [Alcance del proyecto](#5-alcance-del-proyecto)
-
    * [a. Límites](#a-límites)
    * [b. Restricciones](#b-restricciones)
 
 6. [Requisitos del proyecto](#6-requisitos-del-proyecto)
-
    * [a. Requisitos funcionales](#a-requisitos-funcionales)
    * [b. Requisitos técnicos](#b-requisitos-técnicos)
    * [c. Requisitos legales o normativos](#c-requisitos-legales-o-normativos)
 
 7. [Planificación del proyecto](#7-planificación-del-proyecto)
-
    * [a. Estructura de tareas](#a-estructura-de-tareas)
    * [b. Cronograma (Gantt)](#b-cronograma-gantt)
    * [c. Recursos necesarios](#c-recursos-necesarios)
 
 8. [Plan de gestión de riesgos](#8-plan-de-gestión-de-riesgos)
-
    * [a. Riesgos encontrados](#a-riesgos-encontrados)
    * [b. Recursos preventivos](#b-recursos-preventivos)
    * [c. Plan para mitigar dichos riesgos](#c-plan-para-mitigar-dichos-riesgos)
 
 9. [Diseño](#9-diseño)
-
     * [a. Prototipado](#a-prototipado)
     * [b. Especificaciones técnicas](#b-especificaciones-técnicas)
     * [c. Diagramas](#c-diagramas)
 
 10. [Instalación y preparación](#10-instalación-y-preparación)
-
     * [a. Procedimientos necesarios para hacer funcionar el proyecto](#a-procedimientos-necesarios-para-hacer-funcionar-el-proyecto)
     * [b. Procedimientos necesarios para el control de versiones](#b-procedimientos-necesarios-para-el-control-de-versiones)
     * [c. Procedimientos para registrar las incidencias](#c-procedimientos-para-registrar-las-incidencias)
 
 11. [Documentación de ejecución y plan de calidad](#11-documentación-de-ejecución-y-plan-de-calidad)
-
     * [a. Procedimientos operativos](#a-procedimientos-operativos)
     * [b. Registro de pruebas](#b-registro-de-pruebas)
     * [c. Indicadores de calidad](#c-indicadores-de-calidad)
     * [d. Métodos de verificación](#d-métodos-de-verificación)
 
 12. [Distribución](#12-distribución)
-
     * [a. Tecnología de distribución](#a-tecnología-de-distribución)
     * [b. Descripción del proceso](#b-descripción-del-proceso)
 
 13. [Manuales](#13-manuales)
-
     * [a. Manual de instalación](#a-manual-de-instalación)
     * [b. Manual de uso de la aplicación](#b-manual-de-uso-de-la-aplicación)
 
 14. [Conclusiones](#14-conclusiones)
-
     * [a. Informe final](#a-informe-final)
     * [b. Resultados esperados](#b-resultados-esperados)
     * [c. Viabilidad del proyecto](#c-viabilidad-del-proyecto)
@@ -89,57 +76,48 @@
 
 ## a. Justificación del proyecto: cómo se originó la idea
 
-Delvo se originó de mi necesidad de una aplicación de organización con la que pudiera gestionar de forma sencilla mis tareas, proyectos y recordatorios en un único lugar. Durante el desarrollo de mis estudios y prácticas, observé que muchas herramientas existentes resultaban demasiado complejas o directamente ni me gustaban ni me ofrecian la simpleza que buscaba.
+La idea de Delvo nació de algo bastante simple, necesitaba una app para organizarme y no encontraba ninguna que me convenciera del todo. Durante el ciclo y las prácticas fui probando Notion, Todoist, TickTick y unas cuantas más, pero siempre había algo que no me terminaba de encajar. O tenían demasiadas cosas que no usaba, o la interfaz era un desastre, o directamente no me gustaba cómo estaban pensadas.
 
-A partir de este problema, surgió la idea de crear una plataforma propia que combinara productividad, organización e IA en una misma solución. El objetivo principal de Delvo es facilitar la gestión diaria mediante una interfaz simple, accesible y moderna, permitiendo centralizar información importante y no manchando todo.
+En un momento dado decidí que tenía más sentido hacer algo propio que seguir adaptándome a herramientas que no me convencían. No era un objetivo especialmente ambicioso al principio, solo quería algo funcional que centralizara mis tareas, proyectos y recordatorios sin que fuera un lío usarlo. A partir de ahí fue creciendo: le añadí un backend con FastAPI, integré Google Calendar, metí un asistente con Ollama que al final acabó siendo bastante más grande de lo que tenía pensado originalmente.
 
 ## b. Análisis comparativo de aplicaciones similares
 
-Actualmente existen numerosas aplicaciones enfocadas en la organización personal, gestión de tareas y productividad. Entre las más conocidas destacan Notion, Trello y Todoist. Estas plataformas ofrecen diferentes enfoques para la gestión del trabajo y la productividad.
+Antes de ponerme a desarrollar miré con más detenimiento qué había en el mercado y qué hacía cada herramienta. Las tres que más uso tiene la gente de mi entorno son Notion, Trello y Todoist.
 
 ### Notion
 
-Notion destaca por ser una solución todo en uno, integrando notas, bases de datos, tareas y documentación en una misma plataforma. Sin embargo, su gran cantidad de funciones puede resultar compleja para usuarios que buscan una experiencia más simple e inmediata.
+Notion es de esas aplicaciones que en teoría lo hacen todo. Notas, bases de datos, tareas, wikis, calendarios... El problema es que esa flexibilidad tiene un precio: cuesta bastante ponerse a usarlo bien. Hay gente que lleva meses configurando su workspace y aún no tiene nada definitivo. Para alguien que quiere empezar a organizarse rápido, es demasiado.
 
 ### Trello
 
-Trello utiliza un sistema visual basado en tableros Kanban y tarjetas, facilitando la organización de proyectos y tareas de forma intuitiva. Aun así, puede quedarse limitado para proyectos más complejos o con gran cantidad de información.
+Trello me parece mucho más concreto. El sistema de tableros Kanban funciona bien para proyectos con fases claras, pero cuando intentas usarlo para gestión personal del día a día se queda corto. No tiene prácticamente nada de agenda, las fechas son un añadido un poco forzado y en cuanto el proyecto crece un poco la vista de tablero se vuelve caótica.
 
 ### Todoist
 
-Todoist se centra en la productividad personal y la gestión rápida de tareas mediante una interfaz minimalista. Es muy útil para usuarios individuales, aunque menos potente en aspectos colaborativos avanzados.
+De las tres, Todoist es la que más se acerca a lo que yo buscaba. Interfaz limpia, rápida, funciona bien en móvil. Pero sigue sin tener una vista de calendario decente y la parte de reuniones o eventos simplemente no existe. Tampoco tiene nada de IA integrada más allá de algunos filtros inteligentes bastante básicos.
 
 ### Diferenciación de Delvo
 
-Delvo busca diferenciarse combinando simplicidad, personalización y funcionalidades inteligentes en una sola plataforma, permitiendo que usuarios individuales puedan gestionar sus tareas y proyectos de forma eficiente sin la complejidad de otras herramientas existentes.
+Delvo no pretende ser mejor que ninguna de estas herramientas en su terreno. Lo que busca es juntarlo todo en un sitio sin la complejidad de Notion, con una agenda real que Todoist no tiene, y con un asistente que entienda lenguaje natural. Para uso personal o de un equipo pequeño, creo que tiene sentido.
 
 ## c. Tendencias
 
-El sector de las aplicaciones de productividad y organización continúa creciendo debido al aumento del trabajo digital, la educación online y la necesidad de gestionar múltiples tareas desde diferentes dispositivos.
+El sector de productividad lleva unos años moviéndose en una dirección bastante clara. Casi todas las herramientas nuevas que salen comparten algunas características:
 
-Entre las principales tendencias actuales destacan:
+* La IA ya no es un añadido opcional. Cosas como resumir notas, proponer prioridades o crear tareas a partir de texto están en prácticamente cualquier app nueva que se lanza.
+* Todo tiende a centralizar. La gente está cansada de tener la agenda en un sitio, las tareas en otro y las notas en otro. Las plataformas todo-en-uno siguen ganando terreno.
+* La sincronización entre dispositivos es un requisito mínimo, no una característica. Si una app no funciona igual en web y en móvil, directamente se descarta.
+* Las interfaces se están simplificando. Hay un movimiento claro hacia menos opciones visibles y más acciones contextuales.
 
-* Integración de inteligencia artificial, utilizada para automatizar tareas, generar resúmenes, priorizar actividades o asistir al usuario mediante recomendaciones inteligentes.
-* Plataformas todo en uno, que integran notas, calendarios, tareas, documentación y colaboración en un mismo entorno, evitando el uso de múltiples aplicaciones.
-* Sincronización multiplataforma, permitiendo utilizar la misma aplicación desde web, móvil y escritorio con datos sincronizados en tiempo real.
-* Interfaces visuales e intuitivas, basadas en tableros, calendarios y componentes personalizables que facilitan la experiencia del usuario.
-* Automatización y colaboración, especialmente en aplicaciones orientadas a equipos de trabajo y gestión de proyectos.
-
-Delvo se plantea siguiendo estas tendencias tecnológicas, incorporando una arquitectura moderna, compatibilidad multiplataforma y posibilidades de integración futura con servicios de inteligencia artificial.
+Delvo se diseñó teniendo esto en cuenta, aunque siendo realista: es un proyecto de un solo desarrollador con un tiempo limitado, así que hay cosas que se quedan en el tintero para versiones futuras.
 
 ## d. Beneficios o expectativas que esperas del proyecto
 
-Con el desarrollo de Delvo se esperan obtener diferentes beneficios tanto a nivel funcional como académico y profesional:
+Lo que espero sacar de esto es doble. A nivel personal, tener una herramienta que realmente use en el día a día para organizarme. Ya la uso, así que ese objetivo está cumplido.
 
-* Facilitar la organización diaria de tareas, proyectos y recordatorios desde una única plataforma centralizada.
-* Mejorar la productividad y la gestión del tiempo del usuario mediante herramientas intuitivas y accesibles.
-* Ofrecer una experiencia multiplataforma compatible con dispositivos web y móviles.
-* Permitir una futura integración de funciones inteligentes basadas en IA para asistencia y automatización.
-* Aplicar conocimientos reales de desarrollo multiplataforma, arquitectura de software, bases de datos y desarrollo moderno.
-* Obtener experiencia práctica en tecnologías actuales como Next.js (Aplicación Web), FastAPI, PostgreSQL y React Native (Aplicación Móvil).
-* Desarrollar un proyecto escalable y adaptable que pueda evolucionar en el futuro hacia una aplicación de uso real.
+A nivel académico y profesional, el proyecto me ha obligado a trabajar con tecnologías que no dominaba del todo: montar un backend con FastAPI y SQLAlchemy desde cero, gestionar OAuth con Google, desplegar con Docker Compose en un servidor real, integrar un LLM local con Ollama, es el tipo de experiencia que no te da estudiar teoría.
 
-En conjunto, Delvo representa no solo una solución tecnológica para la organización personal y profesional, sino también una oportunidad de crecimiento técnico y aprendizaje práctico dentro del desarrollo de software moderno.
+También me llevo aprendizajes menos técnicos, como priorizar funcionalidades cuando el tiempo es limitado, o documentar código que dentro de tres meses no voy a recordar cómo funciona. Eso vale más que cualquier cosa del stack.
 
 ---
 
@@ -147,39 +125,29 @@ En conjunto, Delvo representa no solo una solución tecnológica para la organiz
 
 ## a. Tipo de proyecto
 
-Delvo es una aplicación multiplataforma de productividad y organización desarrollada como un proyecto de desarrollo de software moderno. Este proyecto está orientado a la gestión de tareas, proyectos, recordatorios y organización personal o de pequeños equipos de trabajo, integrando funcionalidades web y móviles dentro de una misma plataforma.
+Delvo es una aplicación multiplataforma de productividad personal. Tiene tres partes diferenciadas que funcionan juntas: una app web hecha con Next.js, una app móvil con React Native y Expo, y un backend en FastAPI que expone una API REST. Los datos se guardan en PostgreSQL.
 
-Se trata de una solución basada en arquitectura cliente-servidor, formada por:
-
-* Una aplicación web desarrollada con Next.js y React.
-* Una aplicación móvil desarrollada con React Native y TypeScript.
-* Un backend basado en FastAPI encargado de la lógica de negocio, autenticación y gestión de datos.
-* Una base de datos PostgreSQL para el almacenamiento persistente de información.
-
-Además, este proyecto incorpora herramientas de inteligencia artificial para automatización, asistencia y recomendaciones inteligentes al usuario.
+El backend es la pieza central. Gestiona la autenticación, toda la lógica de negocio y hace de intermediario con los servicios externos, Google Calendar y Ollama. Las dos aplicaciones cliente, web y móvil, consumen la misma API, así que en teoría cualquier dato creado desde el móvil aparece al momento en web y viceversa.
 
 ## b. Características principales
 
-Delvo incorpora diferentes funcionalidades orientadas a mejorar la productividad y la organización del usuario:
+Las funcionalidades que tiene implementadas actualmente son:
 
-* Gestión de tareas y proyectos mediante una interfaz clara e intuitiva.
-* Creación y administración de recordatorios y actividades.
-* Organización visual de información y proyectos.
-* Sincronización multiplataforma entre dispositivos web y móviles.
-* Sistema de autenticación y gestión de usuarios.
-* Arquitectura escalable preparada para futuras ampliaciones.
-* Posibilidad de integración con inteligencia artificial para automatización y asistencia inteligente.
-* Interfaz moderna y personalizable enfocada en la facilidad del uso.
-* Centralización de información importante en una única plataforma.
-* Compatibilidad con trabajo individual y colaboración en pequeños equipos.
+* Gestión de tareas con prioridad (baja, media, alta), fecha límite y estado.
+* Reuniones con fecha, hora, duración, ubicación y lista de participantes.
+* Eventos sincronizables con Google Calendar.
+* Notas con opción de archivar.
+* Asistente de chat que interpreta lenguaje natural en español e inglés y ejecuta acciones sobre el planificador.
+* Integración con Google Calendar vía OAuth 2.0: importar eventos, sincronizar y editar desde Delvo.
+* Sistema de autenticación con JWT, refresh automático en móvil y cookies HTTP-only en web.
+* Panel de administración para gestionar usuarios y ver estadísticas de uso.
+* Soporte multilenguaje en la interfaz web.
 
 ## c. Usuarios destinatarios
 
-Delvo, desde un principio, estaba orientado a una aplicación de uso personal, pero ha sido desarrollada para un ámbito lectivo, en específico, para aquellos estudiantes que necesitan organizar tareas, proyectos académicos y recordatorios.
+Empecé pensándolo como una herramienta solo para mí, pero conforme lo fui desarrollando me di cuenta de que encaja bien para cualquier estudiante que necesite organizar su vida académica sin complicarse. También para alguien que trabaje solo o en un equipo pequeño y quiera una plataforma ligera sin pagar por Notion o similar.
 
-También para aquellos usuarios individuales que solo buscan una herramienta sencilla para mejorar su productividad diaria o, tan solo, para pequeños equipos que requieren una plataforma accesible para gestionar proyectos y tareas colaborativas.
-
-Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable, evitando la complejidad excesiva presente en otras herramientas del mercado y facilitando el acceso a funciones de organización desde distintos dispositivos.
+No está pensado para equipos grandes ni para gestión de proyectos complejos con dependencias entre tareas, sprints y todo eso. Para eso ya existen herramientas mucho más potentes. El nicho de Delvo es el usuario individual o el equipo de dos o tres personas que necesita algo funcional, rápido y sin curva de aprendizaje.
 
 ---
 
@@ -187,23 +155,20 @@ Delvo busca ofrecer una experiencia de usuario muy sencilla, moderna y adaptable
 
 ## a. Objetivo general
 
-Realizar el desarrollo de una aplicación multiplataforma de organización y productividad llamada Delvo, orientada a estudiantes, usuarios individuales y pequeños equipos, que permita centralizar la gestión de tareas, reuniones, eventos y recordatorios en un único entorno, con una experiencia de uso sencilla, moderna y accesible desde web y móvil.
+Desarrollar una aplicación multiplataforma de organización y productividad —Delvo— que centralice la gestión de tareas, reuniones, eventos y notas en un único entorno accesible desde web y móvil, con una interfaz simple y un asistente inteligente integrado.
 
 ## b. Objetivos específicos
 
-Para alcanzar el objetivo general, se definen los siguientes objetivos específicos:
-
-* Diseñar e implementar una arquitectura cliente-servidor escalable, separando frontend web, app móvil, backend y base de datos.
-* Desarrollar un sistema de autenticación y gestión de usuarios seguro para proteger el acceso a la información personal.
-* Implementar funcionalidades de gestión de tareas (crear, editar, listar y actualizar estado y prioridad).
-* Implementar funcionalidades de gestión de reuniones y eventos con fecha, hora, duración, ubicación y participantes.
-* Garantizar la sincronización de datos entre la aplicación web y la aplicación móvil mediante una API REST.
-* Crear una interfaz intuitiva y visualmente clara que facilite el uso diario sin curva de aprendizaje elevada.
-* Integrar un asistente inteligente en el backend que permita interpretar peticiones del usuario y automatizar acciones de organización.
-* Aplicar buenas prácticas de desarrollo (modularidad, control de versiones, pruebas y documentación) para facilitar el mantenimiento futuro.
-* Preparar la aplicación para futuras ampliaciones funcionales, como nuevas integraciones de IA y mejoras colaborativas.
-
-Estos objetivos permiten que Delvo no sea solo una demostración académica, sino una base sólida para evolucionar hacia un producto real de productividad.
+* Diseñar una arquitectura cliente-servidor con separación clara entre frontend web, app móvil, backend y base de datos.
+* Implementar autenticación segura con JWT, incluyendo registro, login y refresco automático de tokens.
+* Desarrollar el CRUD completo de tareas, reuniones, eventos y notas.
+* Sincronizar datos en tiempo real entre la app web y la app móvil a través de la API REST.
+* Integrar Google Calendar mediante OAuth 2.0 para importar y sincronizar eventos.
+* Construir un asistente de chat que entienda peticiones en lenguaje natural y las traduzca en acciones sobre el planificador.
+* Incluir una base de conocimiento RAG para que el asistente pueda responder preguntas sobre el proyecto usando información local.
+* Desplegar el sistema completo usando Docker Compose, con Cloudflare Tunnel para la exposición pública.
+* Escribir tests automatizados de integración y unitarios con pytest.
+* Documentar la instalación y el uso de forma que cualquier persona pueda levantar el entorno desde cero.
 
 ---
 
@@ -211,19 +176,17 @@ Estos objetivos permiten que Delvo no sea solo una demostración académica, sin
 
 ## a. Límites
 
-El alcance de Delvo se centra en el desarrollo de una aplicación multiplataforma de productividad personal y organización, formada por una aplicación web, una aplicación móvil, un backend y una base de datos. En su versión actual, el proyecto permite a los usuarios registrarse, iniciar sesión y gestionar información relacionada con tareas, reuniones, eventos y notas. También incorpora un asistente inteligente capaz de interpretar mensajes en lenguaje natural y ayudar al usuario a realizar acciones dentro del planificador.
+La versión actual de Delvo cubre el ciclo completo de uso individual: registro, autenticación, gestión del planificador (tareas, reuniones, eventos, notas), calendario visual, asistente de chat y sincronización con Google Calendar. La app web funciona desde cualquier navegador y la app móvil genera un `.apk` instalable en Android compilado con Expo.
 
-Además, Delvo incluye integración con Google Calendar mediante OAuth 2.0, permitiendo conectar una cuenta de Google, sincronizar eventos y consultar información del calendario desde la propia aplicación. La aplicación web ofrece una experiencia de usuario rica desde navegador, mientras que la aplicación móvil permite acceder a las funciones principales desde un dispositivo Android mediante React Native y su correspondiente `.apk` compilada haciendo uso de la herramienta Expo.
-
-No obstante, esta primera versión no contempla funcionalidades colaborativas avanzadas, como espacios compartidos entre usuarios, permisos por roles o edición simultánea. Tampoco incluye todavía publicación oficial en tiendas de aplicaciones. Estas funcionalidades se consideran ampliaciones futuras, ya que el objetivo principal del proyecto es construir una base funcional, estable y escalable.
+Lo que no está en esta versión y queda fuera del alcance del TFG son los espacios colaborativos entre usuarios (cada cuenta es completamente independiente), los permisos por roles, la edición simultánea de elementos y la publicación en Google Play o App Store. Tampoco hay notificaciones push, aunque la estructura del backend podría soportarlas sin mucho trabajo adicional.
 
 ## b. Restricciones
 
-El desarrollo del proyecto ha estado condicionado por varias restricciones. La primera ha sido el tiempo disponible, ya que el proyecto se ha realizado dentro del periodo correspondiente al Trabajo de Fin de Grado. Esto ha obligado a priorizar las funcionalidades principales frente a otras mejoras que podrían incorporarse en versiones posteriores.
+El tiempo ha sido la restricción más grande. El proyecto se desarrolló principalmente entre marzo y mayo de 2026, compaginándolo con otras asignaturas y con las prácticas. Eso obligó a tomar decisiones constantemente sobre qué entra y qué se deja para después.
 
-También ha existido una restricción de recursos, al tratarse de un proyecto desarrollado principalmente por una sola persona. Por este motivo, se ha optado por una arquitectura modular y por tecnologías conocidas que facilitan el desarrollo, mantenimiento y despliegue. Otra restricción importante es la dependencia de servicios externos como Google Calendar y Ollama, que requieren configuración específica para poder funcionar de manera estable.
+Ser el único desarrollador también condiciona bastante las decisiones técnicas. Elegí tecnologías que ya conocía o que podía aprender rápido: FastAPI porque la documentación es muy buena y el desarrollo va rápido, Next.js porque venía de trabajar con React, Expo porque evita tener que configurar entornos nativos de Android. Si hubiera tenido más tiempo habría explorado otras opciones, pero con el calendario que tenía no había margen para experimentos largos.
 
-Por último, el proyecto depende de una configuración del entorno específica, requiriendo variables de entorno, archivos Docker y credenciales externas. Esto implica que la instalación debe seguir unos pasos concretos para que todos los servicios funcionen de manera adecuada.
+Hay dos dependencias externas que complican un poco la instalación: Google Calendar API requiere crear un proyecto en Google Cloud Console y configurar OAuth, y Ollama necesita estar corriendo en el host con los modelos ya descargados. Nada insalvable, pero hay que seguir los pasos o el asistente simplemente no funciona.
 
 ---
 
@@ -231,31 +194,33 @@ Por último, el proyecto depende de una configuración del entorno específica, 
 
 ## a. Requisitos funcionales
 
-Delvo debe permitir que un usuario pueda crear una cuenta, iniciar sesión y mantener una sesión activa de forma segura haciendo uso de credenciales. Una vez autenticado, el usuario debe poder gestionar sus tareas, reuniones, eventos y notas, realizando operaciones básicas como crear, consultar, modificar y eliminar información.
+El sistema tiene que permitir crear una cuenta y autenticarse. Una vez dentro, el usuario puede gestionar sus tareas, reuniones, eventos y notas: crearlos, verlos, editarlos y borrarlos. Cada usuario solo ve sus propios datos; los endpoints que devuelven información personal requieren token JWT válido en la cabecera.
 
-El sistema también debe permitir que cada usuario acceda únicamente a sus propios datos, evitando que la información personal pueda ser consultada por otros usuarios. Para ello, los endpoints protegidos requieren autenticación mediante tokens JWT.
+El asistente tiene que ser capaz de recibir un mensaje en texto libre, entender qué quiere el usuario y ejecutarlo. Frases como "crea una tarea para revisar el PR mañana a las 10" tienen que resultar en una tarea creada en la base de datos, no solo en una respuesta de texto.
 
-Otra funcionalidad importante es la integración del asistente inteligente. El usuario debe poder escribir peticiones en lenguaje natural, como solicitar la creación de una tarea o consultar sus eventos, y el sistema debe interpretar la intención y responder de forma útil. Además, Delvo debe permitir conectar una cuenta de Google Calendar, sincronizar eventos y editar determinados eventos desde la aplicación.
+La integración con Google Calendar tiene que funcionar en ambas direcciones: importar los eventos existentes del calendario del usuario y sincronizar los eventos creados en Delvo hacia Google. Desde la app también tiene que ser posible editar eventos de Google Calendar directamente.
 
-En la parte web, el sistema debe ofrecer navegación por las distintas secciones de productividad y soporte multilenguaje.
-En la parte móvil, la aplicación debe permitir mantener la sesión del usuario y refrescar automáticamente el token cuando sea necesario.
+En web, la aplicación tiene que ofrecer soporte multilenguaje y navegación por todas las secciones sin recargar la página. En móvil, el token tiene que renovarse automáticamente en segundo plano para que la sesión no expire mientras el usuario está usando la app.
 
 ## b. Requisitos técnicos
 
-El backend del proyecto está desarrollado con Python y FastAPI, utilizando Uvicorn como entorno de ejecución. La base de datos utilizada es una base de datos PostgreSQL autoalojada en nuestro servidor, donde se almacenan usuarios, tareas, reuniones, eventos, notas y datos relacionados con la integración de Google Calendar.
+El backend corre sobre Python 3.12 con FastAPI y Uvicorn. La base de datos es PostgreSQL 16 en un contenedor Docker. El ORM principal es SQLAlchemy pero hay partes que usan psycopg directamente para queries más complejas.
 
-La aplicación web está desarrollada con Next.js, React, TypeScript y Tailwind CSS. Esta parte actúa como cliente principal en navegador y también como capa intermedia para algunas peticiones autenticadas. La aplicación móvil está desarrollada con Expo, React Native y TypeScript, permitiendo una experiencia adaptada a dispositivos móviles.
+La web usa Next.js 15 con TypeScript y Tailwind CSS. El enrutamiento es App Router. Las peticiones autenticadas pasan por el middleware de Next.js antes de llegar al backend, lo que evita exponer el token JWT directamente en el cliente.
 
-Para la inteligencia artificial se utiliza Ollama, lo que permite ejecutar modelos de lenguaje de forma local. El proyecto también incluye una base de conocimiento para RAG, de forma que el asistente pueda apoyarse en información local. El despliegue se organiza mediante Docker Compose, lo que facilita levantar el backend, la base de datos y la aplicación web de forma conjunta.
+La app móvil está hecha con Expo SDK 51 y React Native. Usa Expo Router para la navegación y expo-secure-store para guardar los tokens de forma segura en el dispositivo.
 
+Para el asistente se usa Ollama corriendo en el host. El modelo principal es `Qwen 3.5` y para los embeddings del RAG se usa `nomic-embed-text`. La base de conocimiento se indexa en local y el backend hace la recuperación antes de construir el prompt.
+
+Todo el entorno se levanta con Docker Compose. El archivo `docker-compose.yml` define los servicios de PostgreSQL, backend y web, con `healthcheck` para asegurar el orden de arranque.
 
 ## c. Requisitos legales o normativos
 
-Delvo trata datos personales como nombre, correo electrónico, contraseña cifrada e información de organización personal. Por ello, el proyecto debe tener en cuenta los principios básicos del Reglamento General de Protección de Datos y la normativa española de protección de datos.
+Delvo almacena datos personales, nombre, email y contraseña , que está hasheada con bcrypt, además de toda la información del planificador. El RGPD aplica aunque sea un proyecto académico, así que hay algunas cosas que hay que tener en cuenta.
 
-La aplicación debe almacenar únicamente la información necesaria para su funcionamiento y proteger las credenciales mediante técnicas de seguridad adecuadas, como el hash de contraseñas y el uso de tokens de acceso. Además, las credenciales sensibles, como claves JWT o credenciales de Google, deben mantenerse fuera del código fuente y gestionarse mediante variables de entorno.
+Las contraseñas nunca se guardan en texto plano. Los tokens JWT y las credenciales de Google se gestionan a través de variables de entorno, nunca están en el código fuente. La app web incluye una página de política de privacidad que explica qué datos se guardan y para qué.
 
-La integración con Google Calendar debe respetar las condiciones de uso de las APIs de Google, solicitando únicamente los permisos necesarios para el funcionamiento previsto. También se incluye una política de privacidad en la aplicación web para informar al usuario sobre el tratamiento de sus datos.
+La integración con Google Calendar solo solicita los permisos de `calendar.events` y `calendar.readonly`, que son los mínimos necesarios para que la sincronización funcione. No se piden permisos adicionales aunque la API de Google los ofrezca.
 
 ---
 
@@ -263,26 +228,29 @@ La integración con Google Calendar debe respetar las condiciones de uso de las 
 
 ## a. Estructura de tareas
 
-El desarrollo de Delvo se ha organizado en varias fases. En primer lugar, se realizó el análisis de la idea y la definición del problema que se quería resolver. A partir de ahí, se diseñó la arquitectura general del sistema, separando claramente backend, aplicación web, aplicación móvil y base de datos.
+El desarrollo siguió un orden más o menos lógico aunque con bastantes ajustes sobre la marcha. Empecé por lo que más claro tenía: el backend. Primero monté la autenticación porque es la base de todo lo demás; sin eso no puedes probar nada. Después fui añadiendo módulos: tareas, reuniones, eventos, notas. Cuando el backend estuvo estable empecé con la web.
 
-Después se implementó el backend, comenzando por la autenticación de usuarios y continuando con los módulos de tareas, reuniones, eventos y notas. Una vez disponible la API principal, se desarrolló la aplicación web con sus pantallas de acceso, panel principal, calendario, planificador, configuración y asistente.
-
-Posteriormente se trabajó en la aplicación móvil, adaptando las funcionalidades principales a una interfaz pensada para dispositivos móviles. En las últimas fases se incorporaron las integraciones más avanzadas, como el asistente inteligente, la base de conocimiento RAG y la sincronización con Google Calendar. Finalmente, se realizaron pruebas funcionales, ajustes de errores, refactorización y documentación.
-
+La app móvil la dejé para después porque compartir la misma API simplifica mucho el trabajo: básicamente es reimplementar las pantallas en React Native usando los mismos endpoints que ya funcionaban en web. Lo que más me costó fue la parte de OAuth con Google, que tiene bastante configuración y tuve que volver varias veces a revisarla hasta que funcionó bien. El asistente con Ollama también llevó más tiempo del esperado, sobre todo afinar el sistema de prompts para que las respuestas en español fueran coherentes y el modelo no inventara acciones que no debía ejecutar.
 
 ## b. Cronograma (Gantt)
 
-La planificación del proyecto se distribuyó principalmente entre los meses de marzo, abril y mayo de 2026. Durante marzo se trabajó en el análisis inicial, la definición de objetivos, el diseño de la arquitectura y las primeras decisiones tecnológicas. En abril se avanzó en la implementación del backend, la base de datos y los primeros módulos funcionales.
+El tiempo consumido del trabajo se concentró en tres meses: marzo, abril y mayo.
 
-Durante mayo se concentró la integración final del sistema, incluyendo la aplicación web, la aplicación móvil, Google Calendar, el asistente inteligente y la documentación del proyecto. En el historial del repositorio se observan hitos relevantes el 20 de mayo de 2026, con la incorporación de documentación, calendario y páginas de configuración, y el 21 de mayo de 2026, con refactorizaciones, mejoras de legibilidad, integración OAuth y política de privacidad.
+Marzo fue de análisis y arquitectura. Definí el modelo de datos, decidí el stack tecnológico y monté el esqueleto del proyecto: estructura de carpetas, Docker Compose básico, primeras rutas del backend.
+
+En abril entré en la fase de implementación principal. Backend casi completo, base de datos funcionando, primeras pantallas de la web. También fue cuando configuré el servidor de producción con Ubuntu y Cloudflare Tunnel para poder probar en real sin depender de localhost.
+
+Mayo fue el mes más intenso. Acabé la web, desarrollé la app móvil, integré Google Calendar, metí el asistente, escribí los tests y documenté todo. Los commits del 20 y 21 de mayo son los más representativos de ese sprint final: autenticación OAuth, política de privacidad, PlannerScreen en móvil, refactorizaciones varias.
 
 ![Diagrama de Gant](gantt_delvo.png)
 
 ## c. Recursos necesarios
 
-Para desarrollar Delvo se ha utilizado un equipo de desarrollo capaz de ejecutar contenedores Docker y herramientas modernas de desarrollo web y móvil. A nivel de software, han sido necesarios Git, Docker, Docker Compose, Python, Node.js, pnpm, Expo y un editor de código.
+Para desarrollar el proyecto usé mi propio equipo, que tiene suficiente potencia para correr Docker, Ollama con el modelo de 9B y el entorno de desarrollo al mismo tiempo (con todo abierto el ventilador trabajaba bastante).
 
-También han sido necesarios servicios externos como Google Cloud Console para configurar OAuth y Google Calendar API, así como Ollama para ejecutar modelos de inteligencia artificial de forma local.
+Las herramientas de software fueron Git, Docker Desktop, Python 3.12, Node.js 20, pnpm y VS Code. Para el servidor de producción usé una máquina con Ubuntu que tengo en casa conectada a la red local, expuesta a internet a través de Cloudflare Tunnel.
+
+Los servicios externos que requieren configuración son Google Cloud Console (para las credenciales OAuth) y el propio Ollama, que hay que instalar por separado y descargar los modelos antes de arrancar el backend.
 
 ---
 
@@ -290,22 +258,27 @@ También han sido necesarios servicios externos como Google Cloud Console para c
 
 ## a. Riesgos encontrados
 
-Durante el desarrollo se identificaron distintos riesgos técnicos. Uno de los principales fue la gestión de autenticación y expiración de tokens, ya que una mala implementación podía provocar cierres de sesión inesperados o problemas de seguridad. También existía riesgo en la integración con Google Calendar, al depender de credenciales externas, permisos OAuth y disponibilidad de la API de Google.
+El riesgo que más quebraderos de cabeza me dio fue la gestión de tokens. Un refresh mal implementado puede hacer que el usuario pierda la sesión en mitad de una acción o, peor, que el token caducado llegue al backend y devuelva un 401 sin que el usuario entienda qué ha pasado. En la app móvil esto es especialmente importante porque las sesiones duran mucho más que en web.
 
-Otro riesgo importante estaba relacionado con el asistente inteligente, ya que los modelos de lenguaje pueden interpretar de forma incorrecta algunas peticiones del usuario. Además, la configuración del entorno mediante variables y contenedores podía generar errores si no se documentaba correctamente.
+La integración con Google Calendar también fue un punto de riesgo real. Depende de credenciales externas, de que la app esté verificada en Google (o de que el usuario esté en la lista de prueba), y de que los scopes estén bien configurados. Si falla cualquiera de esas piezas, la integración simplemente no arranca.
+
+Con el asistente el riesgo es diferente: los modelos de lenguaje a veces interpretan mal las peticiones o devuelven JSON mal formado que rompe el parsing. Especialmente con peticiones ambiguas o en inglés con estructura rara.
 
 ## b. Recursos preventivos
 
-Para reducir estos riesgos se aplicó una separación clara entre módulos, manteniendo lógica de autenticación, planificación, calendario e inteligencia artificial en componentes diferenciados. El backend utiliza validaciones con Pydantic para controlar los datos recibidos y evitar entradas incorrectas.
+Para el tema de tokens, implementé renovación automática en el cliente móvil usando un interceptor que detecta el error 401 y hace el refresh antes de reintentar la petición original. En web, las cookies HTTP-only tienen una duración más corta pero se renuevan en cada petición al servidor Next.js.
 
-También se implementó renovación automática de tokens en el cliente móvil y manejo de errores en las llamadas a la API. La configuración mediante Docker Compose ayuda a reproducir el entorno de ejecución y reducir diferencias entre instalaciones. Además, la documentación del proyecto recoge las variables necesarias y los pasos básicos de instalación.
+El backend valida todos los datos de entrada con Pydantic antes de tocarlos. Si algo llega mal formado, devuelve un 422 con detalle del error en lugar de explotar en producción. Para el asistente añadí un paso de parsing defensivo que intenta extraer el JSON de la respuesta aunque venga con texto extra alrededor, y si no puede parsear nada devuelve un error controlado en lugar de ejecutar una acción incorrecta.
 
+La separación en módulos ayuda bastante. Si la integración con Google Calendar falla, el resto de la app sigue funcionando. El asistente tiene su propio endpoint y su propio servicio, así que un fallo ahí no afecta al planificador.
 
 ## c. Plan para mitigar dichos riesgos
 
-En caso de errores de autenticación, el sistema debe forzar la renovación del token o solicitar al usuario que vuelva a iniciar sesión. Si se produce un fallo en Google Calendar, Delvo debe mantener la información local siempre que sea posible y mostrar un error controlado sin bloquear el resto de la aplicación.
+Si el token no se puede renovar, la app fuerza el login de nuevo. En producción esto no debería pasar frecuentemente porque el refresh token dura bastante más que el access token, pero si hay un problema en el servidor y la sesión se invalida, la experiencia de usuario es un login limpio, no un error críptico.
 
-Para el asistente inteligente, se plantea limitar las acciones críticas y validar siempre los datos antes de ejecutarlos. En cuanto a la instalación, la mitigación principal consiste en mantener una documentación clara del entorno y utilizar Docker para facilitar la puesta en marcha.
+Para Google Calendar, si la sincronización falla la información local sigue disponible. El error se muestra en la interfaz pero no bloquea el uso del planificador. El usuario puede desconectar y volver a conectar la cuenta desde Configuración si hay algún problema con las credenciales.
+
+Con el asistente, las acciones críticas (borrar elementos, por ejemplo) siempre pasan por una confirmación antes de ejecutarse. El modelo puede proponer la acción, pero la ejecución final requiere que el usuario confirme.
 
 ---
 
@@ -313,31 +286,28 @@ Para el asistente inteligente, se plantea limitar las acciones críticas y valid
 
 ## a. Prototipado
 
+El diseño fue iterativo. Empecé con wireframes muy básicos en Figma para tener clara la estructura de navegación antes de escribir código, pero la mayoría de las decisiones de diseño las tomé directamente implementando y viendo cómo quedaba en el navegador.
 
-El diseño de Delvo se ha planteado buscando una experiencia clara, moderna y sencilla. La aplicación se organiza en secciones principales que responden a las necesidades del usuario: inicio, planificador, calendario, asistente y configuración.
+La web tiene una barra de navegación lateral fija con acceso a todas las secciones. El contenido ocupa el resto del ancho. En móvil usé navegación por tabs en la parte inferior, que es el patrón estándar de React Native y el que la gente espera en una app.
 
-La interfaz web utiliza una estructura de navegación lateral y vistas específicas para cada módulo. La aplicación móvil adapta estas funcionalidades a una navegación más compacta y directa, pensada para consultar y gestionar información rápidamente desde el teléfono. 
+Los prototipos de Figma están disponibles aquí, aunque no reflejan exactamente el estado final de la app porque hubo cambios durante el desarrollo:
 
 - [Web](https://www.figma.com/proto/PRgSEpb6KTPkEAn6vv6qzu/Sin-t%C3%ADtulo?node-id=0-1&t=hL02xrtf67XXKFfl-1)
-
 - [Móvil](https://www.figma.com/proto/seVlXDmSqDxsApD86fO3YZ/Delvo---Web?node-id=0-1&t=hL02xrtf67XXKFfl-1)
-
 
 ## b. Especificaciones técnicas
 
-Delvo sigue una arquitectura cliente-servidor. El backend expone una API REST versionada bajo `/api/v1`, que es consumida tanto por la aplicación web como por la aplicación móvil. La lógica de negocio se organiza en endpoints, servicios y repositorios, separando responsabilidades y facilitando el mantenimiento.
+El backend expone una API REST bajo `/api/v1`. Todos los endpoints de datos requieren el header `Authorization: Bearer <token>` excepto los de registro y login. La estructura interna del backend separa endpoints, servicios y repositorios: los endpoints validan la entrada y delegan en el servicio, el servicio contiene la lógica de negocio y llama al repositorio, el repositorio hace las queries a PostgreSQL.
 
-La base de datos PostgreSQL almacena la información persistente. El backend se encarga de crear o asegurar las tablas necesarias al iniciar la aplicación. La autenticación se realiza mediante tokens JWT, y los endpoints protegidos requieren que el usuario esté autenticado.
+Las tablas de la base de datos se crean al arrancar el backend si no existen. No hay sistema de migraciones formal implementado (eso quedó pendiente para una versión futura), así que cambios en el esquema requieren borrar y recrear las tablas.
 
-La aplicación web utiliza Next.js y TypeScript, mientras que la móvil utiliza Expo y React Native. Para la integración con Google Calendar se utiliza OAuth 2.0, y para el asistente inteligente se utiliza Ollama junto con una base de conocimiento local.
+La autenticación funciona así, el login devuelve un access token, que posee una dureación corta y un refresh token que posee una duración larga. El access token se envía en cada petición en la cabecera de esta. Cuando caduca, el cliente usa el refresh token para obtener un nuevo access token sin que el usuario tenga que volver a hacer login.
 
 ## c. Diagramas
 
-La arquitectura general de Delvo puede entenderse como un sistema formado por tres clientes principales: usuario web, usuario móvil y servicios externos. Tanto la aplicación web como la aplicación móvil se comunican con el backend FastAPI. El backend gestiona la autenticación, la lógica de negocio y el acceso a PostgreSQL. Además, se comunica con Ollama para funciones de inteligencia artificial y con Google Calendar API para la sincronización de eventos.
+> [Ver diagramas UML completos](04-uml-diagrams.md)
 
-> [Ver diagramas de clases/ diagramas de uso](04-uml-diagrams.md)
-
-**Diagrama de arquitectura:**
+**Arquitectura general:**
 
 ```
 ┌──────────────┐     ┌──────────────────┐
@@ -367,7 +337,7 @@ Navegador → Middleware Next.js (autenticación) → Página Next.js → Backen
 App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 ```
 
-**Estructura de módulos del backend:**
+**Módulos del backend:**
 
 | Módulo | Función |
 |---|---|
@@ -382,31 +352,35 @@ App Expo → Backend FastAPI (Bearer token) → PostgreSQL / Google Calendar API
 | `db/postgresql/` | Pool de conexiones + repositorios CRUD (psycopg raw) |
 | `tests/` | Suite de tests unitarios e integración (pytest) |
 
-
 ---
 
 # 10. Instalación y preparación
 
 ## a. Procedimientos necesarios para hacer funcionar el proyecto
 
-Para ejecutar Delvo es necesario clonar el repositorio, configurar el archivo `.env` con las variables necesarias y levantar los servicios mediante Docker Compose. El comando principal de ejecución es `docker compose up --build`, que construye y arranca la base de datos PostgreSQL, el backend y la aplicación web.
+Para levantar Delvo se requieren tres cosas: clonar el repositorio, crear el `.env` con las variables necesarias y ejecutar `docker compose up --build`. Ese comando arranca PostgreSQL, espera a que esté listo, luego arranca el backend, y luego la web. Si todo va bien, en unos minutos tienes:
 
-Una vez iniciado el entorno, la aplicación web queda disponible en `http://localhost:31667` y el backend en `http://localhost:30667`. Se puede comprobar el estado del backend accediendo al endpoint `/health`. Para la aplicación móvil, es necesario entrar en la carpeta `mobile`, instalar dependencias y ejecutar Expo mediante `pnpm start` o `npx expo start`.
+- Web en `http://localhost:31667`
+- Backend en `http://localhost:30667`
+- PostgreSQL en `localhost:55432`
 
-El entorno de producción se ejecuta sobre un **servidor local con Ubuntu** integrado en una red privada. Para exponer la aplicación a internet se utiliza **Cloudflare Tunnel**, que establece una conexión saliente cifrada desde el servidor hasta la red de Cloudflare sin necesidad de abrir puertos ni tener IP pública fija. Los detalles del proceso de despliegue se describen en la sección 13.
+Se puede verificar que el backend está vivo con `curl http://localhost:30667/health`. La documentación interactiva de la API (Swagger) está en `http://localhost:30667/docs`, que viene bien para probar endpoints sin necesidad de tener la web abierta.
+
+Para la app móvil hay que ir a la carpeta `mobile`, instalar dependencias con `pnpm install` y arrancar con `pnpm start`. Abre el servidor de Expo y desde ahí puedes lanzarlo en un emulador Android o escaneando el QR con Expo Go en un dispositivo físico.
+
+En producción, el entorno corre en un servidor Ubuntu en mi red local. Para que sea accesible desde internet uso Cloudflare Tunnel, que establece una conexión saliente cifrada hacia Cloudflare sin necesidad de abrir puertos en el router. El dominio `delvo.gromber05.dev` apunta a la web y `apidelvo.gromber05.dev` al backend.
 
 ## b. Procedimientos necesarios para el control de versiones
 
-El control de versiones del proyecto se realiza con Git y con dos plataformas de repositorios, una autoalojada llamada OneDev en la que se han almacenado la gran parte de los cambios, y Github, a la cuál se ha subido el código importante. Los cambios se agrupan en commits descriptivos que permiten seguir la evolución del desarrollo. La estructura del repositorio permite trabajar de forma separada en backend, web, móvil y documentación, manteniendo una organización clara del código.
+El proyecto usa Git con dos repositorios remotos. El principal es una instancia de OneDev autoalojada donde están todos los commits del desarrollo. También está en GitHub con el código más relevante, por si alguien quiere revisarlo sin acceso a OneDev.
 
-Durante el desarrollo se han realizado commits para incorporar nuevas funcionalidades, refactorizar código, mejorar legibilidad y documentar el proyecto. Esta trazabilidad facilita detectar cuándo se introdujeron cambios importantes y permite mantener un historial ordenado.
-
+Los commits intentan ser descriptivos y agrupan cambios relacionados. Hay commits de feature, de refactor, de fix y de docs. No seguí ningún estándar tipo Conventional Commits al pie de la letra pero los mensajes son suficientemente claros para entender qué cambió en cada uno.
 
 ## c. Procedimientos para registrar las incidencias
 
-Las incidencias se han registrado indicando el módulo afectado, la descripción del problema, los pasos para reproducirlo y la gravedad. Después se debe corregir el error, probar de nuevo el flujo afectado y confirmar que la solución no rompe otras partes del sistema.
+Los bugs y problemas los fui apuntando conforme aparecían, con el módulo afectado, qué pasaba exactamente, cómo reproducirlo y qué tan grave era. Después de corregir el error reprobaba el flujo completo para confirmar que el fix no rompía nada más.
 
-En Delvo, las incidencias más relevantes se pueden clasificar por áreas: autenticación, planificador, calendario, asistente inteligente, aplicación web, aplicación móvil y despliegue. Esta clasificación ayuda a priorizar los problemas y resolver primero aquellos que afectan al uso principal de la aplicación.
+Las áreas donde aparecieron más incidencias fueron autenticación (sobre todo el refresh en móvil), la integración con Google Calendar (que tiene varios casos edge con tokens expirados y eventos sin ID de Google) y el parsing de respuestas del asistente.
 
 ---
 
@@ -414,13 +388,15 @@ En Delvo, las incidencias más relevantes se pueden clasificar por áreas: auten
 
 ## a. Procedimientos operativos
 
-El procedimiento operativo principal consiste en levantar el entorno con Docker Compose, verificar que los servicios están activos y probar los flujos básicos de la aplicación. El usuario debe poder registrarse, iniciar sesión, crear elementos del planificador, consultar el calendario y utilizar el asistente.
+Para verificar que el entorno funciona correctamente hay que comprobar que los tres contenedores Docker están corriendo (`docker compose ps`), que el endpoint `/health` del backend responde 200, y que la web carga sin errores en la consola.
 
-También se debe comprobar que la conexión con Google Calendar funciona correctamente cuando las credenciales están configuradas. En el caso de la aplicación móvil, se debe validar que la sesión se mantiene correctamente y que las llamadas a la API se realizan usando el token de autenticación.
+El flujo básico de prueba manual es: registrar un usuario nuevo, hacer login, crear una tarea, crear una reunión, abrir el calendario y ver que aparecen, usar el asistente con un comando sencillo, y si Google Calendar está configurado, verificar que la sincronización funciona en ambas direcciones.
+
+En móvil hay que verificar también que el refresh token funciona: se puede forzar la expiración del access token bajando su duración en las variables de entorno y comprobar que la app lo renueva automáticamente sin interrumpir la sesión del usuario.
 
 ## b. Registro de pruebas
 
-Delvo dispone de una suite de tests automatizados en `backend/tests/`, organizada en tests unitarios y de integración. Se ejecutan con `pytest` y no requieren una base de datos activa.
+Los tests automatizados están en `backend/tests/` y se ejecutan con `pytest`. No necesitan una base de datos real porque usan mocks.
 
 **Tests de integración:**
 
@@ -440,19 +416,19 @@ Delvo dispone de una suite de tests automatizados en `backend/tests/`, organizad
 | `test_unit_security.py` | Hash de contraseñas y generación/verificación de JWT |
 | `test_unit_sentiment.py` | Clasificación de sentimiento de mensajes |
 
-Las pruebas funcionales manuales anteriores también se han realizado: registro de usuarios, inicio de sesión, flujo Google Calendar y pruebas del asistente.
+Además de los tests automatizados, hice pruebas manuales del flujo completo varias veces: registro de usuario, login, operaciones del planificador, conexión con Google Calendar y conversaciones con el asistente en español e inglés.
 
 ## c. Indicadores de calidad
 
-Los principales indicadores de calidad del proyecto son la correcta autenticación del usuario, la coherencia de los datos almacenados, la estabilidad de los endpoints, la facilidad de uso de la interfaz y la capacidad de mantener el sistema organizado por módulos.
+Los indicadores que más me importan son que la autenticación funcione sin que el usuario tenga que volver a hacer login inesperadamente, que los datos sean consistentes entre la web y el móvil, y que el asistente entienda correctamente las peticiones más comunes sin inventarse acciones.
 
-También se considera importante que la aplicación pueda ejecutarse de forma reproducible mediante Docker, que los errores se gestionen de manera controlada y que las funcionalidades principales estén separadas para facilitar futuras ampliaciones.
+A nivel de código, el indicador principal es que los tests pasen en verde. También que el backend arranque sin errores en un entorno limpio (sin datos previos) y que Docker Compose levante todos los servicios en el orden correcto.
 
 ## d. Métodos de verificación
 
-La verificación del proyecto se ha realizado mediante pruebas manuales de caja negra, comprobando el comportamiento de la aplicación desde el punto de vista del usuario. También se han validado respuestas HTTP, estructuras JSON y flujos completos entre frontend, backend y base de datos.
+Las pruebas fueron principalmente de caja negra: usar la aplicación como usuario y comprobar que el comportamiento es el esperado. Validé respuestas HTTP con las herramientas de red del navegador y con curl directamente contra el backend para casos específicos.
 
-En la parte visual se ha comprobado el funcionamiento de las principales pantallas web y móviles. En la parte de integración se ha revisado la comunicación con Google Calendar y con el asistente inteligente.
+Para la parte de integración con Google Calendar, tuve que hacer pruebas con una cuenta real de Google porque los mocks no cubren bien los casos de tokens OAuth expirados. Para el asistente, probé una lista de frases en español e inglés con distintos tipos de intención (crear, consultar, actualizar) y verifiqué que la acción resultante en la base de datos era la correcta.
 
 ---
 
@@ -460,9 +436,7 @@ En la parte visual se ha comprobado el funcionamiento de las principales pantall
 
 ## a. Tecnología de distribución
 
-La distribución del proyecto se basa en **Docker y Docker Compose** para la orquestación de servicios, y en **Cloudflare Tunnel** para exponer la aplicación a internet de forma segura desde una red privada local. Esta combinación permite publicar Delvo con un dominio propio sin necesidad de abrir puertos en el router ni contratar un servidor en la nube.
-
-Los servicios que componen el sistema en producción son:
+El despliegue usa Docker Compose para orquestar los servicios y Cloudflare Tunnel para exponer la aplicación a internet desde una red privada sin IP pública fija. Esta combinación tiene bastantes ventajas: no hay que contratar un servidor en la nube, no hay que abrir puertos en el router, y el tráfico va cifrado de extremo a extremo.
 
 | Servicio | Tecnología | Función |
 |---|---|---|
@@ -476,13 +450,11 @@ Los servicios que componen el sistema en producción son:
 
 ### Infraestructura del servidor local
 
-El servidor de producción es una máquina con **Ubuntu/Debian** conectada a una red privada doméstica. No tiene dirección IP pública fija ni puertos abiertos en el router.
+El servidor es una máquina con Ubuntu conectada a mi red doméstica. No tiene IP pública fija. Sobre él corren:
 
-Sobre este servidor conviven:
-
-- **Docker Engine** con los contenedores de PostgreSQL, backend y web definidos en `docker-compose.yml`.
-- **Ollama** instalado directamente en el sistema operativo del host, escuchando en `localhost:11434`. Los contenedores Docker acceden a él mediante el alias especial `host.docker.internal`, que está configurado en el `docker-compose.yml` con `extra_hosts: host.docker.internal:host-gateway`.
-- **cloudflared** ejecutándose como contenedor Docker independiente del compose principal, gestionando el túnel hacia Cloudflare.
+- **Docker Compose** con los contenedores de PostgreSQL, backend y web.
+- **Ollama** instalado directamente en el sistema operativo del host (no en Docker), escuchando en `localhost:11434`. Los contenedores acceden a él mediante `host.docker.internal`, configurado en el `docker-compose.yml` con `extra_hosts: host.docker.internal:host-gateway`.
+- **cloudflared** como contenedor Docker independiente del compose principal.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -505,14 +477,7 @@ Sobre este servidor conviven:
 
 ### Cloudflare Tunnel: cómo funciona
 
-Cloudflare Tunnel (`cloudflared`) establece una conexión saliente cifrada desde el servidor local hacia la red de Cloudflare. Esto significa que:
-
-- No hace falta abrir ningún puerto en el router.
-- No se necesita IP pública fija.
-- El tráfico entre el cliente (navegador o app móvil) y Cloudflare viaja cifrado con TLS gestionado por Cloudflare.
-- El tráfico entre Cloudflare y el servidor local viaja cifrado a través del túnel.
-
-El flujo de una petición desde internet es el siguiente:
+`cloudflared` abre una conexión saliente cifrada desde el servidor hacia la red de Cloudflare. El tráfico entra por el edge de Cloudflare (con su certificado TLS), baja por el túnel hasta el servidor y llega al servicio correspondiente en HTTP interno. Desde fuera parece un servidor normal con HTTPS, pero en ningún momento hay un puerto abierto en el router.
 
 ```
 Cliente (navegador / app móvil)
@@ -529,11 +494,7 @@ Backend (localhost:30667) o Web (localhost:31667)
 
 ### Configuración del túnel y el dominio
 
-El túnel se crea y configura desde el panel de **Cloudflare Zero Trust** (anteriormente Cloudflare for Teams). Los pasos generales son:
-
-1. Crear un tunnel en la sección **Networks → Tunnels**.
-2. Copiar el token del tunnel que proporciona Cloudflare.
-3. Lanzar el contenedor `cloudflared` con ese token:
+El túnel se crea desde el panel de Cloudflare Zero Trust en Networks → Tunnels. Una vez creado, Cloudflare da un token. El contenedor `cloudflared` se lanza con ese token:
 
 ```bash
 docker run -d --name cloudflared \
@@ -544,22 +505,20 @@ docker run -d --name cloudflared \
   --token <TOKEN_DEL_TUNNEL>
 ```
 
-4. En el panel de Cloudflare Zero Trust, configurar las **rutas públicas** del tunnel para asociar subdominio → servicio local:
+En el panel se configuran las rutas públicas:
 
 | Subdominio | Servicio local |
 |---|---|
 | `apidelvo.gromber05.dev` | `http://localhost:30667` |
 | `delvo.gromber05.dev` | `http://localhost:31667` |
 
-5. Los registros DNS de `gromber05.dev` apuntan automáticamente a Cloudflare (el dominio está gestionado por Cloudflare DNS), por lo que no es necesario configurar nada adicional en el registrador del dominio.
+El dominio `gromber05.dev` está gestionado por Cloudflare DNS, así que los registros se crean solos al configurar el túnel.
 
 ### Proceso de despliegue completo
 
-El proceso completo para desplegar Delvo desde cero en el servidor es el siguiente:
-
 1. Clonar el repositorio en el servidor.
-2. Crear el archivo `.env` con las variables de entorno.
-3. Levantar los servicios con Docker Compose:
+2. Crear el `.env` con las variables de entorno.
+3. Levantar servicios:
    ```bash
    docker compose up --build -d
    ```
@@ -567,16 +526,16 @@ El proceso completo para desplegar Delvo desde cero en el servidor es el siguien
    ```bash
    curl http://localhost:30667/health
    ```
-5. Asegurarse de que Ollama está ejecutándose en el host y los modelos están descargados:
+5. Asegurarse de que Ollama está corriendo y los modelos descargados:
    ```bash
-   ollama pull llama3.2
+   ollama pull qwen3.5:9b
    ollama pull nomic-embed-text
    ```
-6. Lanzar el contenedor `cloudflared` con el token del túnel (ver apartado anterior).
-7. Comprobar que el tunnel aparece como **Healthy** en el panel de Cloudflare Zero Trust.
-8. Acceder a la aplicación desde internet mediante el dominio configurado.
+6. Lanzar `cloudflared` con el token del túnel.
+7. Comprobar que el túnel aparece como **Healthy** en el panel de Cloudflare Zero Trust.
+8. Acceder a la aplicación desde internet con el dominio configurado.
 
-Una vez en marcha, todos los servicios tienen la política `restart: unless-stopped`, por lo que se reanudan automáticamente si el servidor se reinicia.
+Todos los servicios tienen `restart: unless-stopped`, así que si el servidor se reinicia vuelven a arrancar solos.
 
 ---
 
@@ -586,49 +545,46 @@ Una vez en marcha, todos los servicios tienen la política `restart: unless-stop
 
 ### Objetivo
 
-Este manual explica cómo instalar y ejecutar Delvo en un entorno local de desarrollo.
+Este manual explica cómo poner en marcha Delvo en un entorno local. Está pensado para que cualquier persona pueda seguirlo desde cero sin necesidad de conocer el código.
 
-Delvo está compuesto por:
+Delvo tiene cuatro partes:
+- Backend con FastAPI (Python 3.12)
+- Aplicación web con Next.js 15
+- Base de datos PostgreSQL 16
+- Aplicación móvil con Expo y React Native
 
-- Backend con FastAPI (Python 3.12).
-- Aplicación web con Next.js 15.
-- Base de datos PostgreSQL 16.
-- Aplicación móvil con Expo y React Native.
-
-La orquestación principal de los tres primeros servicios se realiza con Docker Compose.
+Las tres primeras se levantan con Docker Compose. La app móvil se ejecuta por separado.
 
 ### Requisitos previos
 
-Antes de comenzar, asegúrate de tener instalado:
+Antes de empezar necesitas tener instalado:
 
 - **Git** — para clonar el repositorio.
-- **Docker Desktop** — para ejecutar los contenedores.
-- **Node.js** (v18 o superior) — necesario para la app móvil.
-- **pnpm** o **npm** — gestor de paquetes para Node.js.
-- **Expo Go** — si vas a probar la app móvil en un dispositivo físico (iOS o Android).
-- **Emulador Android** (opcional) — para ejecutar la app sin dispositivo físico.
+- **Docker Desktop** — para los contenedores.
+- **Node.js** v18 o superior — solo necesario para la app móvil.
+- **pnpm** o **npm** — gestor de paquetes.
+- **Expo Go** en el móvil si quieres probar la app en un dispositivo físico.
+- **Emulador Android** (opcional) si prefieres no usar un dispositivo real.
 
 ### Clonar el repositorio
-
-En una terminal, clona el proyecto y accede a su carpeta:
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
 cd delvo
 ```
 
-En la raíz encontrarás, entre otros, estos elementos:
+La estructura de carpetas es:
 
 - `backend/` — servidor FastAPI
 - `web/` — aplicación web Next.js
 - `mobile/` — aplicación móvil Expo
 - `docs/` — documentación del proyecto
 - `docker-compose.yml` — orquestación de servicios
-- `.env` — variables de entorno (no publicar en repositorios públicos)
+- `.env` — variables de entorno (no subir a repositorios públicos)
 
 ### Configurar variables de entorno
 
-Delvo usa un archivo `.env` en la raíz del proyecto que define parámetros críticos. Las principales variables son:
+Crea un archivo `.env` en la raíz del proyecto. Las variables principales son:
 
 | Variable | Descripción |
 |---|---|
@@ -637,36 +593,27 @@ Delvo usa un archivo `.env` en la raíz del proyecto que define parámetros crí
 | `GOOGLE_CLIENT_ID` | Client ID de Google OAuth 2.0 |
 | `GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth 2.0 |
 | `GOOGLE_CALLBACK_URL` | URL de callback OAuth |
-| `OLLAMA_URL` | URL del servidor Ollama (IA local) |
-| `LLM_MODEL` | Nombre del modelo LLM (p. ej. `llama3.2`) |
+| `OLLAMA_URL` | URL del servidor Ollama |
+| `LLM_MODEL` | Modelo LLM (p. ej. `qwen3.5:9b`) |
 | `EMBED_MODEL` | Modelo de embeddings (p. ej. `nomic-embed-text`) |
 
 ### Levantar servicios con Docker Compose
-
-Desde la raíz del proyecto, ejecuta:
 
 ```bash
 docker compose up --build
 ```
 
-Este comando:
-
-1. Construye las imágenes necesarias.
-2. Inicia PostgreSQL.
-3. Inicia el backend cuando la base de datos está disponible.
-4. Inicia la aplicación web.
+Esto construye las imágenes, arranca PostgreSQL, espera a que esté disponible, luego arranca el backend y finalmente la web. El orden lo gestiona el `healthcheck` del `docker-compose.yml`.
 
 ### Comprobar que todo funciona
 
-Cuando el arranque termine, los servicios quedan disponibles en:
+Cuando el arranque termine los servicios están disponibles en:
 
 | Servicio | URL |
 |---|---|
 | Aplicación web | `http://localhost:31667` |
 | Backend API | `http://localhost:30667` |
 | PostgreSQL | `localhost:55432` |
-
-Para verificar el backend:
 
 ```bash
 curl http://localhost:30667/health
@@ -676,30 +623,26 @@ La documentación interactiva de la API está en `http://localhost:30667/docs`.
 
 ### Configurar integración con Google Calendar
 
-Para habilitar la integración con Google Calendar:
-
 1. Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com/).
 2. Habilita **Google Calendar API** y **People API**.
 3. Crea credenciales OAuth 2.0 de tipo **Aplicación web**.
-4. Añade la URL de callback en **Authorized redirect URIs** (valor de `GOOGLE_CALLBACK_URL` en `.env`).
-5. Si la app no está verificada, añade tu correo como **usuario de prueba** en OAuth Consent Screen.
+4. Añade `GOOGLE_CALLBACK_URL` en **Authorized redirect URIs**.
+5. Si la app no está verificada por Google, añade tu correo como **usuario de prueba** en OAuth Consent Screen.
 6. Copia el **Client ID** y **Client Secret** en el `.env`.
 
-### Configurar funcionalidad de IA (Ollama)
+### Configurar el asistente con Ollama
 
-Para usar el asistente inteligente:
-
-1. Instala y ejecuta [Ollama](https://ollama.com).
-2. Descarga los modelos necesarios:
+1. Instala [Ollama](https://ollama.com) en tu máquina.
+2. Descarga los modelos:
    ```bash
-   ollama pull llama3.2
+   ollama pull qwen3.5:9b
    ollama pull nomic-embed-text
    ```
-3. Asegúrate de que el backend puede acceder a Ollama (la URL por defecto es `http://host.docker.internal:11434`).
+3. Comprueba que el backend puede acceder a Ollama. La URL por defecto cuando corres en Docker es `http://host.docker.internal:11434`.
 
 ### Ejecutar la aplicación móvil
 
-La app móvil no se ejecuta en Docker. En otra terminal:
+La app móvil no corre en Docker. En otra terminal:
 
 ```bash
 cd mobile
@@ -707,22 +650,16 @@ pnpm install
 pnpm start
 ```
 
-Después:
-
-- Escanea el QR con **Expo Go** en tu dispositivo, o
-- Abre la app en un **emulador Android**.
-
-Para apuntar al backend local, ajusta `BASE_URL` en `mobile/src/api/client.ts`.
+Después escanea el QR con Expo Go o lánzalo en un emulador Android. Si quieres apuntar al backend local, ajusta `BASE_URL` en `mobile/src/api/client.ts`.
 
 ### Solución de problemas comunes
 
-Si algo falla, comprueba:
+Si algo no arranca, comprueba:
+- Docker Desktop está iniciado y corriendo.
+- Los puertos `30667`, `31667` y `55432` están libres (otro proceso no los está usando).
+- El `.env` tiene todas las variables necesarias y sin espacios raros.
 
-- Docker Desktop está iniciado.
-- Los puertos `30667`, `31667` y `55432` están libres.
-- El archivo `.env` contiene todas las variables necesarias.
-
-Para reiniciar el entorno limpio:
+Para reiniciar desde cero:
 
 ```bash
 docker compose down
@@ -735,59 +672,35 @@ docker compose up --build
 
 ### Introducción
 
-Delvo permite centralizar en una única plataforma:
+Delvo centraliza en un único sitio:
 
 - **Tareas** — con prioridad, fecha límite y estado.
 - **Reuniones** — con fecha, hora, duración, ubicación y participantes.
 - **Eventos** — actividades puntuales sincronizables con Google Calendar.
 - **Notas** — apuntes rápidos con opción de archivar.
-- **Asistente inteligente** — chat con IA en español e inglés.
+- **Asistente** — chat con IA que entiende español e inglés.
 
-La aplicación está disponible en versión **web** y **móvil**.
+Está disponible en web y en móvil. Los datos se sincronizan entre los dos.
 
 ### Registro e inicio de sesión
 
-**Registro:**
+**Registro:** Abre la pantalla de autenticación, introduce nombre, correo y contraseña, y pulsa el botón de registro.
 
-1. Abre la pantalla de autenticación.
-2. Introduce nombre, correo electrónico y contraseña.
-3. Completa el registro pulsando el botón correspondiente.
+**Login:** Introduce correo y contraseña.
 
-**Inicio de sesión:**
+La sesión en web se gestiona con cookies HTTP-only seguras: el token JWT nunca queda expuesto en el navegador. En móvil se guarda en `SecureStore` y se renueva automáticamente cuando caduca.
 
-1. Introduce correo electrónico y contraseña.
-2. Accede a la aplicación.
+### Navegación
 
-Gestión de sesión:
+En web hay una barra lateral con acceso a todas las secciones. En móvil hay tabs en la parte inferior. Las secciones son: Inicio, Planificador, Calendario, Asistente y Configuración.
 
-- **Web:** sesión mediante cookies HTTP-only seguras (el token JWT nunca queda expuesto en el navegador).
-- **Móvil:** sesión mediante tokens almacenados en `SecureStore`. El token se renueva automáticamente al caducar.
+### Dashboard
 
-### Navegación general
-
-Tras iniciar sesión:
-
-- En **web:** navegación lateral con acceso a todas las secciones.
-- En **móvil:** navegación inferior adaptada a pantalla pequeña.
-
-Secciones disponibles: Inicio, Planificador, Calendario, Asistente y Configuración.
-
-### Dashboard (Inicio)
-
-El dashboard muestra una vista resumida del día:
-
-- Tareas próximas.
-- Reuniones del día.
-- Eventos recientes.
-- Notas activas.
-
-Se recomienda usar esta pantalla como punto de control diario.
+El dashboard muestra un resumen del día: tareas próximas, reuniones, eventos y notas activas. Es la pantalla de punto de partida para la rutina diaria.
 
 ### Gestión de tareas
 
-En la sección de tareas puedes crear, editar y eliminar tareas.
-
-Campos disponibles:
+Desde la sección de tareas puedes crear, editar y eliminar tareas.
 
 | Campo | Opciones |
 |---|---|
@@ -800,10 +713,6 @@ Campos disponibles:
 
 ### Gestión de reuniones
 
-La sección de reuniones permite registrar encuentros planificados.
-
-Campos disponibles:
-
 | Campo | Descripción |
 |---|---|
 | Título | Nombre de la reunión |
@@ -815,82 +724,51 @@ Campos disponibles:
 
 ### Gestión de eventos
 
-Los eventos sirven para actividades puntuales. Si Google Calendar está conectado, los eventos creados en Delvo se sincronizan automáticamente con tu calendario de Google.
-
-Campos disponibles: título, descripción, fecha, hora, ubicación y tipo de evento.
+Los eventos son actividades puntuales. Si Google Calendar está conectado, los eventos creados en Delvo se sincronizan automáticamente al calendario de Google. Campos: título, descripción, fecha, hora, ubicación y tipo de evento.
 
 ### Gestión de notas
 
-La sección de notas permite guardar información rápida:
-
-- Crear notas con título y contenido.
-- Editar y consultar notas.
-- Archivar notas que ya no son relevantes.
+Crea notas con título y contenido libre. Se pueden editar, consultar y archivar cuando ya no son relevantes.
 
 ### Calendario
 
-El calendario ofrece una vista temporal unificada que muestra:
-
-- Tareas con fecha límite.
-- Reuniones programadas.
-- Eventos de Delvo.
-- Eventos de Google Calendar (si la integración está activa).
+El calendario muestra una vista unificada con tareas, reuniones, eventos de Delvo y eventos de Google Calendar (si la integración está activa). Es la pantalla más útil para ver de un vistazo todo lo que hay en un día o semana.
 
 ### Planificador (app móvil)
 
-La pantalla de Planificador en la app móvil ofrece una vista de calendario mensual con los elementos del día seleccionado. Permite:
-
-- Filtrar tareas por estado (`Todo`, `Pendientes`, `Completadas`).
-- Consultar reuniones, eventos y notas del día.
-- Crear, editar y eliminar cualquier tipo de elemento directamente desde la pantalla.
-- Navegar entre meses con los controles de cabecera.
+En la app móvil la pantalla de Planificador tiene un calendario mensual. Al seleccionar un día muestra todos los elementos de ese día. Desde ahí puedes filtrar tareas por estado, crear o editar cualquier tipo de elemento y navegar entre meses.
 
 ### Integración con Google Calendar
 
-Para conectar Google Calendar:
-
 1. Ve a **Configuración**.
-2. Selecciona **Conectar cuenta de Google**.
-3. Completa el flujo OAuth y acepta los permisos solicitados.
+2. Pulsa **Conectar cuenta de Google**.
+3. Completa el flujo OAuth y acepta los permisos.
 
-Una vez conectado, Delvo puede:
+Una vez conectado, Delvo importa automáticamente los eventos de los últimos 30 días y los próximos 180. Los nuevos eventos creados en Delvo se sincronizan con Google. También puedes editar eventos de Google Calendar desde la app.
 
-- Importar automáticamente eventos de los últimos 30 días y los próximos 180 días.
-- Sincronizar nuevos eventos de Delvo con Google Calendar.
-- Editar eventos de Google Calendar directamente desde la app.
-
-Para desconectar la cuenta, accede de nuevo a Configuración y selecciona la opción correspondiente.
+Para desconectar la cuenta, vuelve a Configuración y usa la opción correspondiente.
 
 ### Asistente inteligente
 
-Desde la pantalla de Chat, puedes escribir instrucciones en lenguaje natural en español o en inglés.
-
-Ejemplos de uso:
+Desde la pantalla de Chat escribe lo que necesitas en lenguaje natural. Algunos ejemplos:
 
 - *"Crea una tarea llamada 'Revisar PR' para mañana"*
 - *"¿Cuáles son mis reuniones de esta semana?"*
 - *"Muéstrame mis eventos pendientes"*
 - *"Create a meeting called 'Sprint review' for Friday at 10"*
 
-El asistente detecta la intención, ejecuta la acción correspondiente y responde confirmando el resultado. También puede responder preguntas generales apoyándose en la base de conocimiento local (RAG).
+El asistente detecta la intención, ejecuta la acción y confirma el resultado. También puede responder preguntas generales usando la base de conocimiento local.
 
-### Cierre de sesión y seguridad
+### Cierre de sesión
 
-Para cerrar sesión manualmente:
+Abre **Configuración** o el menú de usuario y selecciona **Cerrar sesión**. Esto elimina las credenciales activas del dispositivo.
 
-1. Abre **Configuración** o el menú de usuario.
-2. Selecciona **Cerrar sesión**.
+### Flujo de trabajo sugerido
 
-Esto elimina las credenciales activas y protege tu cuenta, especialmente en equipos compartidos. Si la sesión expira completamente, deberás iniciar sesión de nuevo.
-
-### Recomendaciones de uso diario
-
-Flujo de trabajo sugerido:
-
-1. Revisa el **Dashboard** y el **Calendario** al comenzar el día.
-2. Actualiza el estado de las tareas en curso.
-3. Añade nuevas reuniones y eventos según necesites.
-4. Usa el **Asistente** para acciones rápidas sin navegar por los menús.
+1. Abre el **Dashboard** al empezar el día para ver qué tienes pendiente.
+2. Actualiza el estado de las tareas que estés haciendo.
+3. Añade reuniones o eventos nuevos conforme vayan surgiendo.
+4. Usa el **Asistente** para las acciones rápidas, es más rápido que navegar por los menús.
 
 ---
 
@@ -898,27 +776,31 @@ Flujo de trabajo sugerido:
 
 ## a. Informe final
 
-Delvo cumple el objetivo principal planteado al inicio del proyecto: desarrollar una aplicación multiplataforma de productividad y organización con backend, aplicación web, aplicación móvil, autenticación segura, integración de inteligencia artificial y sincronización con Google Calendar.
+Delvo funciona. Esa es la conclusión más directa. Tiene backend, web, móvil, autenticación, planificador completo, integración con Google Calendar y asistente con LLM local. Lo uso en el día a día y hace lo que se supone que tiene que hacer.
 
-El proyecto demuestra la capacidad de integrar distintas tecnologías en una solución funcional. También permite aplicar conocimientos de desarrollo backend, frontend, móvil, bases de datos, despliegue, APIs externas e inteligencia artificial.
+Técnicamente el proyecto me ha obligado a tomar decisiones reales en casi todos los aspectos del desarrollo de software moderno: arquitectura, base de datos, autenticación, despliegue, testing, integración con servicios externos. No es un proyecto de clase donde todo está acotado; hay partes que requirieron investigar, probar cosas que no funcionaron y volver a intentarlo.
 
 ## b. Resultados esperados
 
-El resultado esperado es una plataforma funcional que permita mejorar la organización personal y académica del usuario. Delvo centraliza tareas, reuniones, eventos y notas en un mismo entorno, ofreciendo además asistencia inteligente para facilitar la gestión diaria.
+El resultado que buscaba era tener una plataforma propia y funcional que resolviera un problema real. Eso está conseguido. Centraliza tareas, reuniones, eventos y notas, sincroniza con Google Calendar y tiene un asistente que entiende lo que le pides la mayor parte del tiempo.
 
-A nivel académico, el proyecto refleja un desarrollo completo y realista, con una arquitectura moderna y posibilidades de evolución. A nivel técnico, proporciona una base sólida para seguir ampliando funcionalidades en el futuro.
+Lo que no esperaba era que el proyecto creciera tanto. Empecé con la idea de hacer algo simple y acabé integrando OAuth, un sistema de RAG, Cloudflare Tunnel para el despliegue y un panel de administración. Cada cosa que añadía me llevaba a ver la siguiente que faltaba.
 
 ## c. Viabilidad del proyecto
 
-La viabilidad técnica del proyecto es positiva, ya que se apoya en tecnologías actuales, documentadas y ampliamente utilizadas. La separación entre backend, web, móvil y base de datos permite mantener el sistema de forma ordenada y ampliar cada parte de manera independiente.
+El stack elegido es completamente viable para producción. FastAPI es uno de los frameworks de Python más usados para APIs, Next.js está en producción en muchas empresas, PostgreSQL no necesita presentación y Docker es el estándar de facto para despliegue. Nada en el stack es experimental ni tiene riesgo de desaparecer.
 
-La viabilidad funcional también es alta, ya que la necesidad que resuelve Delvo es real: organizar tareas, eventos y recordatorios desde distintos dispositivos. Además, la integración con inteligencia artificial y Google Calendar aporta valor añadido frente a una aplicación básica de tareas.
+La arquitectura también escala bien. Si en algún momento hay más carga, el backend y la base de datos pueden moverse a instancias separadas con relativamente poco cambio. La separación entre módulos hace que añadir nuevas funcionalidades sea bastante limpio.
 
 ## d. Mejoras futuras
 
-Como mejoras futuras se plantea incorporar espacios colaborativos entre usuarios, permisos por roles y métricas de productividad. También sería conveniente ampliar la cobertura de pruebas automatizadas, mejorar el sistema de despliegue y preparar la aplicación móvil para su publicación en tiendas oficiales.
+Hay varias cosas que quedaron pendientes y que me gustaría añadir:
 
-Otra posible evolución sería mejorar el asistente inteligente para que pueda comprender más tipos de peticiones, priorizar tareas automáticamente y ofrecer recomendaciones personalizadas según los hábitos del usuario.
+La más importante sería la parte colaborativa: que dos usuarios puedan compartir un espacio y ver las tareas del otro, con permisos diferenciados. La arquitectura actual no lo soporta sin cambios en el modelo de datos, pero tampoco sería un cambio enorme.
+
+También haría falta mejorar el asistente. Ahora funciona bien para los casos más comunes pero se complica con peticiones ambiguas o con varios pasos. Mejorar el sistema de prompts y añadir memoria de contexto en la conversación lo haría bastante más útil.
+
+Publicar la app en Google Play es otro objetivo pendiente. Expo facilita mucho la compilación pero el proceso de publicación y verificación de Google tiene sus particularidades. Lo dejé fuera del alcance del TFG pero es algo que tiene sentido hacer si el proyecto sigue creciendo.
 
 ---
 
@@ -926,11 +808,11 @@ Otra posible evolución sería mejorar el asistente inteligente para que pueda c
 
 ## Diagramas ampliados
 
-Los diagramas UML completos del sistema se encuentran en el documento [04-uml-diagrams.md](04-uml-diagrams.md) e incluyen:
+Los diagramas UML completos del sistema están en [04-uml-diagrams.md](04-uml-diagrams.md) e incluyen:
 
 - **Diagrama de casos de uso** — actores y funcionalidades principales.
 - **Diagrama de clases** — entidades del modelo de datos y sus relaciones.
-- **Diagramas de flujo / actividad** — flujos de autenticación, planificador, asistente IA y sincronización con Google Calendar.
+- **Diagramas de flujo / actividad** — autenticación, planificador, asistente IA y sincronización con Google Calendar.
 - **Diagramas de secuencia** — interacciones entre componentes para los casos de uso principales.
 
 ## Registros
@@ -969,95 +851,70 @@ Los diagramas UML completos del sistema se encuentran en el documento [04-uml-di
 
 | Nº | Título | Sección |
 |---|---|---|
-| Tabla 1 | Comparativa de aplicaciones similares | Sección 2b |
-| Tabla 2 | Entidades del planificador y sus campos | Sección 6a |
-| Tabla 3 | Tecnologías utilizadas por capa | Sección 6b y Anexo A |
-| Tabla 4 | Módulos del backend y su función | Sección 9c |
-| Tabla 5 | Servicios y URLs tras arranque con Docker | Sección 10a |
+| Tabla 1 | Módulos del backend y su función | Sección 9c |
+| Tabla 2 | Servicios del sistema en producción | Sección 12a |
+| Tabla 3 | Rutas públicas del túnel Cloudflare | Sección 12b |
+| Tabla 4 | Variables de entorno requeridas | Sección 13a |
+| Tabla 5 | URLs de servicios tras arranque | Sección 13a |
 | Tabla 6 | Campos de la entidad Tarea | Sección 13b |
 | Tabla 7 | Campos de la entidad Reunión | Sección 13b |
-| Tabla 8 | Tabla de requisitos funcionales | Anexo B |
-| Tabla 9 | Historial de commits relevantes | Anexo C |
-| Tabla 10 | Variables de entorno requeridas | Anexo D |
-| Tabla 11 | Endpoints principales de la API | Anexo E |
+| Tabla 8 | Registro de pruebas automatizadas | Sección 15 |
+| Tabla 9 | Historial de commits relevantes | Sección 15 |
 
 ## Diagramas
 
 | Nº | Título | Sección |
 |---|---|---|
-| Diagrama 1 | Arquitectura general del sistema (ASCII) | Sección 9c |
-| Diagrama 2 | Flujo de petición web | Sección 9c |
-| Diagrama 3 | Flujo de petición móvil | Sección 9c |
-
+| Diagrama 1 | Arquitectura general del sistema | Sección 9c |
+| Diagrama 2 | Infraestructura del servidor local | Sección 12b |
+| Diagrama 3 | Flujo de petición a través de Cloudflare Tunnel | Sección 12b |
+| Diagrama 4 | Flujo de petición web | Sección 9c |
+| Diagrama 5 | Flujo de petición móvil | Sección 9c |
 
 ---
 
 # 17. Bibliografía y referencias
 
-Para la elaboración del proyecto se han utilizado como referencia las documentaciones oficiales de FastAPI, PostgreSQL, Next.js, React, Expo, Docker, Google Calendar API, OAuth 2.0 y Ollama. También se han tenido en cuenta referencias normativas relacionadas con la protección de datos, especialmente el Reglamento General de Protección de Datos y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales.
+La mayor parte de la documentación que usé durante el desarrollo fue la documentación oficial de cada tecnología. Para el RGPD consulté el texto del reglamento directamente.
 
-- FastAPI. (s. f.). *FastAPI Documentation*. Consultado en mayo de 2026.  
-  https://fastapi.tiangolo.com/
+- FastAPI. (s. f.). *FastAPI Documentation*. https://fastapi.tiangolo.com/
 
-- PostgreSQL Global Development Group. (s. f.). *PostgreSQL Documentation*. Consultado en mayo de 2026.  
-  https://www.postgresql.org/docs/
+- PostgreSQL Global Development Group. (s. f.). *PostgreSQL 16 Documentation*. https://www.postgresql.org/docs/16/
 
-- Python Software Foundation. (s. f.). *Python Documentation*. Consultado en mayo de 2026.  
-  https://docs.python.org/3/
+- Python Software Foundation. (s. f.). *Python 3.12 Documentation*. https://docs.python.org/3/
 
-- Uvicorn. (s. f.). *Uvicorn Documentation*. Consultado en mayo de 2026.  
-  https://www.uvicorn.org/
+- Uvicorn. (s. f.). *Uvicorn Documentation*. https://www.uvicorn.org/
 
-- Next.js. (s. f.). *Next.js Documentation*. Consultado en mayo de 2026.  
-  https://nextjs.org/docs
+- Next.js. (s. f.). *Next.js 15 Documentation*. https://nextjs.org/docs
 
-- React. (s. f.). *React Documentation*. Consultado en mayo de 2026.  
-  https://react.dev/
+- React. (s. f.). *React Documentation*. https://react.dev/
 
-- TypeScript. (s. f.). *TypeScript Documentation*. Consultado en mayo de 2026.  
-  https://www.typescriptlang.org/docs/
+- TypeScript. (s. f.). *TypeScript Documentation*. https://www.typescriptlang.org/docs/
 
-- Tailwind CSS. (s. f.). *Tailwind CSS Documentation*. Consultado en mayo de 2026.  
-  https://tailwindcss.com/docs
+- Tailwind CSS. (s. f.). *Tailwind CSS Documentation*. https://tailwindcss.com/docs
 
-- Expo. (s. f.). *Expo Documentation*. Consultado en mayo de 2026.  
-  https://docs.expo.dev/
+- Expo. (s. f.). *Expo Documentation*. https://docs.expo.dev/
 
-- React Native. (s. f.). *React Native Documentation*. Consultado en mayo de 2026.  
-  https://reactnative.dev/docs/getting-started
+- React Native. (s. f.). *React Native Documentation*. https://reactnative.dev/docs/getting-started
 
-- Docker. (s. f.). *Docker Documentation*. Consultado en mayo de 2026.  
-  https://docs.docker.com/
+- Docker. (s. f.). *Docker Documentation*. https://docs.docker.com/
 
-- Docker Compose. (s. f.). *Docker Compose Documentation*. Consultado en mayo de 2026.  
-  https://docs.docker.com/compose/
+- Docker Compose. (s. f.). *Compose file reference*. https://docs.docker.com/compose/
 
-- Google for Developers. (s. f.). *Google Calendar API Documentation*. Consultado en mayo de 2026.  
-  https://developers.google.com/calendar/api
+- Google for Developers. (s. f.). *Google Calendar API Documentation*. https://developers.google.com/calendar/api
 
-- Google for Developers. (s. f.). *Using OAuth 2.0 to Access Google APIs*. Consultado en mayo de 2026.  
-  https://developers.google.com/identity/protocols/oauth2
+- Google for Developers. (s. f.). *Using OAuth 2.0 to Access Google APIs*. https://developers.google.com/identity/protocols/oauth2
 
-- Google Cloud. (s. f.). *Google Cloud Console*. Consultado en mayo de 2026.  
-  https://console.cloud.google.com/
+- Google Cloud. (s. f.). *Google Cloud Console*. https://console.cloud.google.com/
 
-- Ollama. (s. f.). *Ollama Documentation*. Consultado en mayo de 2026.  
-  https://ollama.com/
+- Ollama. (s. f.). *Ollama Documentation*. https://ollama.com/
 
-- JSON Web Token. (s. f.). *Introduction to JSON Web Tokens*. Consultado en mayo de 2026.  
-  https://jwt.io/introduction
+- JSON Web Token. (s. f.). *Introduction to JSON Web Tokens*. https://jwt.io/introduction
 
-- Pydantic. (s. f.). *Pydantic Documentation*. Consultado en mayo de 2026.  
-  https://docs.pydantic.dev/
+- Pydantic. (s. f.). *Pydantic v2 Documentation*. https://docs.pydantic.dev/
 
-- MDN Web Docs. (s. f.). *HTTP: Overview*. Consultado en mayo de 2026.  
-  https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview
+- MDN Web Docs. (s. f.). *HTTP overview*. https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview
 
-- MDN Web Docs. (s. f.). *REST*. Consultado en mayo de 2026.  
-  https://developer.mozilla.org/en-US/docs/Glossary/REST
+- European Parliament and Council of the European Union. (2016). *Regulation (EU) 2016/679 — General Data Protection Regulation*. https://eur-lex.europa.eu/eli/reg/2016/679/oj
 
-- European Parliament and Council of the European Union. (2016). *Regulation (EU) 2016/679, General Data Protection Regulation (GDPR)*.  
-  https://eur-lex.europa.eu/eli/reg/2016/679/oj
-
-- Jefatura del Estado. (2018). *Ley Orgánica 3/2018, de Protección de Datos Personales y garantía de los derechos digitales*. Boletín Oficial del Estado.  
-  https://www.boe.es/eli/es/lo/2018/12/05/3
+- Jefatura del Estado. (2018). *Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales*. BOE. https://www.boe.es/eli/es/lo/2018/12/05/3
