@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,19 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { IconMail, IconLock, IconBrandGoogle } from '@tabler/icons-react-native';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import { IconMail, IconLock } from '@tabler/icons-react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
 
-WebBrowser.maybeCompleteAuthSession();
-
-const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
-const GOOGLE_ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? '';
-
 export function LoginScreen() {
-  const { login, register, loginWithGoogle } = useAuth();
+  const { login, register } = useAuth();
   const c = useColors();
 
   const [registerMode, setRegisterMode] = useState(false);
@@ -30,50 +24,7 @@ export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_WEB_CLIENT_ID,
-    redirectUri: 'https://auth.expo.io/@comanrolea/delvo',
-    scopes: ['email', 'profile'],
-  });
-
-  useEffect(() => {
-    if (googleResponse?.type !== 'success') return;
-    const { authentication } = googleResponse;
-    if (!authentication?.accessToken) return;
-
-    setGoogleLoading(true);
-    (async () => {
-      try {
-        // Obtener info del usuario de Google
-        const infoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-          headers: { Authorization: `Bearer ${authentication.accessToken}` },
-        });
-        const info = infoRes.ok
-          ? (await infoRes.json() as { email?: string; name?: string })
-          : {};
-
-        if (!info.email) throw new Error('No se pudo obtener el email de Google.');
-
-        const expiresIn = authentication.expiresIn ?? 3600;
-        const expiry = new Date(Date.now() + expiresIn * 1000).toISOString();
-
-        await loginWithGoogle({
-          google_access_token: authentication.accessToken,
-          google_refresh_token: authentication.refreshToken ?? null,
-          google_token_expiry: expiry,
-          google_email: info.email,
-          google_name: info.name ?? null,
-        });
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : 'Error al iniciar sesión con Google.');
-      } finally {
-        setGoogleLoading(false);
-      }
-    })();
-  }, [googleResponse, loginWithGoogle]);
 
   function clearError() { setError(null); }
 
@@ -108,11 +59,7 @@ export function LoginScreen() {
 
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.logoArea}>
-          <View style={[styles.logoCircle, { backgroundColor: c.surface, borderColor: c.outline }]}>
-            <View style={[styles.logoInner, { backgroundColor: c.primaryMuted }]}>
-              <View style={[styles.logoDot, { backgroundColor: c.primary }]} />
-            </View>
-          </View>
+          <Image source={require('../../assets/icon.png')} style={styles.logoImage} resizeMode="contain" />
         </View>
 
         <Text style={styles.heroTitle}>
@@ -198,25 +145,6 @@ export function LoginScreen() {
             }
           </TouchableOpacity>
 
-          <View style={styles.dividerRow}>
-            <View style={[styles.dividerLine, { backgroundColor: c.outline }]} />
-            <Text style={[styles.dividerText, { color: c.onSurfaceMuted }]}>O CONTINUAR CON</Text>
-            <View style={[styles.dividerLine, { backgroundColor: c.outline }]} />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.googleBtn, { backgroundColor: c.surfaceVariant, borderColor: c.outline }, (googleLoading || loading) && styles.btnDisabled]}
-            onPress={() => { clearError(); googlePromptAsync(); }}
-            disabled={googleLoading || loading}
-          >
-            {googleLoading
-              ? <ActivityIndicator color="#4285F4" />
-              : <>
-                  <IconBrandGoogle size={20} color="#4285F4" />
-                  <Text style={[styles.googleBtnText, { color: c.onSurface }]}>Google</Text>
-                </>
-            }
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -237,30 +165,15 @@ export function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  gridBg: { opacity: 0.06 },
+  gridBg: { opacity: 0.00 },
   gridLine: { position: 'absolute', backgroundColor: '#fff' },
   gridHLine: { left: 0, right: 0, height: 1 },
   gridVLine: { top: 0, bottom: 0, width: 1 },
 
   container: { flexGrow: 1, padding: 24, gap: 16, alignItems: 'center' },
 
-  logoArea: { marginTop: 32, marginBottom: 8 },
-  logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoInner: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoDot: { width: 16, height: 16, borderRadius: 8 },
+  logoArea: { marginTop: 32, marginBottom: 8, alignItems: 'center' },
+  logoImage: { width: 80, height: 80 },
 
   heroTitle: {
     fontSize: 32,
@@ -313,20 +226,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     letterSpacing: 1,
   },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dividerLine: { flex: 1, height: 1 },
-  dividerText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.5 },
-  googleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    borderRadius: 12,
-    paddingVertical: 14,
-    borderWidth: 1,
-  },
-  googleBtnText: { fontSize: 15, fontWeight: '600' },
-
   switchRow: { marginTop: 4 },
   switchText: { fontSize: 14, textAlign: 'center' },
   switchLink: { fontWeight: '700' },

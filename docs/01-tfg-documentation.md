@@ -295,6 +295,10 @@ Los prototipos de Figma están disponibles aquí, aunque no reflejan exactamente
 - [Web](https://www.figma.com/proto/PRgSEpb6KTPkEAn6vv6qzu/Sin-t%C3%ADtulo?node-id=0-1&t=hL02xrtf67XXKFfl-1)
 - [Móvil](https://www.figma.com/proto/seVlXDmSqDxsApD86fO3YZ/Delvo---Web?node-id=0-1&t=hL02xrtf67XXKFfl-1)
 
+A continuación se muestran capturas del estado final de la aplicación:
+
+![Vista general — App móvil](screenshots/Captura de pantalla 2026-05-29 203450.png)
+
 ## b. Especificaciones técnicas
 
 El backend expone una API REST bajo `/api/v1`. Todos los endpoints de datos requieren el header `Authorization: Bearer <token>` excepto los de registro y login. La estructura interna del backend separa endpoints, servicios y repositorios: los endpoints validan la entrada y delegan en el servicio, el servicio contiene la lógica de negocio y llama al repositorio, el repositorio hace las queries a PostgreSQL.
@@ -690,6 +694,8 @@ Está disponible en web y en móvil. Los datos se sincronizan entre los dos.
 
 La sesión en web se gestiona con cookies HTTP-only seguras: el token JWT nunca queda expuesto en el navegador. En móvil se guarda en `SecureStore` y se renueva automáticamente cuando caduca.
 
+![Pantalla de login](screenshots/Captura de pantalla 2026-05-29 203352.png)
+
 ### Navegación
 
 En web hay una barra lateral con acceso a todas las secciones. En móvil hay tabs en la parte inferior. Las secciones son: Inicio, Planificador, Calendario, Asistente y Configuración.
@@ -697,6 +703,8 @@ En web hay una barra lateral con acceso a todas las secciones. En móvil hay tab
 ### Dashboard
 
 El dashboard muestra un resumen del día: tareas próximas, reuniones, eventos y notas activas. Es la pantalla de punto de partida para la rutina diaria.
+
+![Dashboard](screenshots/Captura de pantalla 2026-05-29 203450.png)
 
 ### Gestión de tareas
 
@@ -711,6 +719,7 @@ Desde la sección de tareas puedes crear, editar y eliminar tareas.
 | Prioridad | `baja`, `media`, `alta` |
 | Estado | `pendiente`, `en progreso`, `completada` |
 
+
 ### Gestión de reuniones
 
 | Campo | Descripción |
@@ -722,21 +731,28 @@ Desde la sección de tareas puedes crear, editar y eliminar tareas.
 | Participantes | Lista de correos |
 | Estado | `programada`, `completada`, `cancelada` |
 
+
 ### Gestión de eventos
 
 Los eventos son actividades puntuales. Si Google Calendar está conectado, los eventos creados en Delvo se sincronizan automáticamente al calendario de Google. Campos: título, descripción, fecha, hora, ubicación y tipo de evento.
+
 
 ### Gestión de notas
 
 Crea notas con título y contenido libre. Se pueden editar, consultar y archivar cuando ya no son relevantes.
 
+
 ### Calendario
 
 El calendario muestra una vista unificada con tareas, reuniones, eventos de Delvo y eventos de Google Calendar (si la integración está activa). Es la pantalla más útil para ver de un vistazo todo lo que hay en un día o semana.
 
+![Calendario unificado](screenshots/Captura de pantalla 2026-05-29 203523.png)
+
 ### Planificador (app móvil)
 
 En la app móvil la pantalla de Planificador tiene un calendario mensual. Al seleccionar un día muestra todos los elementos de ese día. Desde ahí puedes filtrar tareas por estado, crear o editar cualquier tipo de elemento y navegar entre meses.
+
+![Planificador — App móvil](screenshots/Captura de pantalla 2026-05-29 203523.png)
 
 ### Integración con Google Calendar
 
@@ -748,6 +764,8 @@ Una vez conectado, Delvo importa automáticamente los eventos de los últimos 30
 
 Para desconectar la cuenta, vuelve a Configuración y usa la opción correspondiente.
 
+![Integración con Google Calendar](screenshots/Captura de pantalla 2026-05-29 203620.png)
+
 ### Asistente inteligente
 
 Desde la pantalla de Chat escribe lo que necesitas en lenguaje natural. Algunos ejemplos:
@@ -758,6 +776,8 @@ Desde la pantalla de Chat escribe lo que necesitas en lenguaje natural. Algunos 
 - *"Create a meeting called 'Sprint review' for Friday at 10"*
 
 El asistente detecta la intención, ejecuta la acción y confirma el resultado. También puede responder preguntas generales usando la base de conocimiento local.
+
+![Asistente Stella](screenshots/Captura de pantalla 2026-05-29 203550.png)
 
 ### Cierre de sesión
 
@@ -808,12 +828,45 @@ Publicar la app en Google Play es otro objetivo pendiente. Expo facilita mucho l
 
 ## Diagramas ampliados
 
-Los diagramas UML completos del sistema están en [04-uml-diagrams.md](04-uml-diagrams.md) e incluyen:
+### Diagrama 1 — Casos de Uso
 
-- **Diagrama de casos de uso** — actores y funcionalidades principales.
-- **Diagrama de clases** — entidades del modelo de datos y sus relaciones.
-- **Diagramas de flujo / actividad** — autenticación, planificador, asistente IA y sincronización con Google Calendar.
-- **Diagramas de secuencia** — interacciones entre componentes para los casos de uso principales.
+![Diagrama de Casos de Uso](uml-pngs/1-diagrama-de-casos-de-uso.png)
+
+### Diagrama 2 — Clases
+
+![Diagrama de Clases](uml-pngs/2-diagrama-de-clases.png)
+
+### Diagrama 3 — Flujo de Autenticación
+
+![Flujo de Autenticación](uml-pngs/31-flujo-de-autenticación.png)
+
+### Diagrama 4 — Flujo CRUD del Planificador
+
+![Flujo CRUD del Planificador](uml-pngs/32-flujo-crud-del-planificador.png)
+
+### Diagrama 5 — Flujo del Asistente IA — Stella
+
+![Flujo del Asistente IA — Stella](uml-pngs/33-flujo-del-asistente-ia-stella.png)
+
+### Diagrama 6 — Flujo de Sincronización con Google Calendar
+
+![Flujo de Sincronización con Google Calendar](uml-pngs/34-flujo-de-sincronización-con-google-calendar.png)
+
+### Diagrama 7 — Secuencia: Registro e Inicio de Sesión
+
+![Secuencia: Registro e Inicio de Sesión](uml-pngs/41-secuencia-registro-e-inicio-de-sesión.png)
+
+### Diagrama 8 — Secuencia: Chat con Stella (Asistente IA)
+
+![Secuencia: Chat con Stella](uml-pngs/42-secuencia-chat-con-stella-asistente-ia.png)
+
+### Diagrama 9 — Secuencia: Crear Tarea desde el Planificador
+
+![Secuencia: Crear Tarea desde el Planificador](uml-pngs/43-secuencia-crear-tarea-desde-el-planificador.png)
+
+### Diagrama 10 — Secuencia: Sincronización Webhook de Google Calendar
+
+![Secuencia: Sincronización Webhook de Google Calendar](uml-pngs/44-secuencia-sincronización-webhook-de-google-calendar.png)
 
 ## Registros
 
@@ -870,6 +923,16 @@ Los diagramas UML completos del sistema están en [04-uml-diagrams.md](04-uml-di
 | Diagrama 3 | Flujo de petición a través de Cloudflare Tunnel | Sección 12b |
 | Diagrama 4 | Flujo de petición web | Sección 9c |
 | Diagrama 5 | Flujo de petición móvil | Sección 9c |
+| Diagrama 6 | Diagrama de Casos de Uso | Sección 15 – Anexos |
+| Diagrama 7 | Diagrama de Clases | Sección 15 – Anexos |
+| Diagrama 8 | Flujo de Autenticación | Sección 15 – Anexos |
+| Diagrama 9 | Flujo CRUD del Planificador | Sección 15 – Anexos |
+| Diagrama 10 | Flujo del Asistente IA — Stella | Sección 15 – Anexos |
+| Diagrama 11 | Flujo de Sincronización con Google Calendar | Sección 15 – Anexos |
+| Diagrama 12 | Secuencia: Registro e Inicio de Sesión | Sección 15 – Anexos |
+| Diagrama 13 | Secuencia: Chat con Stella (Asistente IA) | Sección 15 – Anexos |
+| Diagrama 14 | Secuencia: Crear Tarea desde el Planificador | Sección 15 – Anexos |
+| Diagrama 15 | Secuencia: Sincronización Webhook de Google Calendar | Sección 15 – Anexos |
 
 ---
 
