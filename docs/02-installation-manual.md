@@ -19,7 +19,7 @@ Antes de comenzar, asegúrate de tener instalado:
 
 - Git.
 - Docker Desktop.
-- Node.js.
+- Node.js v18.
 - `pnpm` o `npm`.
 - Expo Go (si vas a probar la app móvil en dispositivo físico).
 - Emulador Android (opcional).
@@ -122,7 +122,7 @@ Para usar el asistente inteligente:
 
 Ejemplos habituales:
 
-- Modelo conversacional: `llama3.2`
+- Modelo conversacional: `qwen3.5:9b`
 - Modelo de embeddings: `nomic-embed-text`
 
 Define estos valores en el `.env`.

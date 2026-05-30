@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+
+const arimo = localFont({
+  src: "../public/Arimo-VariableFont_wght.ttf",
+  variable: "--font-arimo",
+  weight: "100 900",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Delvo",
@@ -23,7 +31,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("h-full", "antialiased", "font-sans")}
+      className={cn("h-full", "antialiased", "font-sans", arimo.variable)}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>

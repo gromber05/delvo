@@ -93,17 +93,6 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <HugeiconsIcon icon={CheckmarkBadgeIcon} strokeWidth={2} />
-                {dictionary.nav.account}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <HugeiconsIcon icon={NotificationIcon} strokeWidth={2} />
-                {dictionary.nav.notifications}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <HugeiconsIcon icon={LogoutIcon} strokeWidth={2} />
               {dictionary.nav.logout}

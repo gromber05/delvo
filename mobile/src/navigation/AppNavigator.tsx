@@ -94,7 +94,7 @@ export function AppNavigator() {
             const Icon = TAB_ICONS[route.name];
             return Icon ? <Icon size={24} color={color} /> : null;
           },
-          tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
+          tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2, fontFamily: 'Arimo' },
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', tabBarLabel: 'Inicio' }} />

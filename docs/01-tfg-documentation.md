@@ -155,7 +155,7 @@ No está pensado para equipos grandes ni para gestión de proyectos complejos co
 
 ## a. Objetivo general
 
-Desarrollar una aplicación multiplataforma de organización y productividad —Delvo— que centralice la gestión de tareas, reuniones, eventos y notas en un único entorno accesible desde web y móvil, con una interfaz simple y un asistente inteligente integrado.
+Desarrollar una aplicación multiplataforma de organización y productividad que centre la gestión de tareas, reuniones, eventos y notas en un único entorno accesible desde web y móvil, con una interfaz simple y un asistente inteligente integrado.
 
 ## b. Objetivos específicos
 
@@ -176,17 +176,17 @@ Desarrollar una aplicación multiplataforma de organización y productividad —
 
 ## a. Límites
 
-La versión actual de Delvo cubre el ciclo completo de uso individual: registro, autenticación, gestión del planificador (tareas, reuniones, eventos, notas), calendario visual, asistente de chat y sincronización con Google Calendar. La app web funciona desde cualquier navegador y la app móvil genera un `.apk` instalable en Android compilado con Expo.
+La versión actual de Delvo cubre el ciclo completo de uso individual, registro, autenticación, gestión del planificador (tareas, reuniones, eventos, notas), calendario visual, asistente de chat y sincronización con Google Calendar. La app web funciona desde cualquier navegador y la app móvil genera un `.apk` instalable en Android compilado con Expo.
 
-Lo que no está en esta versión y queda fuera del alcance del TFG son los espacios colaborativos entre usuarios (cada cuenta es completamente independiente), los permisos por roles, la edición simultánea de elementos y la publicación en Google Play o App Store. Tampoco hay notificaciones push, aunque la estructura del backend podría soportarlas sin mucho trabajo adicional.
+Lo que no está en esta versión y queda fuera del alcance del TFG son los espacios colaborativos entre usuarios, los permisos por roles, la edición simultánea de elementos y la publicación en Google Play o App Store. Tampoco hay notificaciones push, aunque la estructura del backend podría soportarlas sin mucho trabajo adicional.
 
 ## b. Restricciones
 
 El tiempo ha sido la restricción más grande. El proyecto se desarrolló principalmente entre marzo y mayo de 2026, compaginándolo con otras asignaturas y con las prácticas. Eso obligó a tomar decisiones constantemente sobre qué entra y qué se deja para después.
 
-Ser el único desarrollador también condiciona bastante las decisiones técnicas. Elegí tecnologías que ya conocía o que podía aprender rápido: FastAPI porque la documentación es muy buena y el desarrollo va rápido, Next.js porque venía de trabajar con React, Expo porque evita tener que configurar entornos nativos de Android. Si hubiera tenido más tiempo habría explorado otras opciones, pero con el calendario que tenía no había margen para experimentos largos.
+Ser el único desarrollador también condiciona bastante las decisiones técnicas. Elegí tecnologías que ya conocía o que podía aprender rápido, entre ellas, FastAPI porque la documentación es muy buena y el desarrollo va rápido, Next.js porque venía de trabajar con React, Expo porque evita tener que configurar entornos nativos de Android. Si hubiera tenido más tiempo habría explorado otras opciones, pero con el calendario que tenía no había margen para experimentos largos.
 
-Hay dos dependencias externas que complican un poco la instalación: Google Calendar API requiere crear un proyecto en Google Cloud Console y configurar OAuth, y Ollama necesita estar corriendo en el host con los modelos ya descargados. Nada insalvable, pero hay que seguir los pasos o el asistente simplemente no funciona.
+Hay dos dependencias externas que complican un poco la instalación, una es Google Calendar API que requiere crear un proyecto en Google Cloud Console y configurar OAuth, y la otra es Ollama, que necesita estar corriendo en el host con los modelos ya descargados. Nada insalvable, pero hay que seguir los pasos o el asistente simplemente no funciona.
 
 ---
 
@@ -194,7 +194,7 @@ Hay dos dependencias externas que complican un poco la instalación: Google Cale
 
 ## a. Requisitos funcionales
 
-El sistema tiene que permitir crear una cuenta y autenticarse. Una vez dentro, el usuario puede gestionar sus tareas, reuniones, eventos y notas: crearlos, verlos, editarlos y borrarlos. Cada usuario solo ve sus propios datos; los endpoints que devuelven información personal requieren token JWT válido en la cabecera.
+El sistema tiene que permitir crear una cuenta y autenticarse. Una vez dentro, el usuario puede gestionar sus tareas, reuniones, eventos y notas, puede hacer tareas simples como crearlos, verlos, editarlos y borrarlos. Cada usuario solo ve sus propios datos; los endpoints que devuelven información personal requieren token JWT válido en la cabecera.
 
 El asistente tiene que ser capaz de recibir un mensaje en texto libre, entender qué quiere el usuario y ejecutarlo. Frases como "crea una tarea para revisar el PR mañana a las 10" tienen que resultar en una tarea creada en la base de datos, no solo en una respuesta de texto.
 
@@ -236,17 +236,17 @@ La app móvil la dejé para después porque compartir la misma API simplifica mu
 
 El tiempo consumido del trabajo se concentró en tres meses: marzo, abril y mayo.
 
-Marzo fue de análisis y arquitectura. Definí el modelo de datos, decidí el stack tecnológico y monté el esqueleto del proyecto: estructura de carpetas, Docker Compose básico, primeras rutas del backend.
+Marzo fue de análisis y arquitectura. Definí el modelo de datos, decidí el stack tecnológico y monté el esqueleto del proyecto, monté la estructura de carpetas, el Docker Compose básico y las primeras rutas del backend.
 
 En abril entré en la fase de implementación principal. Backend casi completo, base de datos funcionando, primeras pantallas de la web. También fue cuando configuré el servidor de producción con Ubuntu y Cloudflare Tunnel para poder probar en real sin depender de localhost.
 
-Mayo fue el mes más intenso. Acabé la web, desarrollé la app móvil, integré Google Calendar, metí el asistente, escribí los tests y documenté todo. Los commits del 20 y 21 de mayo son los más representativos de ese sprint final: autenticación OAuth, política de privacidad, PlannerScreen en móvil, refactorizaciones varias.
+Mayo fue el mes más intenso. Acabé la web, desarrollé la app móvil, integré Google Calendar, metí el asistente, escribí los tests y documenté todo. Los commits del 20 y 21 de mayo son los más representativos de ese sprint final, autenticación OAuth, política de privacidad, PlannerScreen en móvil, refactorizaciones varias.
 
 ![Diagrama de Gant](gantt_delvo.png)
 
 ## c. Recursos necesarios
 
-Para desarrollar el proyecto usé mi propio equipo, que tiene suficiente potencia para correr Docker, Ollama con el modelo de 9B y el entorno de desarrollo al mismo tiempo (con todo abierto el ventilador trabajaba bastante).
+Para desarrollar el proyecto usé un equipo que tengo montado con Ubuntu Server, un servidor que tiene suficiente potencia para correr Docker, Ollama con el modelo de 9B y el entorno de desarrollo al mismo tiempo.
 
 Las herramientas de software fueron Git, Docker Desktop, Python 3.12, Node.js 20, pnpm y VS Code. Para el servidor de producción usé una máquina con Ubuntu que tengo en casa conectada a la red local, expuesta a internet a través de Cloudflare Tunnel.
 
@@ -260,9 +260,9 @@ Los servicios externos que requieren configuración son Google Cloud Console (pa
 
 El riesgo que más quebraderos de cabeza me dio fue la gestión de tokens. Un refresh mal implementado puede hacer que el usuario pierda la sesión en mitad de una acción o, peor, que el token caducado llegue al backend y devuelva un 401 sin que el usuario entienda qué ha pasado. En la app móvil esto es especialmente importante porque las sesiones duran mucho más que en web.
 
-La integración con Google Calendar también fue un punto de riesgo real. Depende de credenciales externas, de que la app esté verificada en Google (o de que el usuario esté en la lista de prueba), y de que los scopes estén bien configurados. Si falla cualquiera de esas piezas, la integración simplemente no arranca.
+La integración con Google Calendar también fue un punto de riesgo real. Depende de credenciales externas, de que la app esté verificada en Google, o de que el usuario esté en la lista de prueba, y de que los scopes estén bien configurados. Si falla cualquiera de esas piezas, la integración simplemente no arranca.
 
-Con el asistente el riesgo es diferente: los modelos de lenguaje a veces interpretan mal las peticiones o devuelven JSON mal formado que rompe el parsing. Especialmente con peticiones ambiguas o en inglés con estructura rara.
+Con el asistente el riesgo es diferente, los modelos de lenguaje a veces interpretan mal las peticiones o devuelven JSON mal formado que rompe el parsing. Especialmente con peticiones ambiguas o en inglés con estructura rara.
 
 ## b. Recursos preventivos
 
@@ -288,7 +288,7 @@ Con el asistente, las acciones críticas (borrar elementos, por ejemplo) siempre
 
 El diseño fue iterativo. Empecé con wireframes muy básicos en Figma para tener clara la estructura de navegación antes de escribir código, pero la mayoría de las decisiones de diseño las tomé directamente implementando y viendo cómo quedaba en el navegador.
 
-La web tiene una barra de navegación lateral fija con acceso a todas las secciones. El contenido ocupa el resto del ancho. En móvil usé navegación por tabs en la parte inferior, que es el patrón estándar de React Native y el que la gente espera en una app.
+La web tiene una barra de navegación lateral fija con acceso a todas las secciones. El contenido ocupa el resto del ancho. En móvil usé navegación por pestañas en la parte inferior, que es el patrón estándar de React Native y el que la gente espera en una app.
 
 Los prototipos de Figma están disponibles aquí, aunque no reflejan exactamente el estado final de la app porque hubo cambios durante el desarrollo:
 
@@ -301,11 +301,11 @@ A continuación se muestran capturas del estado final de la aplicación:
 
 ## b. Especificaciones técnicas
 
-El backend expone una API REST bajo `/api/v1`. Todos los endpoints de datos requieren el header `Authorization: Bearer <token>` excepto los de registro y login. La estructura interna del backend separa endpoints, servicios y repositorios: los endpoints validan la entrada y delegan en el servicio, el servicio contiene la lógica de negocio y llama al repositorio, el repositorio hace las queries a PostgreSQL.
+El backend expone una API REST bajo `/api/v1`. Todos los endpoints de datos requieren el header `Authorization: Bearer <token>` excepto los de registro y login. La estructura interna del backend separa endpoints, servicios y repositorios. Los endpoints validan la entrada y delegan en el servicio, el servicio contiene la lógica de negocio y llama al repositorio, el repositorio hace las queries a PostgreSQL.
 
-Las tablas de la base de datos se crean al arrancar el backend si no existen. No hay sistema de migraciones formal implementado (eso quedó pendiente para una versión futura), así que cambios en el esquema requieren borrar y recrear las tablas.
+Las tablas de la base de datos se crean al arrancar el backend si no existen. No hay sistema de migraciones formal implementado, eso quedó pendiente para una versión futura, así que cambios en el esquema requieren borrar y recrear las tablas.
 
-La autenticación funciona así, el login devuelve un access token, que posee una dureación corta y un refresh token que posee una duración larga. El access token se envía en cada petición en la cabecera de esta. Cuando caduca, el cliente usa el refresh token para obtener un nuevo access token sin que el usuario tenga que volver a hacer login.
+La autenticación funciona así, el login devuelve un access token, que posee una duración corta y un refresh token que posee una duración larga. El access token se envía en cada petición en la cabecera de esta. Cuando caduca, el cliente usa el refresh token para obtener un nuevo access token sin que el usuario tenga que volver a hacer login.
 
 ## c. Diagramas
 
@@ -394,9 +394,9 @@ Las áreas donde aparecieron más incidencias fueron autenticación (sobre todo 
 
 Para verificar que el entorno funciona correctamente hay que comprobar que los tres contenedores Docker están corriendo (`docker compose ps`), que el endpoint `/health` del backend responde 200, y que la web carga sin errores en la consola.
 
-El flujo básico de prueba manual es: registrar un usuario nuevo, hacer login, crear una tarea, crear una reunión, abrir el calendario y ver que aparecen, usar el asistente con un comando sencillo, y si Google Calendar está configurado, verificar que la sincronización funciona en ambas direcciones.
+El flujo básico de prueba manual es el siguiente: registrar un usuario nuevo, hacer login, crear una tarea, crear una reunión, abrir el calendario y ver que aparecen, usar el asistente con un comando sencillo, y si Google Calendar está configurado, verificar que la sincronización funciona en ambas direcciones.
 
-En móvil hay que verificar también que el refresh token funciona: se puede forzar la expiración del access token bajando su duración en las variables de entorno y comprobar que la app lo renueva automáticamente sin interrumpir la sesión del usuario.
+En móvil hay que verificar también que el refresh token funciona, se puede forzar la expiración del access token bajando su duración en las variables de entorno y comprobar que la app lo renueva automáticamente sin interrumpir la sesión del usuario.
 
 ## b. Registro de pruebas
 
@@ -426,7 +426,7 @@ Además de los tests automatizados, hice pruebas manuales del flujo completo var
 
 Los indicadores que más me importan son que la autenticación funcione sin que el usuario tenga que volver a hacer login inesperadamente, que los datos sean consistentes entre la web y el móvil, y que el asistente entienda correctamente las peticiones más comunes sin inventarse acciones.
 
-A nivel de código, el indicador principal es que los tests pasen en verde. También que el backend arranque sin errores en un entorno limpio (sin datos previos) y que Docker Compose levante todos los servicios en el orden correcto.
+A nivel de código, el indicador principal es que los tests pasen en verde. También que el backend arranque sin errores en un entorno limpio y que Docker Compose levante todos los servicios en el orden correcto.
 
 ## d. Métodos de verificación
 
@@ -440,7 +440,7 @@ Para la parte de integración con Google Calendar, tuve que hacer pruebas con un
 
 ## a. Tecnología de distribución
 
-El despliegue usa Docker Compose para orquestar los servicios y Cloudflare Tunnel para exponer la aplicación a internet desde una red privada sin IP pública fija. Esta combinación tiene bastantes ventajas: no hay que contratar un servidor en la nube, no hay que abrir puertos en el router, y el tráfico va cifrado de extremo a extremo.
+El despliegue usa Docker Compose para orquestar los servicios y Cloudflare Tunnel para exponer la aplicación a internet desde una red privada sin IP pública fija. Esta combinación tiene bastantes ventajas, entre ellas, no hay que contratar un servidor en la nube, no hay que abrir puertos en el router, y el tráfico va cifrado de extremo a extremo.
 
 | Servicio | Tecnología | Función |
 |---|---|---|
@@ -565,7 +565,7 @@ Antes de empezar necesitas tener instalado:
 
 - **Git** — para clonar el repositorio.
 - **Docker Desktop** — para los contenedores.
-- **Node.js** v18 o superior — solo necesario para la app móvil.
+- **Node.js** v18 — solo necesario para la app móvil.
 - **pnpm** o **npm** — gestor de paquetes.
 - **Expo Go** en el móvil si quieres probar la app en un dispositivo físico.
 - **Emulador Android** (opcional) si prefieres no usar un dispositivo real.
@@ -773,7 +773,6 @@ Desde la pantalla de Chat escribe lo que necesitas en lenguaje natural. Algunos 
 - *"Crea una tarea llamada 'Revisar PR' para mañana"*
 - *"¿Cuáles son mis reuniones de esta semana?"*
 - *"Muéstrame mis eventos pendientes"*
-- *"Create a meeting called 'Sprint review' for Friday at 10"*
 
 El asistente detecta la intención, ejecuta la acción y confirma el resultado. También puede responder preguntas generales usando la base de conocimiento local.
 
@@ -798,7 +797,7 @@ Abre **Configuración** o el menú de usuario y selecciona **Cerrar sesión**. E
 
 Delvo funciona. Esa es la conclusión más directa. Tiene backend, web, móvil, autenticación, planificador completo, integración con Google Calendar y asistente con LLM local. Lo uso en el día a día y hace lo que se supone que tiene que hacer.
 
-Técnicamente el proyecto me ha obligado a tomar decisiones reales en casi todos los aspectos del desarrollo de software moderno: arquitectura, base de datos, autenticación, despliegue, testing, integración con servicios externos. No es un proyecto de clase donde todo está acotado; hay partes que requirieron investigar, probar cosas que no funcionaron y volver a intentarlo.
+Técnicamente el proyecto me ha obligado a tomar decisiones reales en casi todos los aspectos del desarrollo de software moderno, como su arquitectura, base de datos, autenticación, despliegue, testing, integración con servicios externos. No es un proyecto de clase donde todo está claro, hay partes que requirieron investigar, probar cosas que no funcionaron y volver a intentarlo.
 
 ## b. Resultados esperados
 
@@ -808,7 +807,7 @@ Lo que no esperaba era que el proyecto creciera tanto. Empecé con la idea de ha
 
 ## c. Viabilidad del proyecto
 
-El stack elegido es completamente viable para producción. FastAPI es uno de los frameworks de Python más usados para APIs, Next.js está en producción en muchas empresas, PostgreSQL no necesita presentación y Docker es el estándar de facto para despliegue. Nada en el stack es experimental ni tiene riesgo de desaparecer.
+El stack elegido es completamente viable para producción. FastAPI es uno de los frameworks de Python más usados para APIs, Next.js está en producción en muchas empresas, PostgreSQL no necesita presentación y Docker es el estándar de facto para despliegue. Nada en el stack es experimental ni tiene riesgo de descontinuarse.
 
 La arquitectura también escala bien. Si en algún momento hay más carga, el backend y la base de datos pueden moverse a instancias separadas con relativamente poco cambio. La separación entre módulos hace que añadir nuevas funcionalidades sea bastante limpio.
 
@@ -816,11 +815,11 @@ La arquitectura también escala bien. Si en algún momento hay más carga, el ba
 
 Hay varias cosas que quedaron pendientes y que me gustaría añadir:
 
-La más importante sería la parte colaborativa: que dos usuarios puedan compartir un espacio y ver las tareas del otro, con permisos diferenciados. La arquitectura actual no lo soporta sin cambios en el modelo de datos, pero tampoco sería un cambio enorme.
+La más importante sería la parte colaborativa, en este caso, que dos usuarios puedan compartir un espacio y ver las tareas del otro, con permisos diferenciados. La arquitectura actual no lo soporta sin cambios en el modelo de datos, pero tampoco sería un cambio enorme.
 
 También haría falta mejorar el asistente. Ahora funciona bien para los casos más comunes pero se complica con peticiones ambiguas o con varios pasos. Mejorar el sistema de prompts y añadir memoria de contexto en la conversación lo haría bastante más útil.
 
-Publicar la app en Google Play es otro objetivo pendiente. Expo facilita mucho la compilación pero el proceso de publicación y verificación de Google tiene sus particularidades. Lo dejé fuera del alcance del TFG pero es algo que tiene sentido hacer si el proyecto sigue creciendo.
+Publicar la app en Google Play es otro objetivo pendiente. Expo facilita mucho la compilación pero el proceso de publicación y verificación de Google tiene sus particularidades. Lo dejé fuera del alcance del TFG pero es algo que tiene sentido hacer en caso de que el proyecto siga creciendo.
 
 ---
 
