@@ -14,6 +14,7 @@ import {
 import { IconMail, IconLock } from '@tabler/icons-react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
+import { AnimatedScreen } from '../components/AnimatedScreen';
 
 export function LoginScreen() {
   const { login, register } = useAuth();
@@ -44,6 +45,7 @@ export function LoginScreen() {
   }
 
   return (
+    <AnimatedScreen>
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: '#0D1117' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -161,6 +163,7 @@ export function LoginScreen() {
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
+    </AnimatedScreen>
   );
 }
 

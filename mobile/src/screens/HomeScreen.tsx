@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -22,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, EventDto, MeetingDto, NoteDto, TaskDto } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useColors } from '../theme/ThemeContext';
+import { AnimatedScreen } from '../components/AnimatedScreen';
 import { StellaFAB } from '../components/StellaFAB';
 import { scheduleEventReminders } from '../notifications/NotificationService';
 import { loadNotificationSettings } from '../notifications/NotificationSettings';
@@ -133,6 +135,26 @@ export function HomeScreen() {
   const [completingTaskId, setCompletingTaskId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const tileAnims = useRef(
+    Array.from({ length: 4 }, () => ({
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(12),
+    }))
+  ).current;
+
+  useEffect(() => {
+    const anims = tileAnims.map((a, i) =>
+      Animated.sequence([
+        Animated.delay(120 + i * 70),
+        Animated.parallel([
+          Animated.timing(a.opacity, { toValue: 1, duration: 260, useNativeDriver: true }),
+          Animated.spring(a.translateY, { toValue: 0, damping: 20, stiffness: 200, useNativeDriver: true }),
+        ]),
+      ])
+    );
+    Animated.parallel(anims).start();
+  }, [tileAnims]);
+
   const [calYear] = useState(now.getFullYear());
   const [calMonth] = useState(now.getMonth());
   const calGrid = useMemo(() => buildGrid(calYear, calMonth), [calYear, calMonth]);
@@ -210,6 +232,7 @@ export function HomeScreen() {
   ];
 
   return (
+    <AnimatedScreen>
     <View style={{ flex: 1, backgroundColor: c.background }}>
       <ScrollView
         style={{ flex: 1 }}
@@ -226,8 +249,15 @@ export function HomeScreen() {
         </View>
 
         <View style={styles.metricsGrid}>
-          {METRICS.map((item) => (
-            <View key={item.label} style={[styles.metricTile, { backgroundColor: c.surface }]}>
+          {METRICS.map((item, i) => (
+            <Animated.View
+              key={item.label}
+              style={[
+                styles.metricTile,
+                { backgroundColor: c.surface },
+                { opacity: tileAnims[i].opacity, transform: [{ translateY: tileAnims[i].translateY }] },
+              ]}
+            >
               <View style={styles.metricTopRow}>
                 <Text style={[styles.metricLabel, { color: c.onSurfaceMuted }]}>{item.label}</Text>
                 {item.icon}
@@ -236,7 +266,7 @@ export function HomeScreen() {
                 {loading ? '—' : String(item.value)}
               </Text>
               <View style={[styles.metricUnderline, { backgroundColor: item.accent }]} />
-            </View>
+            </Animated.View>
           ))}
         </View>
 
@@ -366,6 +396,7 @@ export function HomeScreen() {
       </ScrollView>
       <StellaFAB />
     </View>
+    </AnimatedScreen>
   );
 }
 

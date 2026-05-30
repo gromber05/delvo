@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Animated } from 'react-native';
 import { DarkTheme, DefaultTheme, NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Notifications from 'expo-notifications';
@@ -21,6 +22,25 @@ import { SettingsNavigator } from './SettingsNavigator';
 import { AdminScreen } from '../screens/AdminScreen';
 
 const Tab = createBottomTabNavigator();
+
+function AnimatedTabIcon({ Icon, color, focused }: { Icon: React.FC<IconProps>; color: string; focused: boolean }) {
+  const scale = useRef(new Animated.Value(focused ? 1.15 : 1)).current;
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: focused ? 1.18 : 1,
+      damping: 10,
+      stiffness: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [focused, scale]);
+
+  return (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Icon size={24} color={color} />
+    </Animated.View>
+  );
+}
 
 const TAB_ICONS: Record<string, React.FC<IconProps>> = {
   Home: IconHome,
@@ -90,9 +110,9 @@ export function AppNavigator() {
           },
           tabBarActiveTintColor: c.primary,
           tabBarInactiveTintColor: c.onSurfaceMuted,
-          tabBarIcon: ({ color }) => {
+          tabBarIcon: ({ color, focused }) => {
             const Icon = TAB_ICONS[route.name];
-            return Icon ? <Icon size={24} color={color} /> : null;
+            return Icon ? <AnimatedTabIcon Icon={Icon} color={color} focused={focused} /> : null;
           },
           tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2, fontFamily: 'Arimo' },
         })}

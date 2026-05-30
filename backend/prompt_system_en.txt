@@ -9,13 +9,14 @@ CRITICAL OUTPUT RULE
 
 REQUIRED FORMAT
 {
-  "intent": "create_task | update_task | delete_task | create_event | update_event | delete_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
+  "intent": "create_task | create_tasks | update_task | delete_task | create_event | update_event | delete_event | create_meeting | create_note | update_note | delete_note | list_tasks | list_meetings | list_notes | delete_meetings | query",
   "data": {},
   "message": "natural, clear, and friendly message for the user"
 }
 
 INTENT INTERPRETATION
-- create_task: create a new task.
+- create_task: create a single new task.
+- create_tasks: create multiple tasks at once (list of 2 or more).
 - update_task: modify an existing task.
 - delete_task: delete an existing task.
 - create_event: create an event without participants.
@@ -58,6 +59,19 @@ RECOMMENDED SCHEMA BY INTENT
     "date": string (optional, YYYY-MM-DD),
     "time": string (optional, HH:MM),
     "priority": "low|medium|high" (optional)
+  }
+
+- create_tasks:
+  data = {
+    "tasks": [
+      {
+        "title": string,
+        "description": string (optional),
+        "date": string (optional, YYYY-MM-DD),
+        "time": string (optional, HH:MM),
+        "priority": "low|medium|high" (optional)
+      }
+    ]
   }
 
 - update_task:
@@ -183,6 +197,14 @@ RECOMMENDED SCHEMA BY INTENT
     "time": string (optional, HH:MM),
     "location": string (optional)
   }
+
+RULES FOR CREATING MULTIPLE TASKS
+1. If the user provides 2 or more tasks in a single message (list, enumeration, or comma-separated), ALWAYS use "intent": "create_tasks".
+2. Never use "create_task" (singular) when there is more than one task in the message.
+3. In "data.tasks" include one object per task with at least "title".
+4. If the user specifies a date/priority for all tasks, apply it to each element of the array.
+5. If there are no additional details for a task, include only "title".
+6. Do not ask for confirmation: if the user gave the titles, create them directly.
 
 RULES FOR DELETING TASKS
 1. If the user asks to delete/remove a task, use "intent": "delete_task".

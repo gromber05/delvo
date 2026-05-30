@@ -389,6 +389,41 @@ def _apply_intent_side_effects(
             next_data["task_id"] = item.get("id")
         return {"intent": intent, "data": next_data, "message": message or "Listo, he guardado la tarea."}
 
+    if intent == "create_tasks":
+        if user_id is None:
+            return {"intent": "query", "data": {}, "message": "Para guardar tareas necesito que inicies sesion."}
+
+        raw_tasks = safe_data.get("tasks")
+        if not isinstance(raw_tasks, list) or not raw_tasks:
+            return {"intent": "query", "data": {}, "message": "No encontré ninguna tarea en tu mensaje. ¿Puedes listarlas de nuevo?"}
+
+        created: List[Dict[str, Any]] = []
+        skipped: List[str] = []
+        for entry in raw_tasks:
+            if not isinstance(entry, dict):
+                continue
+            title = _coerce_non_empty_text(entry.get("title"))
+            if not title:
+                skipped.append(str(entry))
+                continue
+            item = create_task(
+                user_id=user_id,
+                title=title,
+                description=_coerce_non_empty_text(entry.get("description")),
+                due_date=_normalize_date(entry.get("date") or entry.get("due_date")),
+                due_time=_normalize_time(entry.get("time") or entry.get("due_time")),
+                priority=_normalize_choice(entry.get("priority"), VALID_TASK_PRIORITIES, "medium"),
+                status="pending",
+            )
+            created.append(item)
+
+        if not created:
+            return {"intent": "query", "data": {}, "message": "No pude crear ninguna tarea. Asegúrate de que cada una tenga título."}
+
+        count = len(created)
+        default_msg = message or f"Listo, he creado {count} {'tarea' if count == 1 else 'tareas'} correctamente."
+        return {"intent": intent, "data": {"tasks": created, "count": count}, "message": default_msg}
+
     if intent == "update_task":
         if user_id is None:
             return {"intent": "query", "data": {}, "message": "Para actualizar tareas necesito que inicies sesion."}

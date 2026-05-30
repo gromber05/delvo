@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { getDictionary } from "@/lib/dictionary"
 import { getLanguageFromPathname, normalizeLanguage, withLanguagePrefix } from "@/lib/language"
@@ -60,16 +61,27 @@ export function LoginForm({
     }
   }
 
+  const item = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as const } },
+  }
+
   return (
-    <div className={cn("flex flex-col items-center gap-6", className)} {...props}>
-      <div className="flex flex-col items-center gap-2">
+    <motion.div
+      className={cn("flex flex-col items-center gap-6", className)}
+      initial="hidden"
+      animate="visible"
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
+      {...props}
+    >
+      <motion.div variants={item} className="flex flex-col items-center gap-2">
         <div className="flex size-12 items-center justify-center rounded-xl bg-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/40">
           <span className="text-xl font-black text-white">D</span>
         </div>
         <h1 className="text-2xl font-black text-white">Delvo</h1>
-      </div>
+      </motion.div>
 
-      <div className="w-full rounded-2xl border border-white/8 bg-[#1a1a22] p-7 shadow-2xl">
+      <motion.div variants={item} className="w-full rounded-2xl border border-white/8 bg-[#1a1a22] p-7 shadow-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">
@@ -153,14 +165,14 @@ export function LoginForm({
             Google
           </Link>
         </form>
-      </div>
+      </motion.div>
 
-      <p className="text-sm text-white/40">
+      <motion.p variants={item} className="text-sm text-white/40">
         {dictionary.auth.noAccount}{" "}
         <Link href={withLanguagePrefix("/signup", language)} className="font-semibold text-[#6c5ce7] hover:text-[#8b7cf8] transition-colors">
           {dictionary.auth.createAccount}
         </Link>
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   )
 }
