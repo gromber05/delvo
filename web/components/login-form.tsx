@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "motion/react"
@@ -17,7 +18,6 @@ type LoginApiResponse = {
 export function LoginForm({
   className,
   language: languageFromParams,
-  ...props
 }: React.ComponentProps<"div"> & { language?: string }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -72,11 +72,10 @@ export function LoginForm({
       initial="hidden"
       animate="visible"
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
-      {...props}
     >
       <motion.div variants={item} className="flex flex-col items-center gap-2">
         <div className="flex size-12 items-center justify-center rounded-xl bg-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/40">
-          <span className="text-xl font-black text-white">D</span>
+          <Image src="/delvo-logo-nobg.png" alt="Delvo" width={32} height={32} className="size-8 object-contain" />
         </div>
         <h1 className="text-2xl font-black text-white">Delvo</h1>
       </motion.div>
