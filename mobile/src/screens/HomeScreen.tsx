@@ -177,7 +177,7 @@ export function HomeScreen() {
       ]);
       const dedupedEvents = dedupEvents(events.items);
       setSummary({
-        tasks: tasks.items.length,
+        tasks: tasks.items.filter(task => task.status !== "pending").length,
         meetings: meetings.items.length,
         events: dedupedEvents.length,
         notes: (notes as { items: NoteDto[] }).items.length,
