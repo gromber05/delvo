@@ -127,7 +127,7 @@ export function DashboardOverview() {
       })
       const notes = Array.isArray(notesData?.items) ? notesData.items : []
 
-      setSummary({ tasks: tasks.length, meetings: meetings.length, events: events.length, notes: notes.length })
+      setSummary({ tasks: tasks.filter((t) => t.status === "pending").length, meetings: meetings.length, events: events.length, notes: notes.length })
       setPendingTasks(
         tasks
           .filter((t) => t.status === "pending")

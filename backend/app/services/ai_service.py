@@ -8,10 +8,8 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 class AIService:
-    """Clase para invocar el LLM y el modelo de embeddings configurados."""
 
     def __init__(self) -> None:
-        """Carga configuracion desde variables de entorno y rutas de prompts."""
         self.ollama_url = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
         self.model = os.getenv("LLM_MODEL", "qwen2.5:7b")
         self.embed_model = os.getenv("EMBED_MODEL", "nomic-embed-text")
@@ -27,7 +25,6 @@ class AIService:
 
     @staticmethod
     def _normalize_language(value: str | None) -> str:
-        """Reduce codigos de idioma a los prompts soportados por Delvo."""
         raw = (value or "").strip().lower()
         if not raw:
             return "es"
@@ -35,7 +32,6 @@ class AIService:
         return "en" if base == "en" else "es"
 
     def _system_prompt(self, language: str | None = None) -> str:
-        """Devuelve el prompt de sistema por idioma con fallback embebido."""
         normalized_language = self._normalize_language(language)
         selected_prompt_path = self.prompt_path_en if normalized_language == "en" else self.prompt_path
 
@@ -59,7 +55,6 @@ class AIService:
     def _post_json(
         self, path: str, payload: Dict[str, Any], timeout: int, *, strict: bool = False
     ) -> Dict[str, Any]:
-        """Envia JSON a Ollama y devuelve un dict, opcionalmente propagando errores."""
         body = json.dumps(payload).encode("utf-8")
         req = Request(
             url=f"{self.ollama_url}{path}",
@@ -83,7 +78,6 @@ class AIService:
         history: Optional[List[Dict[str, str]]] = None,
         language: str | None = None,
     ) -> Dict[str, Any]:
-        """Pide al LLM una respuesta JSON normalizada para el flujo de assistant."""
         messages: List[Dict[str, str]] = [{"role": "system", "content": self._system_prompt(language)}]
 
         messages.append({
@@ -143,7 +137,6 @@ class AIService:
 
     @staticmethod
     def _normalize_model_json(parsed: Dict[str, Any]) -> Dict[str, Any]:
-        """Asegura que intent, data y message tengan tipos esperados."""
         intent = parsed.get("intent")
         data = parsed.get("data")
         message = parsed.get("message")
@@ -164,7 +157,6 @@ class AIService:
 
     @staticmethod
     def _extract_model_text(response: Dict[str, Any]) -> str:
-        """Extrae texto de respuesta compatible con varios formatos de API."""
         message = response.get("message")
         if isinstance(message, dict):
             content = message.get("content")
@@ -192,7 +184,6 @@ class AIService:
 
     @staticmethod
     def _parse_json_dict(raw: Any) -> Optional[Dict[str, Any]]:
-        """Recupera un objeto JSON incluso si el modelo lo envuelve en texto."""
         if not isinstance(raw, str):
             return None
 
@@ -237,7 +228,6 @@ class AIService:
         return None
 
     def embed(self, text: str) -> Optional[List[float]]:
-        """Genera un embedding para texto usando endpoints actuales o legacy."""
         payload_embed = {"model": self.embed_model, "input": text}
         data = self._post_json("/api/embed", payload_embed, timeout=60)
         embeddings = data.get("embeddings") or []
