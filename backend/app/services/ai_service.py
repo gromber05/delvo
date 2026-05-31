@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.error import HTTPError, URLError
@@ -84,6 +85,11 @@ class AIService:
     ) -> Dict[str, Any]:
         """Pide al LLM una respuesta JSON normalizada para el flujo de assistant."""
         messages: List[Dict[str, str]] = [{"role": "system", "content": self._system_prompt(language)}]
+
+        messages.append({
+            "role": "system",
+            "content": f"Fecha actual del sistema: {date.today().isoformat()} ({date.today().strftime('%A')}). Úsala para resolver referencias relativas como 'hoy', 'mañana', 'el miércoles', 'el lunes', etc. No preguntes nunca por la fecha actual.",
+        })
 
         if context.strip():
             messages.append(
